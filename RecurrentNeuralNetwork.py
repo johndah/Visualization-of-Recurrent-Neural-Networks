@@ -52,6 +52,7 @@ class RecurrentNeuralNetwork(object):
         self.sizes = [(self.nHiddenNeurons, self.nHiddenNeurons), (self.K, self.nHiddenNeurons), \
                       (self.nHiddenNeurons, self.K), (self.nHiddenNeurons, 1), (self.K, 1)]
 
+
         # Weight initialization
         for weight, gradIndex in zip(self.weights, range(len(self.gradients))):
             if self.sizes[gradIndex][1] > 1:
