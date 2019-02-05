@@ -52,7 +52,6 @@ class RecurrentNeuralNetwork(object):
         self.sizes = [(self.nHiddenNeurons, self.nHiddenNeurons), (self.K, self.nHiddenNeurons), \
                       (self.nHiddenNeurons, self.K), (self.nHiddenNeurons, 1), (self.K, 1)]
 
-
         # Weight initialization
         for weight, gradIndex in zip(self.weights, range(len(self.gradients))):
             if self.sizes[gradIndex][1] > 1:
@@ -77,17 +76,6 @@ class RecurrentNeuralNetwork(object):
             self.smoothLosses = loadtxt('smoothLosses.txt', delimiter=",", unpack=False)
 
         self.lossMomentum = 1e-3
-
-        '''
-        Uncomment to load saved weights
-
-        if self.weightInit == 'Load':
-            trainedWeightspath = ''
-            for weight in self.weights[:3]:
-                setattr(self, weight, array(loadtxt(trainedWeightspath + weight + ".txt", comments="#", delimiter=",", unpack=False)))
-            for weight in self.weights[3:]:
-                setattr(self, weight, array([loadtxt(trainedWeightspath + weight + ".txt", comments="#", delimiter=",", unpack=False)]).T)
-        '''
 
     def loadCharacters(self):
         with open(self.textFile, 'r') as f:
