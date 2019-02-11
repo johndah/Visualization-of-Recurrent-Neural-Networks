@@ -1,3 +1,6 @@
+
+from __future__ import print_function
+
 '''
 import spacy
 
@@ -96,7 +99,6 @@ g = linalg.norm(a *c)
 h = linalg.norm(a*d)
 
 e = 2
-'''
 
 from gensim.models import Word2Vec
 from sklearn.decomposition import PCA
@@ -109,6 +111,8 @@ sentences = [['this', 'is', 'the', 'first', 'sentence', 'for', 'word2vec'],
             ['and', 'the', 'final', 'sentence']]
 # train model
 model_1 = Word2Vec(sentences, size=300, min_count=1)
+
+a = model_1['this']
 
 # fit a 2d PCA model to the vectors
 X = model_1[model_1.wv.vocab]
@@ -147,33 +151,34 @@ second_most_similar = list_most_similar[2][0]
 second_most_similar_vec = model[list_most_similar[2][0]]
 print('\nIts vector', most_similar_vec[:10])
 print(linalg.norm(most_similar_vec[:10]))
-distance = model.distance(second_most_similar, second_most_similar)
+distance = model.distance(most_similar, second_most_similar)
+aa1 = array([most_similar_vec])
+aa2 = array([second_most_similar_vec])
+distance2 = linalg.norm((aa1-aa2))
 print('Distance', distance)
+print('Distance2', distance2)
 
-def computeLoss(output, y):
-    # Cross entropy loss
-    loss = -sum(log(dot(y.T, p)))
-
-    dotprod = dot(y.T, p)
-    logdot = log(dotprod)
-
-    return loss
-
-def softmax(s):
-    exP = exp(s)
-    p = exP/exP.sum()
-
-    return p
+'''
+'''
+a = model_1.wv.vocab['and']
+print(a)
+for word in vocab:
+    if word not in word_vecs and vocab[word] >= min_df:
+        word_vecs[word] = np.random.uniform(-0.25,0.25,k)
 
 
-c = zeros((300, 1))
-c[3, 0] = 1
-p = softmax(c)
-loss = computeLoss(p, p)
-print(loss)
+import re
 
+words = []
+textFile = 'LordOfTheRings2.txt'
+with open(textFile, 'r') as f:
+    lines = f.readlines()
+    for line in lines:
+        words.extend(re.findall(r"\w+|[^\w\s]", line))
+        words.append('\n')
 # print(model.wv.index2word[0])
 
+'''
 
 '''
 # fit a 2d PCA model to the vectors
@@ -187,4 +192,90 @@ for i, word in enumerate(words):
     plt.annotate(word, xy=(result[i, 0], result[i, 1]))
 plt.show()
 
+
+counter = 0
+
+# model_file = 'Data/glove_840B_300d.txt'
+# model_file = 'Data/glove_test.txt'
+
+
+with open(model_file, 'r+', encoding="utf8") as f:
+    lines = f.readlines()
+
+    first_line = lines[0]
+    print(first_line)
+
+    for line in lines:
+        counter += 1
+
+    #line = line.replace(line, str(counter) + ' 300\n' + line)
+
+    first_line = lines[0]
+    print(first_line)
+
+    lines.insert(0, str(counter) + ' 300\n')
+
+    f.seek(0)  # readlines consumes the iterator, so we need to start over
+    f.writelines(lines)
+
+
+print(counter)
 '''
+
+
+'''
+from textwrap import wrap
+
+from terminaltables import SingleTable
+
+LONG_STRING = ('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore '
+               'et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut '
+               'aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum '
+               'dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui '
+               'officia deserunt mollit anim id est laborum.')
+
+
+def main():
+    """Main function."""
+    table_data = [
+        ['Long String', '']  # One row. Two columns. Long string will replace this empty string.
+    ]
+    table = SingleTable(table_data)
+
+    # Calculate newlines.
+    max_width = table.column_max_width(1)
+    wrapped_string = '\n'.join(LONG_STRING)
+    wrapped_string = '\n'.join(wrap(LONG_STRING, max_width))
+    wrapped_string = '\n'.join(wrap(LONG_STRING, 100))
+    table.table_data[0][1] = wrapped_string
+
+    print(table.table)
+
+    print(LONG_STRING)
+if __name__ == '__main__':
+    main()
+'''
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.widgets import TextBox
+fig, ax = plt.subplots()
+plt.subplots_adjust(bottom=0.2)
+t = np.arange(-2.0, 2.0, 0.001)
+s = t ** 2
+initial_text = "t ** 2"
+l, = plt.plot(t, s, lw=2)
+
+
+def submit(text):
+    ydata = eval(text)
+    l.set_ydata(ydata)
+    ax.set_ylim(np.min(ydata), np.max(ydata))
+    plt.draw()
+
+axbox = plt.axes([0.1, 0.05, 0.8, 0.075])
+text_box = TextBox(axbox, 'Evaluate', initial=initial_text)
+text_box.on_submit(submit)
+
+plt.show()
+
