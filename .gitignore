@@ -1,8 +1,2 @@
 
-Data/ted_en-20160408.zip
-Data/glove.840B.300d.txt
-Data/glove_short.txt
-Data/GoogleNews-vectors-negative300.bin
-Data/desktop.ini
-Data/glove_840B_300d.txt
-Data/glove_test.txt
+Data/*

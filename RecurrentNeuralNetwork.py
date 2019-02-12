@@ -5,6 +5,7 @@
 '''
 
 from __future__ import print_function
+import os
 import sklearn.preprocessing
 from numpy import *
 from copy import *
@@ -111,11 +112,19 @@ class RecurrentNeuralNetwork(object):
         K = size(word2vec_model.vectors, 1)
 
         words = []
-        with open(self.textFile, 'r') as f:
-            lines = f.readlines()
-            for line in lines:
-                words.extend(re.findall(r"\w+|[^\w]", line))
-                words.append('\n')
+
+        directory = os.fsencode(self.textFile)
+
+        for subdir, dirs, files in os.walk(self.textFile):
+            for file in files:
+                # print os.path.join(subdir, file)
+                filepath = subdir + os.sep + file
+
+                with open(filepath, 'r') as f:
+                    lines = f.readlines()
+                    for line in lines:
+                        words.extend(re.findall(r"\w+|[^\w]", line))
+                        words.append('\n')
 
         # text_model = Word2Vec(words, size=300, min_count=1)
 
@@ -609,8 +618,8 @@ def pMatrix(array):
 def main():
 
     attributes = {
-        'textFile': 'LordOfTheRings.txt',  # Name of book text file, needs to be longer than lengthSynthesizedTextBest
-        'model_file': 'Data/glove_short.txt',  # 'Data/GoogleNews-vectors-negative300.bin', #
+        'textFile': 'Data/bbc', # 'LordOfTheRings.txt',  # Name of book text file, needs to be longer than lengthSynthesizedTextBest
+        'model_file': 'Data/GoogleNews-vectors-negative300.bin', # 'Data/glove_short.txt',  #
         'wordDomain': True,  # True for words, False for characters
         'adaGradSGD': True,  # Stochastic gradient decent, True for adaGrad, False for regular SGD
         'clipGradients': True,  # True to avoid exploding gradients

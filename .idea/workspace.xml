@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="">
+    <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="Testing git configurations">
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
@@ -27,8 +27,20 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/RecurrentNeuralNetwork.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="228">
-              <caret line="12" selection-start-line="12" selection-end-line="12" />
+            <state relative-caret-position="188">
+              <caret line="627" column="71" lean-forward="true" selection-start-line="627" selection-start-column="71" selection-end-line="627" selection-end-column="71" />
+              <folding>
+                <element signature="e#50#87#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Data/bbc/README.TXT">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="187">
+              <caret line="11" selection-start-line="11" selection-end-line="11" />
             </state>
           </provider>
         </entry>
@@ -37,7 +49,7 @@
         <entry file="file://$PROJECT_DIR$/test.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="484">
-              <caret line="277" column="26" lean-forward="true" selection-start-line="263" selection-end-line="277" selection-end-column="26" />
+              <caret line="277" column="26" selection-start-line="263" selection-end-line="277" selection-end-column="26" />
             </state>
           </provider>
         </entry>
@@ -46,8 +58,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>Word</find>
-      <find>'Word</find>
       <find>getW</find>
       <find>model_path</find>
       <find>neuronOf</find>
@@ -57,7 +67,6 @@
       <find>head</find>
       <find>tabl</find>
       <find>wrapp</find>
-      <find>table</find>
       <find>max_</find>
       <find>colo</find>
       <find>color</find>
@@ -76,6 +85,9 @@
       <find>subm</find>
       <find>submit</find>
       <find>upda</find>
+      <find>textF</find>
+      <find>sequence</find>
+      <find>table</find>
     </findStrings>
     <replaceStrings>
       <replace>o, h, a = self.forwardProp</replace>
@@ -101,9 +113,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-7" />
-    <option name="width" value="974" />
-    <option name="height" value="1047" />
+    <option name="x" value="208" />
+    <option name="y" value="1" />
+    <option name="width" value="779" />
+    <option name="height" value="830" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -116,11 +129,6 @@
             <path>
               <item name="Visualization-of-Recurrent-Neural-Networks" type="b2602c69:ProjectViewProjectNode" />
               <item name="Visualization-of-Recurrent-Neural-Networks" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Visualization-of-Recurrent-Neural-Networks" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Visualization-of-Recurrent-Neural-Networks" type="462c0819:PsiDirectoryNode" />
-              <item name="Data" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -217,16 +225,16 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="0" width="974" height="1047" extended-state="0" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19551282" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.09641728" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.24179432" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.3206934" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.23943663" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.3206934" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -282,7 +290,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/RecurrentNeuralNetwork.py</url>
-          <line>321</line>
+          <line>312</line>
           <option name="timeStamp" value="38" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -297,12 +305,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/RecurrentNeuralNetwork.py</url>
-          <line>265</line>
+          <line>269</line>
           <option name="timeStamp" value="97" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/RecurrentNeuralNetwork.py</url>
-          <line>268</line>
+          <line>270</line>
           <option name="timeStamp" value="98" />
         </line-breakpoint>
       </breakpoints>
@@ -419,14 +427,24 @@
     <entry file="file://$PROJECT_DIR$/test.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="484">
-          <caret line="277" column="26" lean-forward="true" selection-start-line="263" selection-end-line="277" selection-end-column="26" />
+          <caret line="277" column="26" selection-start-line="263" selection-end-line="277" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Data/bbc/README.TXT">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="11" selection-start-line="11" selection-end-line="11" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/RecurrentNeuralNetwork.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="12" selection-start-line="12" selection-end-line="12" />
+        <state relative-caret-position="188">
+          <caret line="627" column="71" lean-forward="true" selection-start-line="627" selection-start-column="71" selection-end-line="627" selection-end-column="71" />
+          <folding>
+            <element signature="e#50#87#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
