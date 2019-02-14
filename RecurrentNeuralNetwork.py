@@ -5,7 +5,6 @@
 '''
 
 from __future__ import print_function
-import os
 import sklearn.preprocessing
 from numpy import *
 from copy import *
@@ -16,7 +15,8 @@ from sty import bg, RgbBg
 from gensim.models import KeyedVectors, Word2Vec
 from ctypes import windll, c_int, byref
 import re
-from textwrap import wrap
+import zipfile
+import lxml.etree
 from terminaltables import SingleTable
 
 
@@ -45,8 +45,6 @@ class RecurrentNeuralNetwork(object):
             # self.indToChar = indToChar
             self.K = len(self.indToChar)
 
-        # self.x0 = '.'
-
         self.weights = ['W', 'V', 'U', 'b', 'c']
         self.gradients = ['dLdW', 'dLdV', 'dLdU', 'dLdB', 'dLdC']
         self.numGradients = ['gradWnum', 'gradVnum', 'gradUnum', 'gradBnum', 'gradCnum']
@@ -55,11 +53,16 @@ class RecurrentNeuralNetwork(object):
                       (self.nHiddenNeurons, self.K), (self.nHiddenNeurons, 1), (self.K, 1)]
 
         # Weight initialization
+        if self.weightInit == 'Load':
+            print('Loading weights...')
+        else:
+            print('Initializing weights...')
+
         for weight, gradIndex in zip(self.weights, range(len(self.gradients))):
             if self.sizes[gradIndex][1] > 1:
                 if self.weightInit == 'Load':
-                    self.initSigma = loadtxt('initSigma.txt', unpack=False)
-                    setattr(self, weight, array(loadtxt(weight + ".txt", comments="#", delimiter=",", unpack=False)))
+                    self.initSigma = loadtxt('Parameters/initSigma.txt', unpack=False)
+                    setattr(self, weight, array(loadtxt('Weights/' + weight + ".txt", comments="#", delimiter=",", unpack=False)))
                 else:
                     if self.weightInit == 'He':
                         self.initSigma = sqrt(2 / sum(self.sizes[gradIndex]))
@@ -68,17 +71,17 @@ class RecurrentNeuralNetwork(object):
                     setattr(self, weight, self.initSigma*random.randn(self.sizes[gradIndex][0], self.sizes[gradIndex][1]))
             else:
                 if self.weightInit == 'Load':
-                    self.initSigma = loadtxt('initSigma.txt', unpack=False)
-                    setattr(self, weight, array([loadtxt(weight + ".txt", comments="#", delimiter=",", unpack=False)]).T)
+                    self.initSigma = loadtxt('Parameters/initSigma.txt', unpack=False)
+                    setattr(self, weight, array([loadtxt('Weights/' + weight + ".txt", comments="#", delimiter=",", unpack=False)]).T)
                 else:
                     setattr(self, weight, zeros(self.sizes[gradIndex]))
 
         if self.weightInit == 'Load':
-            self.seqIterations = loadtxt('seqIterations.txt', delimiter=",", unpack=False)
-            self.smoothLosses = loadtxt('smoothLosses.txt', delimiter=",", unpack=False)
-            self.h0 = array([loadtxt('h0.txt', unpack=False)]).T
+            self.seqIterations = loadtxt('Parameters/seqIterations.txt', delimiter=",", unpack=False)
+            self.smoothLosses = loadtxt('Parameters/smoothLosses.txt', delimiter=",", unpack=False)
+            self.h0 = array([loadtxt('Weights/h0.txt', unpack=False)]).T
             try:
-                with open('x0.txt', 'r') as f:
+                with open('Weights/x0.txt', 'r') as f:
                     self.x0 = f.readline()[0]
             except Exception as ex:
                 print(ex)
@@ -108,23 +111,31 @@ class RecurrentNeuralNetwork(object):
 
     def loadVocabulary(self):
         is_binary = self.model_file[-4:] == '.bin'
+        print('Loading model "' + self.model_file + '"...')
         word2vec_model = KeyedVectors.load_word2vec_format(self.model_file, binary=is_binary)
         K = size(word2vec_model.vectors, 1)
 
         words = []
 
-        directory = os.fsencode(self.textFile)
+        # for subdir, dirs, files in os.walk(self.textFile):
+        #     for file in files:
+        # print os.path.join(subdir, file)
+        # filepath = subdir + os.sep + file
 
-        for subdir, dirs, files in os.walk(self.textFile):
-            for file in files:
-                # print os.path.join(subdir, file)
-                filepath = subdir + os.sep + file
-
-                with open(filepath, 'r') as f:
-                    lines = f.readlines()
-                    for line in lines:
-                        words.extend(re.findall(r"\w+|[^\w]", line))
-                        words.append('\n')
+        print('Loading text file "' + self.textFile + '"...')
+        if self.textFile[-4:] == '.zip':
+            with zipfile.ZipFile(self.textFile, 'r') as z:
+                doc = lxml.etree.parse(z.open('ted_en-20160408.xml', 'r'))
+            print('Extracting words...')
+            input_text = '\n'.join(doc.xpath('//content/text()'))
+            words.extend(re.findall(r"\w+|[^\w]", input_text))
+        else:
+            with open(self.textFile, 'r') as f:
+                lines = f.readlines()
+                print('Extracting words...')
+                for line in lines:
+                    words.extend(re.findall(r"\w+|[^\w]", line))
+                    words.append('\n')
 
         # text_model = Word2Vec(words, size=300, min_count=1)
 
@@ -267,14 +278,14 @@ class RecurrentNeuralNetwork(object):
                         if self.saveParameters:
                             try:
                                 for weight in self.weights:
-                                    savetxt(weight + '.txt', getattr(self, weight), delimiter=',')
+                                    savetxt('Weights/' + weight + '.txt', getattr(self, weight), delimiter=',')
 
-                                savetxt('initSigma.txt', array([[self.initSigma]]))
-                                savetxt('seqIterations.txt', seqIterations, delimiter=',')
-                                savetxt('smoothLosses.txt', smoothLosses, delimiter=',')
-                                savetxt('h0.txt', hPrevBest, delimiter=',')
-                                # savetxt('x0.txt', x0Best, delimiter=',', fmt='c')
-                                with open('x0.txt', 'w') as f:
+                                savetxt('Parameters/initSigma.txt', array([[self.initSigma]]))
+                                savetxt('Parameters/seqIterations.txt', seqIterations, delimiter=',')
+                                savetxt('Parameters/smoothLosses.txt', smoothLosses, delimiter=',')
+                                savetxt('Weights/h0.txt', hPrevBest, delimiter=',')
+
+                                with open('Weights/x0.txt', 'w') as f:
                                     f.write(x0Best)
 
                             except Exception as ex:
@@ -321,9 +332,9 @@ class RecurrentNeuralNetwork(object):
                 bestWeights = []
 
                 for weight in self.weights[:3]:
-                    bestWeights.append(array(loadtxt(weight + ".txt", comments="#", delimiter=",", unpack=False)))
+                    bestWeights.append(array(loadtxt('Weights/' + weight + ".txt", comments="#", delimiter=",", unpack=False)))
                 for weight in self.weights[3:]:
-                    bestWeights.append(array([loadtxt(weight + ".txt", comments="#", delimiter=",", unpack=False)]).T)
+                    bestWeights.append(array([loadtxt('Weights/' + weight + ".txt", comments="#", delimiter=",", unpack=False)]).T)
 
                 weightsTuples = [(self.weights[i], bestWeights[i]) for i in range(len(self.weights))]
 
@@ -357,6 +368,20 @@ class RecurrentNeuralNetwork(object):
             weightsTuples = [(self.weights[i], getattr(self, self.weights[i])) for i in range(len(self.weights))]
             weights = dict(weightsTuples)
 
+        self.neuronsOfInterest = []
+        with open('NeuronsOfInterest.txt', 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                if '#' not in line:
+                    intervals = ''.join(line.split()).split(',')
+                    for interval in intervals:
+                        if ':' in interval:
+                            interval = interval.split(':')
+                            self.neuronsOfInterest.extend(range(int(interval[0]), int(interval[-1]) + 1))
+                        else:
+                            self.neuronsOfInterest.append(int(interval))
+
+
         table_data = [['Neuron ' + str(self.neuronsOfInterest[int(i/2)]), ''] if i % 2 == 0 else ['\n', '\n'] for i in range(2*len(self.neuronsOfInterest))]
         table = SingleTable(table_data)
         table.table_data.insert(0, ['Neuron ', 'Predicted sentence from previous word "' + x0 + '"'])
@@ -376,10 +401,26 @@ class RecurrentNeuralNetwork(object):
             neuronActivations = a[0][self.neuronsOfInterest]/max(abs(a[0]))
 
             output_word_vector = o[0][:, 0]
-            list_most_similar = self.word2vec_model.most_similar(positive=[output_word_vector], topn=100)
-            sample_index = min(int(abs(30*random.randn())), 99)
+            list_most_similar = self.word2vec_model.most_similar(positive=[output_word_vector], topn=200)
+            similarities = array([list_most_similar[i][1] for i in range(len(list_most_similar))])
+            p = similarities[similarities > 0]/sum(similarities[similarities > 0])
+            cp = cumsum(p)
+            rand = random.uniform()
+            diff = cp - rand
+            sample_index = [i for i in range(len(diff)) if diff[i] > 0][0]
             sample_word = list_most_similar[sample_index][0]
-
+            '''
+             # sample_index = min(int(abs(30*random.randn())), 99)
+            for i in range(len(p)):
+                if ' ' == list_most_similar[i][0]:
+                    print('" " at ' + str(i) + ' with p ' + str(p[i]))
+                    print('p: ' + str(p))
+                    print('cp: '+str(cp[max(0, i-3):min(i+3, 299)]))
+                    print('rand: ' + str(rand))
+                    print('Sample ind: ' + str(sample_index))
+                    print('Sample world: ' + sample_word)
+                    break
+            '''
             #cp = cumsum(p[-1])
             #rand = random.uniform()
             #diff = cp - rand
@@ -618,13 +659,13 @@ def pMatrix(array):
 def main():
 
     attributes = {
-        'textFile': 'Data/bbc', # 'LordOfTheRings.txt',  # Name of book text file, needs to be longer than lengthSynthesizedTextBest
-        'model_file': 'Data/GoogleNews-vectors-negative300.bin', # 'Data/glove_short.txt',  #
+        'textFile': 'Data/ted_en.zip',  # Name of book text file, needs to be longer than lengthSynthesizedTextBest
+        'model_file': 'Data/glove_short.txt',  # 'Data/glove_840B_300d.txt'
         'wordDomain': True,  # True for words, False for characters
         'adaGradSGD': True,  # Stochastic gradient decent, True for adaGrad, False for regular SGD
         'clipGradients': True,  # True to avoid exploding gradients
-        'weightInit': 'Load',  # 'He', 'Load' or 'Random'
-        'eta': .02,  # Learning rate
+        'weightInit': 'He',  # 'He', 'Load' or 'Random'
+        'eta': 2e-2,  # Learning rate
         'gradientClipThreshold': 5,  # Threshold for clipping gradients
         'nHiddenNeurons': 300,  # Number of hidden neurons
         'seqLength': 25,  # Sequence length of each sequence iteration
@@ -632,10 +673,9 @@ def main():
         'lengthSynthesizedTextBest': 100,  # Sequence length of final best sequence, requires saveParameters
         'rmsProp': False,  # Implementation of rmsProp to adaGradSGD
         'gamma': 0.9,  # Weight factor of rmsProp
-        'nEpochs': 40,  # Total number of epochs, each corresponds to (n book characters)/(seqLength) seq iterations
+        'nEpochs': 100,  # Total number of epochs, each corresponds to (n book characters)/(seqLength) seq iterations
         'plotProcess': True,  # Plot learning curve
-        'saveParameters': False,  # Save best weights with corresponding arrays iterations and smooth loss
-        'neuronsOfInterest': [0, 20, 60, 100, 200, 299] # arange(5)   # Choose index of neuron to watch in the visualization
+        'saveParameters': False  # Save best weights with corresponding arrays iterations and smooth loss
     }
 
     if not attributes['adaGradSGD']:
