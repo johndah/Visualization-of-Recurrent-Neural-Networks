@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
 import platform
 from sty import bg, RgbBg
-from gensim.models import KeyedVectors, Word2Vec
+from gensim.models import KeyedVectors
 from ctypes import windll, c_int, byref
 import re
 import zipfile
@@ -40,9 +40,6 @@ class RecurrentNeuralNetwork(object):
             self.word2vec_model, self.words, self.K = self.loadVocabulary()
         else:
             self.bookData, self.charToInd, self.indToChar = self.loadCharacters()
-            # self.bookData = bookData
-            # self.charToInd = charToInd
-            # self.indToChar = indToChar
             self.K = len(self.indToChar)
 
         self.weights = ['W', 'V', 'U', 'b', 'c']
@@ -174,7 +171,7 @@ class RecurrentNeuralNetwork(object):
             smoothLoss = None
 
         if self.plotProcess:
-            fig = plt.figure()
+            fig = plt.figure(2)
             constants = 'Max Epochs: ' + str(self.nEpochs) + ' (' + str(len(self.words)/self.seqLength * self.nEpochs) + ' seq. iter.)' \
                         + '\n# Hidden neurons: ' + str(self.nHiddenNeurons) \
                         + '\nWeight initialization: ' + str(self.weightInit) \
@@ -258,7 +255,26 @@ class RecurrentNeuralNetwork(object):
                     # x0 = self.bookData[e]
                     x0 = self.words[e]
 
-                    table = self.synthesizeText(x0, hPrev, self.lengthSynthesizedText)
+                    table, neuron_activation_map, inputs = self.synthesizeText(x0, hPrev, self.lengthSynthesizedText)
+
+                    if self.plotColorMap:
+                        plt.figure(1)
+                        plt.clf()
+                        plt.title('Colormap of all hidden neuron activations')
+                        plt.ylabel('Neuron')
+                        plt.xlabel('Predicted sequence')
+                        x = range(len(inputs))
+                        plt.xticks(x, inputs, fontsize=7, rotation=90)
+                        y = range(len(self.neuronsOfInterestPlot))
+                        #y = range(len(self.intervals_to_plot))
+                        yy = array([1, 80, 85, 100, 150, 200, 252, 299])
+                        #intervals = [str(i) if str(i) in self.intervals_to_plot or str(i) + self.interval_label_shift in self.intervals_to_plot else ' ' for i in self.neuronsOfInterestPlot]
+                        intervals = [self.intervals_to_plot[where(yy == i)[0][0]] if i in yy else ' ' for i in self.neuronsOfInterestPlot]
+                        plt.yticks(y, intervals, fontsize=7)
+                        plt.imshow(neuron_activation_map[self.neuronsOfInterestPlot, :], cmap='coolwarm', interpolation='nearest', aspect='auto')
+                        plt.colorbar()
+                        plt.pause(.1)
+                        # neuron_activation_map, y_n[0]
 
                     print('\nSequence iteration: ' + str(seqIteration) + ', Epoch: ' + str(epoch)
                           + ', Epoch process: ' + str('{0:.2f}'.format(e/len(self.words)*100)) + '%'
@@ -292,13 +308,14 @@ class RecurrentNeuralNetwork(object):
                                 print(ex)
 
                     if self.plotProcess:
+                        plt.figure(2)
                         plt.clf()
                         ax = fig.add_subplot(111)
                         fig.subplots_adjust(top=0.85)
                         anchored_text = AnchoredText(constants, loc=1)
                         ax.add_artist(anchored_text)
 
-                        plt.title('Text synthesization learning curve of Recurrent Neural Network')
+                        plt.title('Word prediction learning curve of Recurrent Neural Network')
                         plt.ylabel('Smooth loss')
                         plt.xlabel('Sequence iteration')
                         plt.plot(seqIterations+seqIterationsTemp, smoothLosses+smoothLossesTemp, LineWidth=2)
@@ -353,7 +370,7 @@ class RecurrentNeuralNetwork(object):
         h = [hPrev]
         a = []
         o = []
-        p = []
+        # p = []
         for t in range(0, tau):
             a.append(dot(weights['W'], h[t]) + dot(weights['U'], x[t]) + weights['b'])
             h.append(self.tanh(a[t]))
@@ -369,18 +386,37 @@ class RecurrentNeuralNetwork(object):
             weights = dict(weightsTuples)
 
         self.neuronsOfInterest = []
+        self.neuronsOfInterestPlot = []
+
         with open('NeuronsOfInterest.txt', 'r') as f:
             lines = f.readlines()
             for line in lines:
                 if '#' not in line:
-                    intervals = ''.join(line.split()).split(',')
-                    for interval in intervals:
-                        if ':' in interval:
-                            interval = interval.split(':')
-                            self.neuronsOfInterest.extend(range(int(interval[0]), int(interval[-1]) + 1))
-                        else:
-                            self.neuronsOfInterest.append(int(interval))
+                    if 'Print:' in line:
+                        line = line.replace('Print:', '')
+                        intervals = ''.join(line.split()).split(',')
+                        for interval in intervals:
+                            if ':' in interval:
+                                interval = interval.split(':')
+                                self.neuronsOfInterest.extend(range(int(interval[0]), int(interval[-1]) + 1))
+                            else:
+                                self.neuronsOfInterest.append(int(interval))
+                    if 'Plot' in line:
+                        line = line.replace('Plot:', '')
+                        intervals = ''.join(line.split()).split(',')
+                        self.intervals_to_plot = []
+                        self.interval_label_shift = '      '
 
+                        for interval in intervals:
+                            if ':' in interval:
+                                interval = interval.split(':')
+                                self.neuronsOfInterestPlot.extend(range(int(interval[0]), int(interval[-1]) + 1))
+                                # self.intervals_to_plot.extend([int(interval[0]), int(interval[-1])])
+                                self.intervals_to_plot.extend([interval[0], interval[-1] + self.interval_label_shift])
+                            else:
+                                self.neuronsOfInterestPlot.append(int(interval))
+                                # self.intervals_to_plot.append(int(interval))
+                                self.intervals_to_plot.append(interval + 2*self.interval_label_shift)
 
         table_data = [['Neuron ' + str(self.neuronsOfInterest[int(i/2)]), ''] if i % 2 == 0 else ['\n', '\n'] for i in range(2*len(self.neuronsOfInterest))]
         table = SingleTable(table_data)
@@ -393,12 +429,15 @@ class RecurrentNeuralNetwork(object):
 
         x = [array([self.word2vec_model[x0]]).T]
 
+        neuron_activation_map = zeros((self.nHiddenNeurons, seqLength))
+
         for t in range(seqLength):
             # x = self.seqToOneHot(xChar)
             o, h, a = self.forwardProp(x, hPrev, weights)
             hPrev = deepcopy(h[-1])
 
-            neuronActivations = a[0][self.neuronsOfInterest]/max(abs(a[0]))
+            neuron_activation_map[:, t] = a[-1][:, 0]
+            neuronActivations = a[-1][self.neuronsOfInterest]
 
             output_word_vector = o[0][:, 0]
             list_most_similar = self.word2vec_model.most_similar(positive=[output_word_vector], topn=200)
@@ -409,23 +448,6 @@ class RecurrentNeuralNetwork(object):
             diff = cp - rand
             sample_index = [i for i in range(len(diff)) if diff[i] > 0][0]
             sample_word = list_most_similar[sample_index][0]
-            '''
-             # sample_index = min(int(abs(30*random.randn())), 99)
-            for i in range(len(p)):
-                if ' ' == list_most_similar[i][0]:
-                    print('" " at ' + str(i) + ' with p ' + str(p[i]))
-                    print('p: ' + str(p))
-                    print('cp: '+str(cp[max(0, i-3):min(i+3, 299)]))
-                    print('rand: ' + str(rand))
-                    print('Sample ind: ' + str(sample_index))
-                    print('Sample world: ' + sample_word)
-                    break
-            '''
-            #cp = cumsum(p[-1])
-            #rand = random.uniform()
-            #diff = cp - rand
-            #sample = [i for i in range(len(diff)) if diff[i] > 0][0]
-            #xChar = self.indToChar.get(sample)
 
 
             for i in range(len(self.neuronsOfInterest)):
@@ -433,17 +455,15 @@ class RecurrentNeuralNetwork(object):
                 neuronActivation = neuronActivations[i, 0]
 
                 if neuronActivation > 0:
-                    bg.set_style('activationColor', RgbBg(0, int(neuronActivation * 255), 0))
+                    bg.set_style('activationColor', RgbBg(int(neuronActivation * 255), 0, 0))
                 else:
-                    bg.set_style('activationColor', RgbBg(int(abs(neuronActivation) * 255), 0, 0))
+                    bg.set_style('activationColor', RgbBg(0, 0, int(abs(neuronActivation) * 255)))
 
                 coloredWord = bg.activationColor + sample_word + bg.rs
 
                 y_n[i].append(sample_word)
                 y[i].append(coloredWord)
 
-
-        # sequences = []
         for i in range(len(self.neuronsOfInterest)):
             # sequences.append(''.join(y[i]))
 
@@ -453,10 +473,9 @@ class RecurrentNeuralNetwork(object):
 
             while n_characters < len(''.join(y_n[i])):
                 for j in range(len(y[i])):
-                    a = y[i][j]
-                    if '\n' in a:
-                        wrapped_string += a.split('\n')[0] + '\\n' + a.split('\n')[1] + '\n'
-                        #break
+                    table_row = y[i][j]
+                    if '\n' in table_row:
+                        wrapped_string += table_row.split('\n')[0] + '\\n' + table_row.split('\n')[1] + '\n'
                         n_characters += line_width
                         line_width = 0
                         wrapped_string += ' ' * (max_width - line_width) * 0 + '\n'
@@ -465,14 +484,38 @@ class RecurrentNeuralNetwork(object):
 
                     line_width += len(y_n[i][j])
                     if line_width > max_width - 10:
-                        #break
                         n_characters += line_width
                         line_width = 0
                         wrapped_string += ' '*(max_width - line_width)*0 + '\n'
 
             table.table_data[2*i+1][1] = wrapped_string
 
-        return table.table
+        max_activation = amax(neuron_activation_map[self.neuronsOfInterest, :])
+        min_activation = amin(neuron_activation_map[self.neuronsOfInterest, :])
+        margin = 8
+        color_range_width = max_width - len(table.table_data[0][1]) - (6 + margin)
+        color_range = arange(min_activation, max_activation,
+                             (max_activation - min_activation) / color_range_width)
+
+        color_range_str = ' '*margin + str(round(min_activation, 1))
+
+        for i in range(color_range_width):
+
+            color_range_value = color_range[i]
+
+            if color_range_value > 0:
+                bg.set_style('activationColor', RgbBg(int(color_range_value * 255), 0, 0))
+            else:
+                bg.set_style('activationColor', RgbBg(0, 0, int(abs(color_range_value) * 255)))
+
+            colored_indicator = bg.activationColor + ' ' + bg.rs
+
+            color_range_str += colored_indicator
+
+        color_range_str += str(round(max_activation, 1))
+        table.table_data[0][1] += color_range_str
+
+        return table.table, neuron_activation_map, y_n[0]
 
     def backProp(self, x, y, o, h):
         tau = len(x)
@@ -485,7 +528,7 @@ class RecurrentNeuralNetwork(object):
 
         for t in range(tau):
             # dLdO.append(p[t].T - y[t].T)
-            dLdO.append(-y[t].T + o[t].T)
+            dLdO.append(o[t].T - y[t].T)
             self.dLdV += dot(dLdO[t].T, h[t+1].T)
             self.dLdC += dLdO[t].T
 
@@ -675,6 +718,7 @@ def main():
         'gamma': 0.9,  # Weight factor of rmsProp
         'nEpochs': 100,  # Total number of epochs, each corresponds to (n book characters)/(seqLength) seq iterations
         'plotProcess': True,  # Plot learning curve
+        'plotColorMap': True,  # Plot color map of neuron activations
         'saveParameters': False  # Save best weights with corresponding arrays iterations and smooth loss
     }
 
