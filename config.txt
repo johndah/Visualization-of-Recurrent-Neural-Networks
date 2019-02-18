@@ -1,0 +1,2 @@
+plotProcess: True  # Plot learning curve
+plotColorMap: True  # Plot color map of neuron activations
