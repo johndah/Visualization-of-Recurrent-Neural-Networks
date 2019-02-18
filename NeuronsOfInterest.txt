@@ -1,4 +1,5 @@
 # Choose index of neuron to watch in the visualization
-Print: 2, 50, 100
+Print: 2
+# , 50, 100
 Plot: 2:4, 50:53, 100:103
 # Plot: 2, 50, 100, 150, 200, 250, 299
