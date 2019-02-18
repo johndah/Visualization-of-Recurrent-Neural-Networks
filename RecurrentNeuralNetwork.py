@@ -260,19 +260,49 @@ class RecurrentNeuralNetwork(object):
                     if self.plotColorMap:
                         plt.figure(1)
                         plt.clf()
+                        # f, (ax0, ax1) = plt.subplots(2, 1, sharex=True)
                         plt.title('Colormap of all hidden neuron activations')
                         plt.ylabel('Neuron')
                         plt.xlabel('Predicted sequence')
                         x = range(len(inputs))
                         plt.xticks(x, inputs, fontsize=7, rotation=90)
                         y = range(len(self.neuronsOfInterestPlot))
-                        #y = range(len(self.intervals_to_plot))
-                        yy = array([1, 80, 85, 100, 150, 200, 252, 299])
-                        #intervals = [str(i) if str(i) in self.intervals_to_plot or str(i) + self.interval_label_shift in self.intervals_to_plot else ' ' for i in self.neuronsOfInterestPlot]
-                        intervals = [self.intervals_to_plot[where(yy == i)[0][0]] if i in yy else ' ' for i in self.neuronsOfInterestPlot]
+                        # intervals = [str(i) if str(i) in self.intervals_to_plot or str(i) + self.interval_label_shift in self.intervals_to_plot else ' ' for i in self.neuronsOfInterestPlot]
+                        intervals = [self.intervals_to_plot[where(self.interval_limits == i)[0][0]] if i in self.interval_limits else ' ' for i in self.neuronsOfInterestPlot]
                         plt.yticks(y, intervals, fontsize=7)
+
+
                         plt.imshow(neuron_activation_map[self.neuronsOfInterestPlot, :], cmap='coolwarm', interpolation='nearest', aspect='auto')
-                        plt.colorbar()
+                        interval = 0
+                        for i in range(len(self.neuronsOfInterestPlotIntervals) + 1):
+                            if i > 0:
+                                limit = self.neuronsOfInterestPlotIntervals[i-1]
+                                interval += 1 + limit[-1] - limit[0]
+                            plt.plot(arange(-.5, len(inputs)+.5), (len(inputs)+1)*[interval - 0.5], 'k--', LineWidth=1)
+                        # ax0.imshow(neuron_activation_map[self.neuronsOfInterestPlotIntervals[0], :], cmap='coolwarm', interpolation='nearest', aspect='auto')
+                        # ax1.imshow(neuron_activation_map[self.neuronsOfInterestPlotIntervals[1], :], cmap='coolwarm', interpolation='nearest', aspect='auto')
+
+                        # ax0.set_ylim(self.neuronsOfInterestPlotIntervals[0][0], self.neuronsOfInterestPlotIntervals[0][-1])
+                        # ax1.set_ylim(self.neuronsOfInterestPlotIntervals[1][0], self.neuronsOfInterestPlotIntervals[1][-1])
+
+                        # ax0.spines['bottom'].set_visible(False)
+                        # ax1.spines['top'].set_visible(False)
+
+                        # ax0.xaxis.tick_top()
+                        # ax0.tick_params(labeltop='off')
+                        # ax1.xaxis.tick_bottom()
+
+                        # d = .015  # how big to make the diagonal lines in axes coordinates
+                        # arguments to pass to plot, just so we don't keep repeating them
+                        #kwargs = dict(transform=ax0.transAxes, color='k', clip_on=False)
+                        #ax0.plot((-d, +d), (-d, +d), **kwargs)  # top-left diagonal
+                        #ax0.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
+
+                        #kwargs.update(transform=ax1.transAxes)  # switch to the bottom axes
+                        #ax1.plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
+                        # ax1.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
+
+                        # plt.colorbar()
                         plt.pause(.1)
                         # neuron_activation_map, y_n[0]
 
@@ -387,6 +417,7 @@ class RecurrentNeuralNetwork(object):
 
         self.neuronsOfInterest = []
         self.neuronsOfInterestPlot = []
+        self.neuronsOfInterestPlotIntervals = []
 
         with open('NeuronsOfInterest.txt', 'r') as f:
             lines = f.readlines()
@@ -405,19 +436,22 @@ class RecurrentNeuralNetwork(object):
                         line = line.replace('Plot:', '')
                         intervals = ''.join(line.split()).split(',')
                         self.intervals_to_plot = []
+                        self.interval_limits = []
                         self.interval_label_shift = '      '
 
                         for interval in intervals:
                             if ':' in interval:
                                 interval = interval.split(':')
                                 self.neuronsOfInterestPlot.extend(range(int(interval[0]), int(interval[-1]) + 1))
-                                # self.intervals_to_plot.extend([int(interval[0]), int(interval[-1])])
+                                self.neuronsOfInterestPlotIntervals.append(range(int(interval[0]), int(interval[-1]) + 1))
                                 self.intervals_to_plot.extend([interval[0], interval[-1] + self.interval_label_shift])
+                                self.interval_limits.extend([int(interval[0]), int(interval[-1])])
                             else:
                                 self.neuronsOfInterestPlot.append(int(interval))
-                                # self.intervals_to_plot.append(int(interval))
+                                self.neuronsOfInterestPlotIntervals.append([int(interval)])
                                 self.intervals_to_plot.append(interval + 2*self.interval_label_shift)
-
+                                self.interval_limits.append(int(interval))
+                        self.interval_limits = array(self.interval_limits)
         table_data = [['Neuron ' + str(self.neuronsOfInterest[int(i/2)]), ''] if i % 2 == 0 else ['\n', '\n'] for i in range(2*len(self.neuronsOfInterest))]
         table = SingleTable(table_data)
         table.table_data.insert(0, ['Neuron ', 'Predicted sentence from previous word "' + x0 + '"'])
@@ -703,12 +737,12 @@ def main():
 
     attributes = {
         'textFile': 'Data/ted_en.zip',  # Name of book text file, needs to be longer than lengthSynthesizedTextBest
-        'model_file': 'Data/glove_short.txt',  # 'Data/glove_840B_300d.txt'
+        'model_file': 'Data/glove_840B_300d.txt',  # 'Data/glove_short.txt',  #
         'wordDomain': True,  # True for words, False for characters
         'adaGradSGD': True,  # Stochastic gradient decent, True for adaGrad, False for regular SGD
         'clipGradients': True,  # True to avoid exploding gradients
         'weightInit': 'He',  # 'He', 'Load' or 'Random'
-        'eta': 2e-2,  # Learning rate
+        'eta': 2e-3,  # Learning rate
         'gradientClipThreshold': 5,  # Threshold for clipping gradients
         'nHiddenNeurons': 300,  # Number of hidden neurons
         'seqLength': 25,  # Sequence length of each sequence iteration
@@ -718,8 +752,8 @@ def main():
         'gamma': 0.9,  # Weight factor of rmsProp
         'nEpochs': 100,  # Total number of epochs, each corresponds to (n book characters)/(seqLength) seq iterations
         'plotProcess': True,  # Plot learning curve
-        'plotColorMap': True,  # Plot color map of neuron activations
-        'saveParameters': False  # Save best weights with corresponding arrays iterations and smooth loss
+        'plotColorMap': False,  # Plot color map of neuron activations
+        'saveParameters': True  # Save best weights with corresponding arrays iterations and smooth loss
     }
 
     if not attributes['adaGradSGD']:

@@ -16,8 +16,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/RecurrentNeuralNetwork.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="193">
-              <caret line="510" column="28" lean-forward="true" selection-start-line="510" selection-start-column="28" selection-end-line="510" selection-end-column="28" />
+            <state relative-caret-position="136">
+              <caret line="743" column="25" selection-start-line="743" selection-start-column="25" selection-end-line="743" selection-end-column="25" />
               <folding>
                 <element signature="e#50#87#0" expanded="true" />
               </folding>
@@ -28,8 +28,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/NeuronsOfInterest.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="34">
-              <caret line="2" column="11" selection-start-line="2" selection-start-column="11" selection-end-line="2" selection-end-column="11" />
+            <state relative-caret-position="17">
+              <caret line="1" column="8" lean-forward="true" selection-start-line="1" selection-end-line="2" />
             </state>
           </provider>
         </entry>
@@ -38,14 +38,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>try</find>
-      <find>exce</find>
-      <find>a =</find>
-      <find>forwa</find>
-      <find>forwardProp(</find>
-      <find>forwardProp</find>
-      <find>h[-1]</find>
-      <find>dLdW</find>
       <find>forwar</find>
       <find>back</find>
       <find>smooth</find>
@@ -60,14 +52,22 @@
       <find>colorMa</find>
       <find>open</find>
       <find>colorma</find>
-      <find>colorM</find>
       <find>intervals_to_plot</find>
       <find>intervals_t</find>
       <find>self.interval_label_shift</find>
-      <find>shift</find>
       <find>rgb</find>
       <find>table</find>
       <find>min</find>
+      <find>shift</find>
+      <find>colorM</find>
+      <find>interval_limits</find>
+      <find>ax2</find>
+      <find>neuronsOfInterestPlot</find>
+      <find>len(in</find>
+      <find>Width</find>
+      <find>Width=2</find>
+      <find>linewid</find>
+      <find>neuronsOfInterestPlotIntervals</find>
     </findStrings>
     <replaceStrings>
       <replace>o, h, a = self.forwardProp</replace>
@@ -103,29 +103,14 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="Visualization-of-Recurrent-Neural-Networks" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Visualization-of-Recurrent-Neural-Networks" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Visualization-of-Recurrent-Neural-Networks" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Visualization-of-Recurrent-Neural-Networks" type="462c0819:PsiDirectoryNode" />
-              <item name="Data" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
+      <pane id="ProjectPane" />
       <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../lstm-on-Yelp-review-data-master" />
     <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="Errors" />
+    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -213,27 +198,34 @@
       <option name="project" value="LOCAL" />
       <updated>1550142215969</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Including color map. Change of colors to hot-cold (Red-Blue). Indicator included in output print">
+      <created>1550251396003</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1550251396003</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="-6" y="0" width="781" height="830" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21102151" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24059139" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32932165" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.34901533" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.41977078" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.35530087" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.407932" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.32713348" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
-      <window_info anchor="bottom" id="Python Console" order="10" weight="0.32808024" />
+      <window_info anchor="bottom" id="Python Console" order="10" weight="0.32719547" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -261,7 +253,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Testing git configurations" />
     <MESSAGE value="Predict words utilizing cdf of similarities rather than normal distribution outcome of index" />
-    <option name="LAST_COMMIT_MESSAGE" value="Predict words utilizing cdf of similarities rather than normal distribution outcome of index" />
+    <MESSAGE value="Including color map. Change of colors to hot-cold (Red-Blue). Indicator included in output print" />
+    <option name="LAST_COMMIT_MESSAGE" value="Including color map. Change of colors to hot-cold (Red-Blue). Indicator included in output print" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -293,8 +286,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/RecurrentNeuralNetwork.py</url>
-          <line>285</line>
+          <line>315</line>
           <option name="timeStamp" value="154" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/RecurrentNeuralNetwork.py</url>
+          <line>313</line>
+          <option name="timeStamp" value="159" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -435,15 +433,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/NeuronsOfInterest.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="2" column="11" selection-start-line="2" selection-start-column="11" selection-end-line="2" selection-end-column="11" />
+        <state relative-caret-position="17">
+          <caret line="1" column="8" lean-forward="true" selection-start-line="1" selection-end-line="2" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/RecurrentNeuralNetwork.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="193">
-          <caret line="510" column="28" lean-forward="true" selection-start-line="510" selection-start-column="28" selection-end-line="510" selection-end-column="28" />
+        <state relative-caret-position="136">
+          <caret line="743" column="25" selection-start-line="743" selection-start-column="25" selection-end-line="743" selection-end-column="25" />
           <folding>
             <element signature="e#50#87#0" expanded="true" />
           </folding>
