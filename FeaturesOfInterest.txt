@@ -1,0 +1,8 @@
+# Choose index of neuron to watch in the visualization
+
+Neurons to print: 7:9, 23, 38, 44, 83, 94
+Neurons to plot: 7:9, 23, 38, 44, 83, 94
+#7:9, 23, 38, 44, 83, 94
+
+# '.' for all characters
+Prediction features: ' '

@@ -1,2 +1,3 @@
-plotProcess: False  # Plot learning curve
+plotProcess: True  # Plot learning curve
 plotColorMap: False  # Plot color map of neuron activations
+
