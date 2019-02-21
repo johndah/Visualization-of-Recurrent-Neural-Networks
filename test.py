@@ -387,6 +387,7 @@ from keras.layers import Dense, Activation
 from keras.models import Sequential
 from keras.utils.data_utils import get_file
 
+'''
 print('\nFetching the text...')
 url = 'https://raw.githubusercontent.com/maxim5/stanford-tensorflow-tutorials/master/data/arxiv_abstracts.txt'
 path = get_file('arxiv_abstracts.txt', origin=url)
@@ -400,11 +401,50 @@ print('Num sentences:', len(sentences))
 
 print('\nTraining word2vec...')
 word_model = gensim.models.Word2Vec(sentences, size=100, min_count=1, window=5, iter=100)
+'''
+from gensim.models import KeyedVectors
+import zipfile
+import lxml.etree
+import re
+from numpy import *
+
+
+textFile = 'Data/ted_en.zip'  # Name of book text file, needs to be longer than lengthSynthesizedTextBest
+# model_file = 'Data/glove_short.txt'  # 'Data/glove_840B_300d.txt',  #
+
+#is_binary = model_file[-4:] == '.bin'
+# print('Loading model "' + model_file + '"...')
+# word_model = KeyedVectors.load_word2vec_format(model_file, binary=is_binary)
+# print('Loading text file "' + textFile + '"...')
+
+words = []
+if textFile[-4:] == '.zip':
+    with zipfile.ZipFile(textFile, 'r') as z:
+        doc = lxml.etree.parse(z.open(z.filelist[0].filename, 'r'))
+
+    print('Extracting words...')
+    # input_text = '\n'.join(doc.xpath('//content/text()'))
+    lines = doc.xpath('//content/text()')
+    max_sentence_len = 40
+    sentences = [[word for word in line.lower().translate(string.punctuation).split()[:max_sentence_len]] for line in
+                 lines]
+
+    # words.extend(re.findall(r"\w+|[^\w]", input_text))
+else:
+    with open(textFile, 'r') as f:
+        lines = f.readlines()
+        print('Extracting words...')
+        for line in lines:
+            words.extend(re.findall(r"\w+|[^\w]", line))
+            words.append('\n')
+
+
+word_model = gensim.models.Word2Vec(sentences, size=300, min_count=1, window=5, iter=10) # 100
 pretrained_weights = word_model.wv.syn0
 vocab_size, emdedding_size = pretrained_weights.shape
 print('Result embedding shape:', pretrained_weights.shape)
 print('Checking similar words:')
-for word in ['model', 'network', 'train', 'learn']:
+for word in ['this', 'is', 'a', 'why']:
   most_similar = ', '.join('%s (%.2f)' % (similar, dist) for similar, dist in word_model.most_similar(word)[:8])
   print('  %s -> %s' % (word, most_similar))
 
@@ -418,8 +458,16 @@ train_x = np.zeros([len(sentences), max_sentence_len], dtype=np.int32)
 train_y = np.zeros([len(sentences)], dtype=np.int32)
 for i, sentence in enumerate(sentences):
   for t, word in enumerate(sentence[:-1]):
-    train_x[i, t] = word2idx(word)
-  train_y[i] = word2idx(sentence[-1])
+    try:
+        train_x[i, t] = word2idx(word)
+    except KeyError:
+        word_model[word] = random.uniform(-0.25, 0.25, emdedding_size)
+        print("Word '" + word + "'" + ' added to model.')
+  try:
+    train_y[i] = word2idx(sentence[-1])
+  except KeyError:
+    word_model[word] = random.uniform(-0.25, 0.25, emdedding_size)
+    print("Word '" + word + "'" + ' added to model.')
 print('train_x shape:', train_x.shape)
 print('train_y shape:', train_y.shape)
 
@@ -452,9 +500,8 @@ def generate_next(text, num_generated=10):
 def on_epoch_end(epoch, _):
   print('\nGenerating text after epoch: %d' % epoch)
   texts = [
-    'deep convolutional',
-    'simple and effective',
-    'a nonconvex',
+    'This is a',
+    'so why is',
     'a',
   ]
   for text in texts:
@@ -465,3 +512,49 @@ model.fit(train_x, train_y,
           batch_size=128,
           epochs=1,
           callbacks=[LambdaCallback(on_epoch_end=on_epoch_end)])
+
+x = array([word2idx('a')])
+
+inference_model = Sequential()
+inference_model.add(Embedding(input_dim=vocab_size, output_dim=emdedding_size, weights=model.layers[0].get_weights()))
+actication = inference_model.predict(x)
+
+inference_model.add(LSTM(units=emdedding_size, weights=model.layers[1].get_weights()))
+actication = inference_model.predict(x)
+
+inference_model.add(Dense(units=vocab_size, weights=model.layers[2].get_weights()))
+actication = inference_model.predict(x)
+
+hey = 2
+# model2.add(Dense(20, 64, weights=model.layers[0].get_weights()))
+#model2.add(Activation('tanh'))
+
+# activations = model2._predict(train_x)
+
+
+'''
+from keras import backend as K
+
+inp = model.input                                           # input placeholder
+outputs = [layer.output for layer in model.layers]          # all layer outputs
+functors = [K.function([inp, K.learning_phase()], [out]) for out in outputs]    # evaluation functions
+
+# Testing
+test = random.random(300) # [newaxis,:]
+layer_outs = [func([input_word, 1.]) for func in functors]
+a = model.summary()
+
+from keras import backend as K
+
+# with a Sequential model
+aa = []
+for i in range(3):
+    get_3rd_layer_output = K.function([model.layers[0].input],
+                                      [model.layers[i].output])
+    input_word = word2idx('a')
+    input_word = random.rand(32)
+    layer_output = get_3rd_layer_output([input_word])[0]
+    aa.append(layer_output)
+
+hey = 2
+'''
