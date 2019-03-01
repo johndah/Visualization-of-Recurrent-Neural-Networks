@@ -5,6 +5,7 @@
 '''
 
 from __future__ import print_function
+import os
 import platform
 from sty import bg, RgbBg
 
@@ -30,6 +31,7 @@ from keras.layers.recurrent import LSTM
 from keras.layers import Dense, Activation
 from keras.layers.embeddings import Embedding
 from keras.callbacks import LambdaCallback, EarlyStopping, ModelCheckpoint, RemoteMonitor
+
 
 class VisualizeLSTM(object):
 
@@ -59,6 +61,12 @@ class VisualizeLSTM(object):
             self.n_hiddenNeurons = self.K
 
         self.e = 0
+        self.input = tf.Variable(0., validate_shape=False)
+
+        if self.word_domain:
+            self.domain_specification = 'Words'
+        else:
+            self.domain_specification = 'Characters'
 
         self.constants = '# Hidden neurons: ' + str(self.n_hiddenNeurons) \
                     + '\nVocabulary size: ' + str(self.M) \
@@ -67,6 +75,13 @@ class VisualizeLSTM(object):
                     + '\n' + 'Training sequence length: ' + str(self.seq_length) \
                     + '\n' + 'Batch size: ' + str(self.batch_size) \
                     + '\n#' + self.domain_specification + ' in training text:' + '\n' + str(len(self.input_sequence))
+        
+        if self.load_lstm_model:
+            self.seq_iterations = [i for i in loadtxt('Parameters/seqIterations.txt', delimiter=",", unpack=False)]
+            self.losses = [i for i in loadtxt('Parameters/losses.txt', delimiter=",", unpack=False)]
+        else:
+            self.seq_iterations = []
+            self.losses = []
 
     def loadVocabulary(self):
         words = []
@@ -153,12 +168,11 @@ class VisualizeLSTM(object):
 
         return x, y
 
-    def on_epoch_end(self, _, logs={}):
-        self.losses.append(logs.get('loss'))
-
     def trainLSTM(self):
-        print('\nTraining LSTM...')
-        if not self.lstm_model_file == 'Load':
+        print('\nInitiate LSTM training...')
+
+        if not self.load_lstm_model:
+            print('Initiate new LSTM model...')
             self.lstm_model = Sequential()
             self.lstm_model.add(Embedding(input_dim=self.M, output_dim=self.K, weights=[self.word2vec_model.wv.syn0]))
             self.lstm_model.add(LSTM(units=self.K))
@@ -167,7 +181,10 @@ class VisualizeLSTM(object):
             adam_optimizer = optimizers.Adam(lr=self.eta)
             self.lstm_model.compile(optimizer=adam_optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
         else:
-            self.lstm_model = load_model('LSTM/lstm_model.h5')
+            model_directory = './LSTM Saved Models/Checkpoints/'
+            model = model_directory + os.listdir(model_directory)[-1]
+            print('Loading LSTM model ' + model + '...')
+            self.lstm_model = load_model(model)
 
         if self.word_domain:
             self.domain_specification = 'Words'
@@ -175,7 +192,6 @@ class VisualizeLSTM(object):
             self.domain_specification = 'Characters'
 
         self.lstm_model.summary()
-        self.losses = []
 
         synthesizeText = LambdaCallback(on_epoch_end=self.synthesizeText)
         early_stopping = EarlyStopping(monitor='val_loss', patience=5)
@@ -183,11 +199,10 @@ class VisualizeLSTM(object):
         callbacks = [synthesizeText, early_stopping, remote]
 
         if self.save_checkpoints:
-            file_path = "./LSTM/Checkpoints/epoch{epoch:03d}-sequence%d-loss{loss:.4f}-val_loss{val_loss:.4f}" % (self.seq_length)
+            file_path = "./LSTM Saved Models/Checkpoints/epoch{epoch:03d}-sequence%d-loss{loss:.4f}-val_loss{val_loss:.4f}" % (self.seq_length)
             checkpoint = ModelCheckpoint(file_path, monitor='val_loss', save_best_only=True)
             callbacks.append(checkpoint)
 
-        self.input = tf.Variable(0., validate_shape=False)
         fetch = [tf.assign(self.input, self.lstm_model.input, validate_shape=False)]
         self.lstm_model._function_kwargs = {'fetches': fetch}
 
@@ -233,9 +248,9 @@ class VisualizeLSTM(object):
 
             yield x, y
     
-    def synthesizeText(self, _, logs={}):
+    def synthesizeText(self, epoch, logs={}):
         self.losses.append(logs.get('loss'))
-        self
+        self.seq_iterations.append(epoch)
 
         self.neuronsOfInterest = []
         self.neuronsOfInterestPlot = []
@@ -341,14 +356,23 @@ class VisualizeLSTM(object):
             lines = f.readlines()
             for line in lines:
                 line = line.split('#')[0]
-                if 'plotColorMap:' in line:
-                    self.plotColorMap = ''.join(line.split()).split(':')[1] == 'True'
+                if 'plot_color_map:' in line:
+                    self.plot_color_map = ''.join(line.split()).split(':')[1] == 'True'
                     break
                 else:
-                    self.plotColorMap = False
+                    self.plot_color_map = False
 
-        if self.plotColorMap:
+                if 'plot_process:' in line:
+                    self.plot_process = ''.join(line.split()).split(':')[1] == 'True'
+                    break
+                else:
+                    self.plot_process = False
+
+        if self.plot_color_map:
             self.plotNeuralActivity(inputs, neuron_activation_map)
+
+        if self.plot_process:
+            self.plotLearningCurve()
 
         a = e%(self.seq_length*self.batch_size)
         b = (self.seq_length*self.batch_size)
@@ -357,9 +381,10 @@ class VisualizeLSTM(object):
               str(self.neuronsOfInterest) + '(/' + str(self.n_hiddenNeurons) + ')'))
 
         print(table.table)
-        
-        # if self.saveParameters:
-        #     self.lstm_model.save('LSTM/lstm_model.h5')
+
+        if self.save_checkpoints:
+            savetxt('Parameters/seqIterations.txt', self.seq_iterations, delimiter=',')
+            savetxt('Parameters/losses.txt', self.losses, delimiter=',')
 
     def sequence_contains_sequence(self, haystack_seq, needle_seq):
         for i in range(0, len(haystack_seq) - len(needle_seq) + 1):
@@ -381,10 +406,10 @@ class VisualizeLSTM(object):
         anchored_text = AnchoredText(self.constants, loc=1)
         ax.add_artist(anchored_text)
 
-        plt.title(self.domain_specification[:-1] + ' prediction learning curve of Recurrent Neural Network')
-        plt.ylabel('Smooth loss')
-        plt.xlabel('Sequence iteration')
-        plt.plot(seqIterations + seqIterationsTemp, smoothLosses + smoothLossesTemp, LineWidth=2)
+        plt.title(self.domain_specification[:-1] + ' prediction learning curve of LSTM')
+        plt.ylabel('Cross-entropy loss')
+        plt.xlabel('Epoch')
+        plt.plot(self.seq_iterations, self.losses, LineWidth=2)
         plt.grid()
 
         plt.pause(0.1)
@@ -515,17 +540,18 @@ class VisualizeLSTM(object):
 def main():
 
     attributes = {
-        'textFile': 'LordOfTheRings2.txt',  # 'Data/ted_en.zip',  #  Name of book text file, needs to be longer than length_synthesized_textBest
+        'textFile': 'Data/LordOfTheRings2.txt',  # 'Data/ted_en.zip',  #  Name of book text file, needs to be longer than length_synthesized_textBest
         'embedding_model_file': 'None',  #'Data/glove_short.txt',  # ''Data/glove_840B_300d.txt',  # 'Data/glove_short.txt',  #
         'word_domain': True,  # True for words, False for characters
-        'lstm_model_file': 'New',  # 'Load' or 'New'
+        'load_lstm_model': True,  # True to load lstm checkpoint model
         'n_hiddenNeurons': 'Auto',  # Number of hidden neurons
         'eta': 1e-3,  # Learning rate
         'batch_size': 3,
         'nEpochs': 100,  # Total number of epochs, each corresponds to (n book characters)/(seq_length) seq iterations
         'seq_length': 5,  # Sequence length of each sequence iteration
         'length_synthesized_text': 10,  # Sequence length of each print of text evolution
-        'save_checkpoints': False  # Save best weights with corresponding arrays iterations and smooth loss
+        'remote_monitoring': False,  # Remote monitoring of learning curve at http://localhost:9000/
+        'save_checkpoints': True  # Save best weights with corresponding arrays iterations and smooth loss
     }
 
     lstm_vis = VisualizeLSTM(attributes)
