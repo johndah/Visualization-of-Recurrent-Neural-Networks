@@ -106,19 +106,31 @@ class VisualizeLSTM(object):
         if '.' in self.embedding_model_file:
             is_binary = self.embedding_model_file[-4:] == '.bin'
             print('Loading model "' + self.embedding_model_file + '"...')
-            word2vec_model = KeyedVectors.load_word2vec_format(self.embedding_model_file, binary=is_binary)
-            K = size(word2vec_model.vectors, 1)
+            word2vec_model_loaded = KeyedVectors.load_word2vec_format(self.embedding_model_file, binary=is_binary)
+            K = size(word2vec_model_loaded.vectors, 1)
+            words_to_add = [' ', '\n']
 
+            word2vec_model = gensim.models.Word2Vec(sentences, size=K, min_count=1, window=5, iter=0, sg=0)
+            word2vec_model.wv = word2vec_model_loaded.wv
+
+            print('Training word embedding model with new words ' + str(words_to_add) + '...')
+            word2vec_model.build_vocab([words_to_add], update=True)
+            word2vec_model.train([words_to_add], total_examples=1, epochs=100)
+
+            '''
             print('Searching for corpus words not in model...')
             sigma = std(word2vec_model.wv.syn0)
-            for word in words:
+            for word in words_to_add:
                 try:
                     word2vec_model.wv.vocab[word]
                 except KeyError:
                     word2vec_model[word] = random.uniform(-sigma, sigma, K)
                     print("Entity '" + word + "'" + ' added to model.')
+                    # word2vec_model.save("Data/glove_840B_300d_extended.txt")
+            '''
         else:
             K = 300
+            print('Training word embedding model...')
             word2vec_model = gensim.models.Word2Vec(sentences, size=K, min_count=1, window=5, iter=10, sg=0)
 
         return word2vec_model, words, sentences, K
@@ -126,47 +138,6 @@ class VisualizeLSTM(object):
     def evenlySplit(self, items, lengths):
         for i in range(0, len(items)-lengths, lengths):
             yield items[i:i + lengths]
-
-    def preProcessData(self):
-        print('Preprocessing data...')
-        x = zeros([self.seq_length, len(self.input_sequence)], dtype=int32)
-        y = zeros([len(self.input_sequence)], dtype=int32)
-
-        '''
-        input_sequence_indices = zeros([len(self.input_sequence)], dtype=int32)
-        for i, entity in enumerate(len(self.input_sequence)):
-            if i%int(len(self.input_sequence)/100):
-                print(str(int(i/len(input_sequence_indices))) + ' %')
-            try:
-                input_sequence_indices[i] = self.wordToIndex(entity)
-            except KeyError:
-                self.word2vec_model[entity] = random.uniform(-0.25, 0.25, self.K)
-                input_sequence_indices[i] = self.wordToIndex(entity)
-                print("Entity '" + entity + "'" + ' added to model.')
-        '''
-
-        for i, sentence in enumerate(self.input_sequence):
-            if i % int(len(self.input_sequence) / 100):
-                print(str(int(i / len(self.input_sequence))) + ' %')
-
-            for t, entity in enumerate(sentence[:-1]):
-                try:
-                    x[t, i] = self.wordToIndex(entity)
-                except KeyError:
-                    self.word2vec_model[entity] = random.uniform(-0.25, 0.25, self.K)
-                    x[t, i] = self.wordToIndex(entity)
-                    print("Entity '" + entity + "'" + ' added to model.')
-                    self.M += 1
-            label_entity = sentence[-1]
-            try:
-                y[i] = self.wordToIndex(label_entity)
-            except KeyError:
-                self.word2vec_model[label_entity] = random.uniform(-0.25, 0.25, self.K)
-                y[i] = self.wordToIndex(label_entity)
-                print("Entity '" + entity + "'" + ' added to model.')
-                self.M += 1
-
-        return x, y
 
     def trainLSTM(self):
         print('\nInitiate LSTM training...')
@@ -195,13 +166,16 @@ class VisualizeLSTM(object):
 
         synthesizeText = LambdaCallback(on_epoch_end=self.synthesizeText)
         early_stopping = EarlyStopping(monitor='val_loss', patience=5)
-        remote = RemoteMonitor(root='http://localhost:9000')
-        callbacks = [synthesizeText, early_stopping, remote]
+        callbacks = [synthesizeText, early_stopping]
 
         if self.save_checkpoints:
             file_path = "./LSTM Saved Models/Checkpoints/epoch{epoch:03d}-sequence%d-loss{loss:.4f}-val_loss{val_loss:.4f}" % (self.seq_length)
             checkpoint = ModelCheckpoint(file_path, monitor='val_loss', save_best_only=True)
             callbacks.append(checkpoint)
+
+        if self.remote_monitoring_ip:
+            remote = RemoteMonitor(root='http://' + remote_monitoring_ip + ':9000')
+            callbacks.append(remote)
 
         fetch = [tf.assign(self.input, self.lstm_model.input, validate_shape=False)]
         self.lstm_model._function_kwargs = {'fetches': fetch}
@@ -229,17 +203,20 @@ class VisualizeLSTM(object):
                         x[i, t] = self.wordToIndex(entity)
                     except KeyError:
                         #self.word2vec_model[entity] = random.uniform(-0.25, 0.25, self.K)
+                        print("Entity '" + entity + "'" + ' replaced with "-".')
+                        entity = '-'
                         x[i, t] = self.wordToIndex(entity)
-                        print("Entity '" + entity + "'" + ' added to model.')
 
                 label_entity = sentence[-1]
 
                 try:
                     y[i] = array([self.wordToIndex(label_entity)])
                 except KeyError:
-                    self.word2vec_model[label_entity] = random.uniform(-0.25, 0.25, self.K)
+                    #self.word2vec_model[label_entity] = random.uniform(-0.25, 0.25, self.K)
+                    #print("Entity '" + entity + "'" + ' added to model.')
+                    print("Entity '" + label_entity + "'" + ' replaced with "-".')
+                    label_entity = '-'
                     y[i] = array([self.wordToIndex(label_entity)])
-                    print("Entity '" + entity + "'" + ' added to model.')
 
             self.e += self.batch_size
 
@@ -540,17 +517,17 @@ class VisualizeLSTM(object):
 def main():
 
     attributes = {
-        'textFile': 'Data/LordOfTheRings2.txt',  # 'Data/ted_en.zip',  #  Name of book text file, needs to be longer than length_synthesized_textBest
-        'embedding_model_file': 'None',  #'Data/glove_short.txt',  # ''Data/glove_840B_300d.txt',  # 'Data/glove_short.txt',  #
+        'textFile': 'Data/ted_en.zip',  # 'Data/LordOfTheRings2.txt',
+        'embedding_model_file': 'Data/glove_short.txt',  # 'Data/glove_short.txt',  # 'Data/glove_840B_300d.txt',  #
         'word_domain': True,  # True for words, False for characters
-        'load_lstm_model': True,  # True to load lstm checkpoint model
+        'load_lstm_model': False,  # True to load lstm checkpoint model
         'n_hiddenNeurons': 'Auto',  # Number of hidden neurons
         'eta': 1e-3,  # Learning rate
-        'batch_size': 3,
+        'batch_size': 3,  # Number of sentences for training for each epoch
         'nEpochs': 100,  # Total number of epochs, each corresponds to (n book characters)/(seq_length) seq iterations
         'seq_length': 5,  # Sequence length of each sequence iteration
         'length_synthesized_text': 10,  # Sequence length of each print of text evolution
-        'remote_monitoring': False,  # Remote monitoring of learning curve at http://localhost:9000/
+        'remote_monitoring_ip': '192.168.151.125',  # Ip for remote monitoring at http://localhost:9000/
         'save_checkpoints': True  # Save best weights with corresponding arrays iterations and smooth loss
     }
 
