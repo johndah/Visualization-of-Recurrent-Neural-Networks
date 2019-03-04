@@ -50,8 +50,8 @@ class VisualizeLSTM(object):
             windll.kernel32.SetConsoleMode(c_int(stdout_handle), mode)
 
         if self.word_domain:
-            self.word2vec_model, self.words, self.input_sequence, self.K = self.loadVocabulary()
-            weights_word_embedding = self.word2vec_model.wv.syn0
+            self.vocabulary, self.words, self.input_sequence, self.K = self.loadVocabulary()
+            weights_word_embedding = self.vocabulary.syn0
             self.M = size(weights_word_embedding, 0)
         else:
             self.input_sequence, self.charToInd, self.indToChar = self.loadCharacters()
@@ -103,7 +103,16 @@ class VisualizeLSTM(object):
                     words.append('\n')
                 sentences = list(self.evenlySplit(words, self.seq_length))  # [''.join(words).split()]
 
-        if '.' in self.embedding_model_file:
+        if 'ted_talks' in self.embedding_model_file:
+            word2vec_model = gensim.models.Word2Vec.load(self.embedding_model_file)
+            
+            if self.train_embedding_model:
+                word2vec_model.train(sentences, total_examples=len(sentences), epochs=10)
+                word2vec_model.save("Data/ted_talks_word2vec.model")
+
+            K = size(word2vec_model.wv.syn0, 1)
+
+        elif '.' in self.embedding_model_file:
             is_binary = self.embedding_model_file[-4:] == '.bin'
             print('Loading model "' + self.embedding_model_file + '"...')
             word2vec_model_loaded = KeyedVectors.load_word2vec_format(self.embedding_model_file, binary=is_binary)
@@ -115,8 +124,8 @@ class VisualizeLSTM(object):
 
             print('Training word embedding model with new words ' + str(words_to_add) + '...')
             word2vec_model.build_vocab([words_to_add], update=True)
-            word2vec_model.train([words_to_add], total_examples=1, epochs=100)
-
+            word2vec_model.train([words_to_add], total_examples=1, epochs=1)
+            
             '''
             print('Searching for corpus words not in model...')
             sigma = std(word2vec_model.wv.syn0)
@@ -131,9 +140,14 @@ class VisualizeLSTM(object):
         else:
             K = 300
             print('Training word embedding model...')
-            word2vec_model = gensim.models.Word2Vec(sentences, size=K, min_count=1, window=5, iter=10, sg=0)
+            word2vec_model = gensim.models.Word2Vec(sentences, size=K, min_count=1, window=5, iter=10, sg=1)
+            print(word2vec_model.most_similar(positive=['there'], topn=10))
+            word2vec_model.save("Data/ted_talks_word2vec.model")
 
-        return word2vec_model, words, sentences, K
+        vocabulary = word2vec_model.wv
+        del word2vec_model
+
+        return vocabulary, words, sentences, K
 
     def evenlySplit(self, items, lengths):
         for i in range(0, len(items)-lengths, lengths):
@@ -145,7 +159,7 @@ class VisualizeLSTM(object):
         if not self.load_lstm_model:
             print('Initiate new LSTM model...')
             self.lstm_model = Sequential()
-            self.lstm_model.add(Embedding(input_dim=self.M, output_dim=self.K, weights=[self.word2vec_model.wv.syn0]))
+            self.lstm_model.add(Embedding(input_dim=self.M, output_dim=self.K, weights=[self.vocabulary.syn0]))
             self.lstm_model.add(LSTM(units=self.K))
             self.lstm_model.add(Dense(units=self.M))
             self.lstm_model.add(Activation('softmax'))
@@ -174,7 +188,7 @@ class VisualizeLSTM(object):
             callbacks.append(checkpoint)
 
         if self.remote_monitoring_ip:
-            remote = RemoteMonitor(root='http://' + remote_monitoring_ip + ':9000')
+            remote = RemoteMonitor(root='http://' + self.remote_monitoring_ip + ':9000')
             callbacks.append(remote)
 
         fetch = [tf.assign(self.input, self.lstm_model.input, validate_shape=False)]
@@ -203,7 +217,7 @@ class VisualizeLSTM(object):
                         x[i, t] = self.wordToIndex(entity)
                     except KeyError:
                         #self.word2vec_model[entity] = random.uniform(-0.25, 0.25, self.K)
-                        print("Entity '" + entity + "'" + ' replaced with "-".')
+                        #print("Entity '" + entity + "'" + ' replaced with "-".')
                         entity = '-'
                         x[i, t] = self.wordToIndex(entity)
 
@@ -214,7 +228,7 @@ class VisualizeLSTM(object):
                 except KeyError:
                     #self.word2vec_model[label_entity] = random.uniform(-0.25, 0.25, self.K)
                     #print("Entity '" + entity + "'" + ' added to model.')
-                    print("Entity '" + label_entity + "'" + ' replaced with "-".')
+                    #print("Entity '" + label_entity + "'" + ' replaced with "-".')
                     label_entity = '-'
                     y[i] = array([self.wordToIndex(label_entity)])
 
@@ -226,6 +240,7 @@ class VisualizeLSTM(object):
             yield x, y
     
     def synthesizeText(self, epoch, logs={}):
+        print('Generating text sequence...')
         self.losses.append(logs.get('loss'))
         self.seq_iterations.append(epoch)
 
@@ -509,24 +524,25 @@ class VisualizeLSTM(object):
                         self.interval_limits = array(self.interval_limits)
 
     def wordToIndex(self, word):
-        return self.word2vec_model.wv.vocab[word].index
+        return self.vocabulary.vocab[word].index
 
     def indexToWord(self, index):
-        return self.word2vec_model.wv.index2word[index]
+        return self.vocabulary.index2word[index]
 
 def main():
 
     attributes = {
         'textFile': 'Data/ted_en.zip',  # 'Data/LordOfTheRings2.txt',
-        'embedding_model_file': 'Data/glove_short.txt',  # 'Data/glove_short.txt',  # 'Data/glove_840B_300d.txt',  #
-        'word_domain': True,  # True for words, False for characters
         'load_lstm_model': False,  # True to load lstm checkpoint model
+        'embedding_model_file': 'Data/ted_talks_word2vec.model', # 'Data/glove_840B_300d.txt',  # 'Data/glove_short.txt',  #
+        'train_embedding_model': True, # Further train the embedding model
+        'word_domain': True,  # True for words, False for characters
         'n_hiddenNeurons': 'Auto',  # Number of hidden neurons
         'eta': 1e-3,  # Learning rate
-        'batch_size': 3,  # Number of sentences for training for each epoch
+        'batch_size': 5000,  # Number of sentences for training for each epoch
         'nEpochs': 100,  # Total number of epochs, each corresponds to (n book characters)/(seq_length) seq iterations
         'seq_length': 5,  # Sequence length of each sequence iteration
-        'length_synthesized_text': 10,  # Sequence length of each print of text evolution
+        'length_synthesized_text': 50,  # Sequence length of each print of text evolution
         'remote_monitoring_ip': '192.168.151.125',  # Ip for remote monitoring at http://localhost:9000/
         'save_checkpoints': True  # Save best weights with corresponding arrays iterations and smooth loss
     }
