@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="">
+    <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="Defining validation set">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSTM/config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/config.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -26,13 +25,18 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="167">
-              <caret line="554" column="18" lean-forward="true" selection-start-line="554" selection-start-column="18" selection-end-line="554" selection-end-column="18" />
+            <state relative-caret-position="213">
+              <caret line="557" column="39" lean-forward="true" selection-start-line="557" selection-start-column="39" selection-end-line="557" selection-end-column="39" />
               <folding>
                 <element signature="e#50#87#0" expanded="true" />
               </folding>
             </state>
           </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/LSTM/Data/LordOfTheRings2.txt">
+          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
@@ -56,8 +60,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="163">
-              <caret line="495" column="49" lean-forward="true" selection-start-line="495" selection-end-line="496" />
+            <state relative-caret-position="109">
+              <caret line="495" column="25" selection-start-line="495" selection-start-column="21" selection-end-line="495" selection-end-column="25" />
             </state>
           </provider>
         </entry>
@@ -91,17 +95,9 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>§load_lstm_model</find>
-      <find>check</find>
-      <find>plotNe</find>
-      <find>plotColorMap</find>
-      <find>plot_pr</find>
-      <find>plotProcess</find>
-      <find>plot_process</find>
       <find>plotproc</find>
       <find>seqIte</find>
       <find>saveParameters</find>
-      <find>save</find>
       <find>losses</find>
       <find>smoothLos</find>
       <find>=</find>
@@ -115,11 +111,19 @@
       <find>except KeyError:</find>
       <find>word2vec_model</find>
       <find>word2vec_model =</find>
-      <find>most</find>
       <find>''</find>
       <find>'-'</find>
       <find>remote_monitoring</find>
       <find>the</find>
+      <find>adagr</find>
+      <find>getWords</find>
+      <find>for e</find>
+      <find>most</find>
+      <find>generateWords</find>
+      <find>input_sequence</find>
+      <find>save</find>
+      <find>train_embedding_model</find>
+      <find>n_tra</find>
       <find>ip</find>
     </findStrings>
     <replaceStrings>
@@ -406,7 +410,14 @@
       <option name="project" value="LOCAL" />
       <updated>1551691457495</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Allowing word embedding training">
+      <created>1551710976494</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1551710976494</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TodoView">
@@ -427,13 +438,13 @@
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32932165" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4990086" weight="0.4220963" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49834764" weight="0.38244852" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4990086" visible="true" weight="0.3569405" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49834764" weight="0.3286119" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32936078" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.32936078" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="8" visible="true" weight="0.4220963" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.26912183" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.50165236" side_tool="true" weight="0.37818697" />
       <window_info anchor="bottom" id="Python Console" order="10" sideWeight="0.49947312" weight="0.4182015" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -473,7 +484,8 @@
     <MESSAGE value="Working LSTM. Allows remote monitoring and plots learning curve (needs to be edited). Models may be saved and loaded" />
     <MESSAGE value="Losses file added" />
     <MESSAGE value="Ignoring words out of vocabulary." />
-    <option name="LAST_COMMIT_MESSAGE" value="Ignoring words out of vocabulary." />
+    <MESSAGE value="Allowing word embedding training" />
+    <option name="LAST_COMMIT_MESSAGE" value="Allowing word embedding training" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -565,12 +577,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py</url>
-          <line>431</line>
+          <line>444</line>
           <option name="timeStamp" value="387" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py</url>
-          <line>146</line>
+          <line>159</line>
           <option name="timeStamp" value="408" />
         </line-breakpoint>
       </breakpoints>
@@ -710,13 +722,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="163">
-          <caret line="495" column="49" lean-forward="true" selection-start-line="495" selection-end-line="496" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/LSTM/Data/glove_short.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="289">
@@ -731,6 +736,16 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="109">
+          <caret line="495" column="25" selection-start-line="495" selection-start-column="21" selection-end-line="495" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LSTM/Data/LordOfTheRings2.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/test.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="163">
@@ -740,8 +755,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="167">
-          <caret line="554" column="18" lean-forward="true" selection-start-line="554" selection-start-column="18" selection-end-line="554" selection-end-column="18" />
+        <state relative-caret-position="213">
+          <caret line="557" column="39" lean-forward="true" selection-start-line="557" selection-start-column="39" selection-end-line="557" selection-end-column="39" />
           <folding>
             <element signature="e#50#87#0" expanded="true" />
           </folding>

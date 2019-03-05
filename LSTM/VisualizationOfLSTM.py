@@ -50,7 +50,14 @@ class VisualizeLSTM(object):
             windll.kernel32.SetConsoleMode(c_int(stdout_handle), mode)
 
         if self.word_domain:
-            self.vocabulary, self.words, self.input_sequence, self.K = self.loadVocabulary()
+            self.vocabulary, sentences, self.K = self.loadVocabulary()
+
+            n_validation = int(len(sentences)*self.validation_proportion)
+            n_training = len(sentences) - n_validation
+
+            self.input_sequence = sentences[:n_training]
+            self.input_sequence_validation = sentences[n_training:]
+
             weights_word_embedding = self.vocabulary.syn0
             self.M = size(weights_word_embedding, 0)
         else:
@@ -105,9 +112,10 @@ class VisualizeLSTM(object):
 
         if 'ted_talks' in self.embedding_model_file:
             word2vec_model = gensim.models.Word2Vec.load(self.embedding_model_file)
-            
+
             if self.train_embedding_model:
                 word2vec_model.train(sentences, total_examples=len(sentences), epochs=10)
+            if self.save_embedding_model:
                 word2vec_model.save("Data/ted_talks_word2vec.model")
 
             K = size(word2vec_model.wv.syn0, 1)
@@ -141,13 +149,18 @@ class VisualizeLSTM(object):
             K = 300
             print('Training word embedding model...')
             word2vec_model = gensim.models.Word2Vec(sentences, size=K, min_count=1, window=5, iter=10, sg=1)
-            print(word2vec_model.most_similar(positive=['there'], topn=10))
+
+            words_to_add = [' ', '\n']
+            print('Training word embedding model with new words ' + str(words_to_add) + '...')
+            word2vec_model.build_vocab([words_to_add], update=True)
+            word2vec_model.train([words_to_add], total_examples=1, epochs=1)
+
             word2vec_model.save("Data/ted_talks_word2vec.model")
 
         vocabulary = word2vec_model.wv
         del word2vec_model
 
-        return vocabulary, words, sentences, K
+        return vocabulary, sentences, K
 
     def evenlySplit(self, items, lengths):
         for i in range(0, len(items)-lengths, lengths):
@@ -195,23 +208,23 @@ class VisualizeLSTM(object):
         self.lstm_model._function_kwargs = {'fetches': fetch}
 
 
-        self.lstm_model.fit_generator(self.generateWords(),
+        self.lstm_model.fit_generator(self.generateWords(self.input_sequence),
                             steps_per_epoch=int(len(self.input_sequence) / self.batch_size) + 1,
                             epochs=100,
                             callbacks=callbacks,
-                            validation_data=self.generateWords(),
-                            validation_steps=int(len(self.input_sequence) / self.batch_size) + 1)
+                            validation_data=self.generateWords(self.input_sequence_validation),
+                            validation_steps=int(len(self.input_sequence_validation) / self.batch_size) + 1)
 
         #table, neuron_activation_map, inputs = self.synthesizeText()
 
-    def generateWords(self):
+    def generateWords(self, input_sequence):
 
         while True:
             x = zeros((self.batch_size, self.seq_length), dtype=int32)
             y = zeros((self.batch_size), dtype=int32)
 
             # for i, sentence in enumerate(self.sentences[self.e:self.e+self.batch_size]):
-            for i, sentence in enumerate(self.input_sequence[self.e:self.e+self.batch_size]):
+            for i, sentence in enumerate(input_sequence[self.e:self.e+self.batch_size]):
                 for t, entity in enumerate(sentence[:-1]):
                     try:
                         x[i, t] = self.wordToIndex(entity)
@@ -234,7 +247,7 @@ class VisualizeLSTM(object):
 
             self.e += self.batch_size
 
-            if self.e == len(self.input_sequence):
+            if self.e == len(input_sequence):
                 self.e = 0
 
             yield x, y
@@ -532,11 +545,13 @@ class VisualizeLSTM(object):
 def main():
 
     attributes = {
-        'textFile': 'Data/ted_en.zip',  # 'Data/LordOfTheRings2.txt',
+        'textFile': 'Data/LordOfTheRings2.txt',  # 'Data/ted_en.zip',
         'load_lstm_model': False,  # True to load lstm checkpoint model
-        'embedding_model_file': 'Data/ted_talks_word2vec.model', # 'Data/glove_840B_300d.txt',  # 'Data/glove_short.txt',  #
-        'train_embedding_model': True, # Further train the embedding model
+        'embedding_model_file': 'None', # 'Data/ted_talks_word2vec.model', # 'Data/glove_840B_300d.txt',  # 'Data/glove_short.txt',  #
+        'train_embedding_model': True,  # Further train the embedding model
+        'save_embedding_model': False,  # Save trained embedding model
         'word_domain': True,  # True for words, False for characters
+        'validation_proportion': .1,  # The proportion of data set used for validation
         'n_hiddenNeurons': 'Auto',  # Number of hidden neurons
         'eta': 1e-3,  # Learning rate
         'batch_size': 5000,  # Number of sentences for training for each epoch
