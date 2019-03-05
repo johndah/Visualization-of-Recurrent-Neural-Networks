@@ -93,16 +93,16 @@ class VisualizeLSTM(object):
     def loadVocabulary(self):
         words = []
 
-        print('Loading text file "' + self.textFile + '"...')
-        if self.textFile[-4:] == '.zip':
-            with zipfile.ZipFile(self.textFile, 'r') as z:
+        print('Loading text file "' + self.text_file + '"...')
+        if self.text_file[-4:] == '.zip':
+            with zipfile.ZipFile(self.text_file, 'r') as z:
                 doc = lxml.etree.parse(z.open(z.filelist[0].filename, 'r'))
             print('Extracting words...')
             input_text = '\n'.join(doc.xpath('//content/text()'))
             words.extend(re.findall(r"\w+|[^\w]", input_text))
             sentences = list(self.evenlySplit(words, self.seq_length))
         else:
-            with open(self.textFile, 'r') as f:
+            with open(self.text_file, 'r') as f:
                 lines = f.readlines()
                 print('Extracting words...')
                 for line in lines:
@@ -110,13 +110,13 @@ class VisualizeLSTM(object):
                     words.append('\n')
                 sentences = list(self.evenlySplit(words, self.seq_length))  # [''.join(words).split()]
 
-        if 'ted_talks' in self.embedding_model_file:
+        if '.model' in self.embedding_model_file:
             word2vec_model = gensim.models.Word2Vec.load(self.embedding_model_file)
 
             if self.train_embedding_model:
                 word2vec_model.train(sentences, total_examples=len(sentences), epochs=10)
             if self.save_embedding_model:
-                word2vec_model.save("Data/ted_talks_word2vec.model")
+                word2vec_model.save('Word Embedding Model/' + self.embedding_model_file)
 
             K = size(word2vec_model.wv.syn0, 1)
 
@@ -155,7 +155,8 @@ class VisualizeLSTM(object):
             word2vec_model.build_vocab([words_to_add], update=True)
             word2vec_model.train([words_to_add], total_examples=1, epochs=1)
 
-            word2vec_model.save("Data/ted_talks_word2vec.model")
+            if self.save_embedding_model:
+                word2vec_model.save('Word Embedding Model/' + self.text_file.split('.')[0].split('/')[-1] + ".model")
 
         vocabulary = word2vec_model.wv
         del word2vec_model
@@ -210,7 +211,7 @@ class VisualizeLSTM(object):
 
         self.lstm_model.fit_generator(self.generateWords(self.input_sequence),
                             steps_per_epoch=int(len(self.input_sequence) / self.batch_size) + 1,
-                            epochs=100,
+                            epochs=self.n_epochs,
                             callbacks=callbacks,
                             validation_data=self.generateWords(self.input_sequence_validation),
                             validation_steps=int(len(self.input_sequence_validation) / self.batch_size) + 1)
@@ -545,7 +546,7 @@ class VisualizeLSTM(object):
 def main():
 
     attributes = {
-        'textFile': 'Data/LordOfTheRings2.txt',  # 'Data/ted_en.zip',
+        'text_file': 'Data/LordOfTheRings2.txt',  # 'Data/ted_en.zip',
         'load_lstm_model': False,  # True to load lstm checkpoint model
         'embedding_model_file': 'None', # 'Data/ted_talks_word2vec.model', # 'Data/glove_840B_300d.txt',  # 'Data/glove_short.txt',  #
         'train_embedding_model': True,  # Further train the embedding model
@@ -555,7 +556,7 @@ def main():
         'n_hiddenNeurons': 'Auto',  # Number of hidden neurons
         'eta': 1e-3,  # Learning rate
         'batch_size': 5000,  # Number of sentences for training for each epoch
-        'nEpochs': 100,  # Total number of epochs, each corresponds to (n book characters)/(seq_length) seq iterations
+        'n_epochs': 100,  # Total number of epochs, each corresponds to (n book characters)/(seq_length) seq iterations
         'seq_length': 5,  # Sequence length of each sequence iteration
         'length_synthesized_text': 50,  # Sequence length of each print of text evolution
         'remote_monitoring_ip': '192.168.151.125',  # Ip for remote monitoring at http://localhost:9000/
