@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="de">
+    <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSTM/Parameters/losses.txt" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/Parameters/losses.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSTM/Parameters/seqIterations.txt" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/Parameters/seqIterations.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSTM/config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/config.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -90,8 +87,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="173">
-              <caret line="561" column="71" selection-start-line="561" selection-start-column="71" selection-end-line="561" selection-end-column="71" />
+            <state relative-caret-position="207">
+              <caret line="71" column="28" lean-forward="true" selection-start-line="71" selection-start-column="28" selection-end-line="71" selection-end-column="28" />
               <folding>
                 <element signature="e#50#87#0" expanded="true" />
               </folding>
@@ -119,7 +116,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>Word Em</find>
       <find>if self.save_embedding_model:</find>
       <find>evenlySplit</find>
       <find>sentence</find>
@@ -127,7 +123,6 @@
       <find>synthe</find>
       <find>input =</find>
       <find>seed</find>
-      <find>generate</find>
       <find>pred</find>
       <find>adams</find>
       <find>adam</find>
@@ -141,14 +136,16 @@
       <find>rtled that I hardly had the wits to hide myself in a more ordinary</find>
       <find>plt</find>
       <find>synth</find>
-      <find>input</find>
-      <find>input</find>
       <find>self.inp</find>
       <find>self.input</find>
       <find>' '</find>
       <find>self.synth</find>
       <find>synthesizeText</find>
       <find>neuronActivations</find>
+      <find>input</find>
+      <find>input</find>
+      <find>generate</find>
+      <find>input1</find>
     </findStrings>
     <replaceStrings>
       <replace>o, h, a = self.forwardProp</replace>
@@ -243,7 +240,7 @@
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../lstm-on-Yelp-review-data-master" />
     <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="PyConsoleConfigurable.Python Console" />
+    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
   </component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
@@ -464,7 +461,14 @@
       <option name="project" value="LOCAL" />
       <updated>1551774004778</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="Fixes issue with getting false high accuracy directly. &#10;&#10;Changed naming convention for function names">
+      <created>1551947727363</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1551947727364</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TodoView">
@@ -485,7 +489,7 @@
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32932165" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4990086" visible="true" weight="0.34019503" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4990086" visible="true" weight="0.30010834" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49834764" weight="0.4171181" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -534,7 +538,8 @@
     <MESSAGE value="Allowing word embedding training" />
     <MESSAGE value="Defining validation set edit" />
     <MESSAGE value="Details" />
-    <option name="LAST_COMMIT_MESSAGE" value="Details" />
+    <MESSAGE value="Fixes issue with getting false high accuracy directly. &#10;&#10;Changed naming convention for function names" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixes issue with getting false high accuracy directly. &#10;&#10;Changed naming convention for function names" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -626,28 +631,33 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py</url>
-          <line>431</line>
+          <line>441</line>
           <option name="timeStamp" value="387" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py</url>
-          <line>106</line>
+          <line>107</line>
           <option name="timeStamp" value="439" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py</url>
-          <line>251</line>
+          <line>261</line>
           <option name="timeStamp" value="458" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py</url>
-          <line>293</line>
-          <option name="timeStamp" value="461" />
+          <line>405</line>
+          <option name="timeStamp" value="463" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py</url>
-          <line>397</line>
-          <option name="timeStamp" value="463" />
+          <line>231</line>
+          <option name="timeStamp" value="466" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py</url>
+          <line>294</line>
+          <option name="timeStamp" value="467" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -841,8 +851,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="173">
-          <caret line="561" column="71" selection-start-line="561" selection-start-column="71" selection-end-line="561" selection-end-column="71" />
+        <state relative-caret-position="207">
+          <caret line="71" column="28" lean-forward="true" selection-start-line="71" selection-start-column="28" selection-end-line="71" selection-end-column="28" />
           <folding>
             <element signature="e#50#87#0" expanded="true" />
           </folding>
