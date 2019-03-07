@@ -50,7 +50,7 @@ class VisualizeLSTM(object):
             windll.kernel32.SetConsoleMode(c_int(stdout_handle), mode)
 
         if self.word_domain:
-            self.vocabulary, sentences, self.K = self.loadVocabulary()
+            self.vocabulary, sentences, self.K = self.load_vocabulary()
 
             n_validation = int(len(sentences)*self.validation_proportion)
             n_training = len(sentences) - n_validation
@@ -67,7 +67,6 @@ class VisualizeLSTM(object):
         if self.n_hiddenNeurons == 'Auto':
             self.n_hiddenNeurons = self.K
 
-        self.e = 0
         self.input = tf.Variable(0., validate_shape=False)
 
         if self.word_domain:
@@ -82,7 +81,7 @@ class VisualizeLSTM(object):
                     + '\n' + 'Training sequence length: ' + str(self.seq_length) \
                     + '\n' + 'Batch size: ' + str(self.batch_size) \
                     + '\n#' + self.domain_specification + ' in training text:' + '\n' + str(len(self.input_sequence))
-        
+
         if self.load_lstm_model:
             self.seq_iterations = [i for i in loadtxt('Parameters/seqIterations.txt', delimiter=",", unpack=False)]
             self.losses = [i for i in loadtxt('Parameters/losses.txt', delimiter=",", unpack=False)]
@@ -90,7 +89,11 @@ class VisualizeLSTM(object):
             self.seq_iterations = []
             self.losses = []
 
-    def loadVocabulary(self):
+        self.neurons_of_interest = []
+        self.neurons_of_interest_plot = []
+        self.neurons_of_interest_plot_intervals = []
+
+    def load_vocabulary(self):
         words = []
 
         print('Loading text file "' + self.text_file + '"...')
@@ -100,15 +103,20 @@ class VisualizeLSTM(object):
             print('Extracting words...')
             input_text = '\n'.join(doc.xpath('//content/text()'))
             words.extend(re.findall(r"\w+|[^\w]", input_text))
-            sentences = list(self.evenlySplit(words, self.seq_length))
+            # words = input_text.split()
+            sentences = list(self.evenly_split(words, self.seq_length))
         else:
             with open(self.text_file, 'r') as f:
                 lines = f.readlines()
                 print('Extracting words...')
+                #input_text = '\n'.join(lines)
+                #words = input_text.split() # Space edit
                 for line in lines:
+                    # words.extend(line.split())
+                    # words.append('\n')
                     words.extend(re.findall(r"\w+|[^\w]", line))
                     words.append('\n')
-                sentences = list(self.evenlySplit(words, self.seq_length))  # [''.join(words).split()]
+                sentences = list(self.evenly_split(words, self.seq_length))  # [''.join(words).split()]
 
         if '.model' in self.embedding_model_file:
             word2vec_model = gensim.models.Word2Vec.load(self.embedding_model_file)
@@ -116,11 +124,11 @@ class VisualizeLSTM(object):
             if self.train_embedding_model:
                 word2vec_model.train(sentences, total_examples=len(sentences), epochs=10)
             if self.save_embedding_model:
-                word2vec_model.save('Word Embedding Model/' + self.embedding_model_file)
+                word2vec_model.save('Word_Embedding_Model/' + self.embedding_model_file)
 
             K = size(word2vec_model.wv.syn0, 1)
 
-        elif '.' in self.embedding_model_file:
+        elif '.txt' in self.embedding_model_file or '.bin' in self.embedding_model_file:
             is_binary = self.embedding_model_file[-4:] == '.bin'
             print('Loading model "' + self.embedding_model_file + '"...')
             word2vec_model_loaded = KeyedVectors.load_word2vec_format(self.embedding_model_file, binary=is_binary)
@@ -133,7 +141,7 @@ class VisualizeLSTM(object):
             print('Training word embedding model with new words ' + str(words_to_add) + '...')
             word2vec_model.build_vocab([words_to_add], update=True)
             word2vec_model.train([words_to_add], total_examples=1, epochs=1)
-            
+
             '''
             print('Searching for corpus words not in model...')
             sigma = std(word2vec_model.wv.syn0)
@@ -148,26 +156,21 @@ class VisualizeLSTM(object):
         else:
             K = 300
             print('Training word embedding model...')
-            word2vec_model = gensim.models.Word2Vec(sentences, size=K, min_count=1, window=5, iter=10, sg=1)
-
-            words_to_add = [' ', '\n']
-            print('Training word embedding model with new words ' + str(words_to_add) + '...')
-            word2vec_model.build_vocab([words_to_add], update=True)
-            word2vec_model.train([words_to_add], total_examples=1, epochs=1)
+            word2vec_model = gensim.models.Word2Vec(sentences, size=K, min_count=1, window=5, iter=100, sg=1)
 
             if self.save_embedding_model:
-                word2vec_model.save('Word Embedding Model/' + self.text_file.split('.')[0].split('/')[-1] + ".model")
+                word2vec_model.save('Word_Embedding_Model/' + self.text_file.split('.')[0].split('/')[-1] + ".model")
 
         vocabulary = word2vec_model.wv
         del word2vec_model
 
         return vocabulary, sentences, K
 
-    def evenlySplit(self, items, lengths):
+    def evenly_split(self, items, lengths):
         for i in range(0, len(items)-lengths, lengths):
             yield items[i:i + lengths]
 
-    def trainLSTM(self):
+    def train_lstm(self):
         print('\nInitiate LSTM training...')
 
         if not self.load_lstm_model:
@@ -192,9 +195,9 @@ class VisualizeLSTM(object):
 
         self.lstm_model.summary()
 
-        synthesizeText = LambdaCallback(on_epoch_end=self.synthesizeText)
+        synthesize_text = LambdaCallback(on_epoch_end=self.synthesize_text)
         early_stopping = EarlyStopping(monitor='val_loss', patience=5)
-        callbacks = [synthesizeText, early_stopping]
+        callbacks = [synthesize_text, early_stopping]
 
         if self.save_checkpoints:
             file_path = "./LSTM Saved Models/Checkpoints/epoch{epoch:03d}-sequence%d-loss{loss:.4f}-val_loss{val_loss:.4f}" % (self.seq_length)
@@ -208,109 +211,117 @@ class VisualizeLSTM(object):
         fetch = [tf.assign(self.input, self.lstm_model.input, validate_shape=False)]
         self.lstm_model._function_kwargs = {'fetches': fetch}
 
+        class InitLog:
+            def get(self, attribute):
+                if attribute == 'loss':
+                    return 10
+        logs = InitLog()
+        self.synthesize_text(0, logs)
 
-        self.lstm_model.fit_generator(self.generateWords(self.input_sequence),
+        self.lstm_model.fit_generator(self.generate_words(self.input_sequence),
                             steps_per_epoch=int(len(self.input_sequence) / self.batch_size) + 1,
                             epochs=self.n_epochs,
                             callbacks=callbacks,
-                            validation_data=self.generateWords(self.input_sequence_validation),
+                            validation_data=self.generate_words(self.input_sequence_validation),
                             validation_steps=int(len(self.input_sequence_validation) / self.batch_size) + 1)
 
-        #table, neuron_activation_map, inputs = self.synthesizeText()
+        # table, neuron_activation_map, inputs = self.synthesize_text()
 
-    def generateWords(self, input_sequence):
-
+    def generate_words(self, input_sequence):
+        batch_index = 0
+        random.shuffle(input_sequence)
         while True:
-            x = zeros((self.batch_size, self.seq_length), dtype=int32)
+            x = zeros((self.batch_size, self.seq_length-1), dtype=int32)
             y = zeros((self.batch_size), dtype=int32)
 
-            # for i, sentence in enumerate(self.sentences[self.e:self.e+self.batch_size]):
-            for i, sentence in enumerate(input_sequence[self.e:self.e+self.batch_size]):
+            for i, sentence in enumerate(input_sequence[batch_index:batch_index+self.batch_size]):
                 for t, entity in enumerate(sentence[:-1]):
                     try:
-                        x[i, t] = self.wordToIndex(entity)
+                        x[i, t] = self.word_to_index(entity)
                     except KeyError:
-                        #self.word2vec_model[entity] = random.uniform(-0.25, 0.25, self.K)
-                        #print("Entity '" + entity + "'" + ' replaced with "-".')
                         entity = '-'
-                        x[i, t] = self.wordToIndex(entity)
+                        x[i, t] = self.word_to_index(entity)
 
                 label_entity = sentence[-1]
 
                 try:
-                    y[i] = array([self.wordToIndex(label_entity)])
+                    y[i] = array([self.word_to_index(label_entity)])
                 except KeyError:
-                    #self.word2vec_model[label_entity] = random.uniform(-0.25, 0.25, self.K)
-                    #print("Entity '" + entity + "'" + ' added to model.')
-                    #print("Entity '" + label_entity + "'" + ' replaced with "-".')
                     label_entity = '-'
-                    y[i] = array([self.wordToIndex(label_entity)])
+                    y[i] = array([self.word_to_index(label_entity)])
 
-            self.e += self.batch_size
+            batch_index += self.batch_size
 
-            if self.e == len(input_sequence):
-                self.e = 0
+            if batch_index >= len(input_sequence) - 1:
+                batch_index = 0
 
             yield x, y
-    
-    def synthesizeText(self, epoch, logs={}):
+
+    def synthesize_text(self, epoch, logs={}):
         print('Generating text sequence...')
         self.losses.append(logs.get('loss'))
         self.seq_iterations.append(epoch)
 
-        self.neuronsOfInterest = []
-        self.neuronsOfInterestPlot = []
-        self.neuronsOfInterestPlotIntervals = []
+        self.load_neuron_intervals()
 
-        self.loadNeuronIntervals()
-
-        table_data = [['Neuron ' + str(self.neuronsOfInterest[int(i/2)]), ''] if i % 2 == 0 else ['\n', '\n'] for i in range(2*len(self.neuronsOfInterest))]
+        table_data = [['Neuron ' + str(self.neurons_of_interest[int(i/2)]), ''] if i % 2 == 0 else ['\n', '\n'] for i in range(2*len(self.neurons_of_interest))]
         table = SingleTable(table_data)
         table.table_data.insert(0, ['Neuron ', 'Predicted sentence '])
 
         max_width = table.column_max_width(1)
 
-        y_n = [[] for _ in range(len(self.neuronsOfInterest))]
-        y = [[] for _ in range(len(self.neuronsOfInterest))]
+        y_n = [[] for _ in range(len(self.neurons_of_interest))]
+        y = [[] for _ in range(len(self.neurons_of_interest))]
 
         neuron_activation_map = zeros((self.n_hiddenNeurons, self.length_synthesized_text))
 
         input = atleast_2d(K.eval(self.input))
-        entity_indices = zeros(self.length_synthesized_text + self.seq_length)
-        entity_indices[:self.seq_length] = atleast_2d(input[-1])
+        input = zeros((1, self.seq_length))
+
+        for i, entity in enumerate(self.input_sequence_validation[0]):
+            input[0, i] = self.word_to_index(entity)
+
+        entity_indices = zeros(self.seq_length + self.length_synthesized_text)
+        entity_indices[:self.seq_length] = atleast_2d(input[0, :])
+
+        input_sentence = ''
+        for i in range(len(input[0, :])):
+            input_sentence += self.index_to_word(int(input[0, i]))
+
+        print('Input sentence: ' + input_sentence)
 
         for t in range(self.length_synthesized_text):
 
             x = entity_indices[t:t+self.seq_length]
-            output = self.lstm_model.predict(x=array(x))
+            output = self.lstm_model.predict(x=atleast_2d(x))
             lstm_layer = K.function([self.lstm_model.layers[0].input], [self.lstm_model.layers[1].output])
             activations = lstm_layer([atleast_2d(x)])[0].T
 
             neuron_activation_map[:, t] = activations[:, 0]
-            neuronActivations = activations[self.neuronsOfInterest]
+            neuron_activations = activations[self.neurons_of_interest]
 
             cp = cumsum(output)
             rand = random.uniform()
             diff = cp - rand
             sample_index = [i for i in range(len(diff)) if diff[i] > 0][0]
-            sample = self.indexToWord(sample_index)
+            sample = self.index_to_word(sample_index)
             entity_indices[t + self.seq_length] = sample_index
 
-            for i in range(len(self.neuronsOfInterest)):
+            for i in range(len(self.neurons_of_interest)):
 
-                neuronActivation = neuronActivations[i, 0]
+                neuron_activation = neuron_activations[i, 0]
 
-                if neuronActivation > 0:
-                    bg.set_style('activationColor', RgbBg(int(neuronActivation * 255), 0, 0))
+                if neuron_activation > 0:
+                    bg.set_style('activationColor', RgbBg(int(neuron_activation * 255), 0, 0))
                 else:
-                    bg.set_style('activationColor', RgbBg(0, 0, int(abs(neuronActivation) * 255)))
+                    bg.set_style('activationColor', RgbBg(0, 0, int(abs(neuron_activation) * 255)))
 
-                coloredWord = bg.activationColor + sample + bg.rs
+                colored_word = bg.activationColor + sample + bg.rs
 
                 y_n[i].append(sample)
-                y[i].append(coloredWord)
+                y[i].append(colored_word)
 
-        for i in range(len(self.neuronsOfInterest)):
+        for i in range(len(self.neurons_of_interest)):
 
             wrapped_string = ''
             line_width = 0
@@ -322,7 +333,7 @@ class VisualizeLSTM(object):
                     line_width = 0
                     wrapped_string += ' ' * (max_width - line_width) * 0 + '\n'
                 else:
-                   wrapped_string += ''.join(y[i][j])
+                    wrapped_string += ''.join(y[i][j])
 
                 line_width += len(y_n[i][j])
                 if line_width > max_width - 10:
@@ -331,8 +342,8 @@ class VisualizeLSTM(object):
 
             table.table_data[2*i+1][1] = wrapped_string
 
-        max_activation = amax(neuron_activation_map[self.neuronsOfInterest, :])
-        min_activation = amin(neuron_activation_map[self.neuronsOfInterest, :])
+        max_activation = amax(neuron_activation_map[self.neurons_of_interest, :])
+        min_activation = amin(neuron_activation_map[self.neurons_of_interest, :])
         margin = 8
         color_range_width = max_width - len(table.table_data[0][1]) - (len(str(max_activation)) + len(str(min_activation)) + margin)
         color_range = arange(min_activation, max_activation,
@@ -375,16 +386,15 @@ class VisualizeLSTM(object):
                     self.plot_process = False
 
         if self.plot_color_map:
-            self.plotNeuralActivity(inputs, neuron_activation_map)
+            self.plot_neural_activity(inputs, neuron_activation_map)
 
         if self.plot_process:
-            self.plotLearningCurve()
+            self.plot_learning_curve()
 
-        a = e%(self.seq_length*self.batch_size)
-        b = (self.seq_length*self.batch_size)
-        print('\nEpoch: ' + str(int(e/self.seq_length*self.batch_size)) + ', Epoch process: ' + str('{0:.2f}'.format(a/b*100) + '%'
-              + ', Loss: ' + str('{0:.2f}'.format(self.losses[-1])) + ', Neuron of interest: ' +
-              str(self.neuronsOfInterest) + '(/' + str(self.n_hiddenNeurons) + ')'))
+        # a = e%(self.seq_length*self.batch_size)
+        # b = (self.seq_length*self.batch_size)
+        # ', Epoch process: ' + str('{0:.2f}'.format(a/b*100) + '%'
+        print('\nEpoch: ' + str(int(e/self.seq_length*self.batch_size)) + ', Loss: ' + str('{0:.2f}'.format(self.losses[-1])) + ', Neuron of interest: ' + str(self.neurons_of_interest) + '(/' + str(self.n_hiddenNeurons) + ')')
 
         print(table.table)
 
@@ -399,12 +409,12 @@ class VisualizeLSTM(object):
         return False, 0
 
     def softmax(self, s):
-        exP = exp(s)
-        p = exP / exP.sum()
+        ex_p = ex_p(s)
+        p = ex_p / ex_p.sum()
 
         return p
 
-    def plotLearningCurve(self):
+    def plot_learning_curve(self):
         fig = plt.figure(2)
         plt.clf()
         ax = fig.add_subplot(111)
@@ -420,7 +430,7 @@ class VisualizeLSTM(object):
 
         plt.pause(0.1)
 
-    def plotNeuralActivity(self, inputs, neuron_activation_map):
+    def plot_neural_activity(self, inputs, neuron_activation_map):
         with open('FeaturesOfInterest.txt', 'r') as f:
             lines = f.readlines()
             for line in lines:
@@ -429,14 +439,14 @@ class VisualizeLSTM(object):
                     feature = line.split(':')[1].split("'")[1]
                     break
         try:
-            input_indices_of_interets = []
-            inputs_of_interets = []
+            input_indices_of_interest = []
+            inputs_of_interest = []
             for i in range(len(inputs)):
                 if bool(re.fullmatch(r''.join(feature), inputs[i])):
-                    input_indices_of_interets.append(i)
+                    input_indices_of_interest.append(i)
                     if inputs[i] == '\n':
                         inputs[i] = '\\n'
-                    inputs_of_interets.append('"' + inputs[i] + '"')
+                    inputs_of_interest.append('"' + inputs[i] + '"')
         except Exception as ex:
             print(ex)
 
@@ -446,28 +456,28 @@ class VisualizeLSTM(object):
         feature_label = 'Feature: "' + feature + '"'
         if not self.word_domain and feature == '.':
             feature_label = 'Feature: ' + '$\it{Any}$'
-        x = range(len(inputs_of_interets))
+        x = range(len(inputs_of_interest))
         axarr[0].set_xticks(x)
         axarr[0].set_xlabel('Predicted sequence (' + feature_label + ')')
-        axarr[0].set_xticklabels(inputs_of_interets, fontsize=7, rotation=90 * self.word_domain)
+        axarr[0].set_xticklabels(inputs_of_interest, fontsize=7, rotation=90 * self.word_domain)
         axarr[1].set_xticks([])
 
-        y = range(len(self.neuronsOfInterestPlot))
+        y = range(len(self.neurons_of_interest_plot))
         intervals = [
             self.intervals_to_plot[where(self.interval_limits == i)[0][0]] if i in self.interval_limits else ' ' for i
-            in self.neuronsOfInterestPlot]
+            in self.neurons_of_interest_plot]
 
         for i in range(len(axarr)):
             axarr[i].set_yticks(y)
             axarr[i].set_yticklabels(intervals, fontsize=7)
             axarr[0].set_ylabel('Neuron')
 
-        neuron_activation_rows = neuron_activation_map[self.neuronsOfInterestPlot, :]
+        neuron_activation_rows = neuron_activation_map[self.neurons_of_interest_plot, :]
         # f = plt.subplot(1, 2)
         # f, (ax1) = plt.subplot(1, 2, 1)
         max_activation = amax(neuron_activation_map)
         min_activation = amin(neuron_activation_map)
-        neuron_feature_extracted_map = neuron_activation_rows[:, input_indices_of_interets]
+        neuron_feature_extracted_map = neuron_activation_rows[:, input_indices_of_interest]
         colmap = axarr[0].imshow(neuron_feature_extracted_map, cmap='coolwarm', interpolation='nearest', aspect='auto',
                                  vmin=min_activation, vmax=max_activation)
         colmap = axarr[1].imshow(
@@ -476,18 +486,18 @@ class VisualizeLSTM(object):
         axarr[1].set_title('Relevance')
 
         interval = 0
-        for i in range(len(self.neuronsOfInterestPlotIntervals) + 1):
+        for i in range(len(self.neurons_of_interest_plot_intervals) + 1):
             if i > 0:
-                limit = self.neuronsOfInterestPlotIntervals[i - 1]
+                limit = self.neurons_of_interest_plot_intervals[i - 1]
                 interval += 1 + limit[-1] - limit[0]
-            axarr[0].plot(arange(-.5, len(input_indices_of_interets) + .5),
-                          (len(input_indices_of_interets) + 1) * [interval - 0.5], 'k--', LineWidth=1)
+            axarr[0].plot(arange(-.5, len(input_indices_of_interest) + .5),
+                          (len(input_indices_of_interest) + 1) * [interval - 0.5], 'k--', LineWidth=1)
 
         f.colorbar(colmap, ax=axarr.ravel().tolist())
 
         plt.pause(.1)
 
-    def loadNeuronIntervals(self):
+    def load_neuron_intervals(self):
         with open('FeaturesOfInterest.txt', 'r') as f:
             lines = f.readlines()
             for line in lines:
@@ -500,11 +510,11 @@ class VisualizeLSTM(object):
                                 interval = interval.split(':')
                                 interval[0] = str(max(int(interval[0]), 0))
                                 interval[-1] = str(min(int(interval[-1]), self.K - 1))
-                                self.neuronsOfInterest.extend(range(int(interval[0]), int(interval[-1]) + 1))
+                                self.neurons_of_interest.extend(range(int(interval[0]), int(interval[-1]) + 1))
                             else:
                                 interval = str(max(int(interval), 0))
                                 interval = str(min(int(interval), self.K - 1))
-                                self.neuronsOfInterest.append(int(interval))
+                                self.neurons_of_interest.append(int(interval))
                     if 'Neurons to plot:' in line:
                         line = line.replace('Neurons to plot:', '')
                         intervals = ''.join(line.split()).split(',')
@@ -517,8 +527,8 @@ class VisualizeLSTM(object):
                                 interval = interval.split(':')
                                 interval[0] = str(max(int(interval[0]), 0))
                                 interval[-1] = str(min(int(interval[-1]), self.K - 1))
-                                self.neuronsOfInterestPlot.extend(range(int(interval[0]), int(interval[-1]) + 1))
-                                self.neuronsOfInterestPlotIntervals.append(
+                                self.neurons_of_interest_plot.extend(range(int(interval[0]), int(interval[-1]) + 1))
+                                self.neurons_of_interest_plot_intervals.append(
                                     range(int(interval[0]), int(interval[-1]) + 1))
                                 intermediate_range = [i for i in range(int(interval[0]) + 1, int(interval[-1])) if
                                                       i % 5 == 0]
@@ -531,43 +541,44 @@ class VisualizeLSTM(object):
                             else:
                                 interval = str(max(int(interval), 0))
                                 interval = str(min(int(interval), self.K - 1))
-                                self.neuronsOfInterestPlot.append(int(interval))
-                                self.neuronsOfInterestPlotIntervals.append([int(interval)])
+                                self.neurons_of_interest_plot.append(int(interval))
+                                self.neurons_of_interest_plot_intervals.append([int(interval)])
                                 self.intervals_to_plot.append(interval)
                                 self.interval_limits.append(int(interval))
                         self.interval_limits = array(self.interval_limits)
 
-    def wordToIndex(self, word):
+    def word_to_index(self, word):
         return self.vocabulary.vocab[word].index
 
-    def indexToWord(self, index):
+    def index_to_word(self, index):
         return self.vocabulary.index2word[index]
+
 
 def main():
 
     attributes = {
-        'text_file': 'Data/LordOfTheRings2.txt',  # 'Data/ted_en.zip',
+        'text_file': 'Data/ted_en.zip',  # 'Data/LordOfTheRings.txt',  #
         'load_lstm_model': False,  # True to load lstm checkpoint model
-        'embedding_model_file': 'None', # 'Data/ted_talks_word2vec.model', # 'Data/glove_840B_300d.txt',  # 'Data/glove_short.txt',  #
-        'train_embedding_model': True,  # Further train the embedding model
+        'embedding_model_file': 'Word_Embedding_Model/ted_talks_word2vec.model',  # 'Data/glove_840B_300d.txt'
+        'train_embedding_model': False,  # Further train the embedding model
         'save_embedding_model': False,  # Save trained embedding model
         'word_domain': True,  # True for words, False for characters
         'validation_proportion': .1,  # The proportion of data set used for validation
-        'n_hiddenNeurons': 'Auto',  # Number of hidden neurons
+        'n_hiddenNeurons': 'Auto',  # Number of hidden neurons, 'Auto' equals to word embedding size
         'eta': 1e-3,  # Learning rate
-        'batch_size': 5000,  # Number of sentences for training for each epoch
+        'batch_size': 10,  # Number of sentences for training for each epoch
         'n_epochs': 100,  # Total number of epochs, each corresponds to (n book characters)/(seq_length) seq iterations
         'seq_length': 5,  # Sequence length of each sequence iteration
-        'length_synthesized_text': 50,  # Sequence length of each print of text evolution
-        'remote_monitoring_ip': '192.168.151.125',  # Ip for remote monitoring at http://localhost:9000/
-        'save_checkpoints': True  # Save best weights with corresponding arrays iterations and smooth loss
+        'length_synthesized_text': 30,  # Sequence length of each print of text evolution
+        'remote_monitoring_ip': '',  # Ip for remote monitoring at http://localhost:9000/
+        'save_checkpoints': False  # Save best weights with corresponding arrays iterations and smooth loss
     }
 
     lstm_vis = VisualizeLSTM(attributes)
-    lstm_vis.trainLSTM()
+    lstm_vis.train_lstm()
 
 
 if __name__ == '__main__':
     random.seed(1)
     main()
-    plt.show()
+    # plt.show()
