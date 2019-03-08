@@ -390,7 +390,7 @@ class VisualizeLSTM(object):
 
                 if 'plot_process:' in line:
                     self.plot_process = ''.join(line.split()).split(':')[1] == 'True'
-                    break
+                    # break
                 else:
                     self.plot_process = False
 
@@ -420,7 +420,7 @@ class VisualizeLSTM(object):
         return False, 0
 
     def softmax(self, s):
-        ex_p = ex_p(s)
+        ex_p = exp(s)
         p = ex_p / ex_p.sum()
 
         return p
@@ -465,12 +465,12 @@ class VisualizeLSTM(object):
         axarr[0].set_title('Colormap of hidden neuron activations')
 
         feature_label = 'Feature: "' + feature + '"'
-        if not self.word_domain and feature == '.':
+        if not self.word_domain and (feature == '.' or feature == '\w+|[^\w]'):
             feature_label = 'Feature: ' + '$\it{Any}$'
         x = range(len(inputs_of_interest))
         axarr[0].set_xticks(x)
         axarr[0].set_xlabel('Predicted sequence (' + feature_label + ')')
-        axarr[0].set_xticklabels(inputs_of_interest, fontsize=7, rotation=90 * self.word_domain)
+        axarr[0].set_xticklabels(inputs_of_interest, fontsize=7, rotation=90 * self.word_domain * (len(feature) > 3))
         axarr[1].set_xticks([])
 
         y = range(len(self.neurons_of_interest_plot))
@@ -492,7 +492,7 @@ class VisualizeLSTM(object):
         colmap = axarr[0].imshow(neuron_feature_extracted_map, cmap='coolwarm', interpolation='nearest', aspect='auto',
                                  vmin=min_activation, vmax=max_activation)
         colmap = axarr[1].imshow(
-            array([mean(neuron_feature_extracted_map, axis=1)]).T / array([mean(neuron_activation_rows, axis=1)]).T,
+            array([mean(neuron_feature_extracted_map, axis=1)]).T / array([mean(neuron_activation_rows, axis=1)]).T - 1,
             cmap='coolwarm', interpolation='nearest', aspect='auto', vmin=min_activation, vmax=max_activation)
         axarr[1].set_title('Relevance')
 
@@ -509,6 +509,10 @@ class VisualizeLSTM(object):
         plt.pause(.1)
 
     def load_neuron_intervals(self):
+        self.neurons_of_interest = []
+        self.neurons_of_interest_plot = []
+        self.neurons_of_interest_plot_intervals = []
+
         with open('FeaturesOfInterest.txt', 'r') as f:
             lines = f.readlines()
             for line in lines:
@@ -569,18 +573,17 @@ def main():
     attributes = {
         'text_file': 'Data/LordOfTheRings2.txt',  # 'Data/ted_en.zip',  #
         'load_lstm_model': False,  # True to load lstm checkpoint model
-        'embedding_model_file': 'None',
-    # 'Word_Embedding_Model/ted_talks_word2vec.model',  # 'Data/glove_840B_300d.txt'
+        'embedding_model_file': 'None',  # 'Word_Embedding_Model/ted_talks_word2vec.model',  # 'Data/glove_840B_300d.txt'
         'train_embedding_model': False,  # Further train the embedding model
         'save_embedding_model': False,  # Save trained embedding model
         'word_domain': True,  # True for words, False for characters
         'validation_proportion': .1,  # The proportion of data set used for validation
         'n_hiddenNeurons': 'Auto',  # Number of hidden neurons, 'Auto' equals to word embedding size
         'eta': 1e-3,  # Learning rate
-        'batch_size': 5,  # Number of sentences for training for each epoch
+        'batch_size': 10,  # Number of sentences for training for each epoch
         'n_epochs': 100,  # Total number of epochs, each corresponds to (n book characters)/(seq_length) seq iterations
         'seq_length': 10,  # Sequence length of each sequence iteration
-        'length_synthesized_text': 30,  # Sequence length of each print of text evolution
+        'length_synthesized_text': 50,  # Sequence length of each print of text evolution
         'remote_monitoring_ip': '',  # Ip for remote monitoring at http://localhost:9000/
         'save_checkpoints': False  # Save best weights with corresponding arrays iterations and smooth loss
     }
@@ -592,4 +595,4 @@ def main():
 if __name__ == '__main__':
     random.seed(1)
     main()
-    # plt.show()
+    plt.show()
