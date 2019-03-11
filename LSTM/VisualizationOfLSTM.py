@@ -81,16 +81,18 @@ class VisualizeLSTM(object):
                          + '\n' + r'$\eta$ = ' + "{:.2e}".format(self.eta) \
                          + '\n' + 'Training sequence length: ' + str(self.seq_length) \
                          + '\n' + 'Batch size: ' + str(self.batch_size) \
-                         + '\n#' + self.domain_specification[:-1] + 'samples' + ' in corpus:' + '\n' + str(
+                         + '\n#' + 'Sample sequences in corpus:' + '\n' + str(
             len(self.sentences)) \
                          + '\n' + 'Proportion validation set: ' + str(self.validation_proportion)
 
         if self.load_lstm_model:
             self.seq_iterations = [i for i in loadtxt('Parameters/seqIterations.txt', delimiter=",", unpack=False)]
             self.losses = [i for i in loadtxt('Parameters/losses.txt', delimiter=",", unpack=False)]
+            self.validation_losses = [i for i in loadtxt('Parameters/validation_losses.txt', delimiter=",", unpack=False)]
         else:
             self.seq_iterations = []
             self.losses = []
+            self.validation_losses = []
 
         self.neurons_of_interest = []
         self.neurons_of_interest_plot = []
@@ -230,7 +232,7 @@ class VisualizeLSTM(object):
 
         class InitLog:
             def get(self, attribute):
-                if attribute == 'loss':
+                if attribute == 'loss' or attribute == 'val_loss':
                     return loss
 
         logs = InitLog()
@@ -276,6 +278,7 @@ class VisualizeLSTM(object):
     def synthesize_text(self, epoch, logs={}):
         print('Generating text sequence...')
         self.losses.append(logs.get('loss'))
+        self.validation_losses.append(logs.get('val_loss'))
         self.seq_iterations.append(epoch+1)
 
         self.load_neuron_intervals()
@@ -423,14 +426,15 @@ class VisualizeLSTM(object):
         # b = (self.seq_length*self.batch_size)
         # ', Epoch process: ' + str('{0:.2f}'.format(a/b*100) + '%'
         print('\nEpoch: ' + str(epoch) + ', Loss: ' + str(
-            '{0:.2f}'.format(self.losses[-1])) + ', Neuron of interest: ' + str(self.neurons_of_interest) + '(/' + str(
+            '{0:.2f}'.format(self.losses[-1])) + ', Validation loss: ' + str(
+            '{0:.2f}'.format(self.validation_losses[-1])) + ', Neuron of interest: ' + str(self.neurons_of_interest) + '(/' + str(
             self.n_hiddenNeurons) + ')')
-
         print(table.table)
 
         if self.save_checkpoints:
             savetxt('Parameters/seqIterations.txt', self.seq_iterations, delimiter=',')
             savetxt('Parameters/losses.txt', self.losses, delimiter=',')
+            savetxt('Parameters/validation_losses.txt', self.validation_losses, delimiter=',')
 
     def sequence_contains_sequence(self, haystack_seq, needle_seq):
         for i in range(0, len(haystack_seq) - len(needle_seq) + 1):
@@ -455,8 +459,11 @@ class VisualizeLSTM(object):
         plt.title(self.domain_specification[:-1] + ' prediction learning curve of LSTM')
         plt.ylabel('Cross-entropy loss')
         plt.xlabel('Epoch')
-        plt.plot(self.seq_iterations, self.losses, LineWidth=2)
+        plt.plot(self.seq_iterations, self.losses, LineWidth=2, label='Training')
+        plt.plot(self.seq_iterations, self.validation_losses, LineWidth=2,  label='Validation')
         plt.grid()
+
+        plt.legend(loc='upper left')
 
         plt.pause(0.1)
 
@@ -592,7 +599,7 @@ def main():
     attributes = {
         'text_file': 'Data/LordOfTheRings2.txt',  # 'Data/ted_en.zip',  #
         'load_lstm_model': False,  # True to load lstm checkpoint model
-        'embedding_model_file': 'None', # 'Word_Embedding_Model/ted_talks_word2vec.model',  # 'Data/glove_840B_300d.txt'
+        'embedding_model_file': 'None',  # 'Word_Embedding_Model/ted_talks_word2vec.model',  # 'Data/glove_840B_300d.txt'
         'train_embedding_model': False,  # Further train the embedding model
         'save_embedding_model': False,  # Save trained embedding model
         'word_domain': True,  # True for words, False for characters
