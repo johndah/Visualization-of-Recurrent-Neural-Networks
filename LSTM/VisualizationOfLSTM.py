@@ -183,7 +183,7 @@ class VisualizeLSTM(object):
             self.lstm_model = Sequential()
             self.lstm_model.add(Embedding(input_dim=self.M, output_dim=self.K, weights=[self.vocabulary.syn0]))
             self.lstm_model.add(LSTM(units=self.n_hiddenNeurons, return_sequences=True))
-            self.lstm_model.add(LSTM(units=self.n_hiddenNeurons, return_sequences=True))
+            # self.lstm_model.add(LSTM(units=self.n_hiddenNeurons, return_sequences=True))
             self.lstm_model.add(LSTM(units=self.n_hiddenNeurons, return_sequences=True))
             self.lstm_model.add(LSTM(units=self.n_hiddenNeurons))
             self.lstm_model.add(Dense(units=self.M))
@@ -246,6 +246,7 @@ class VisualizeLSTM(object):
                                       validation_steps=int(len(self.input_sequence_validation) / self.batch_size) + 1)
 
     def generate_words(self, input_sequence):
+        random.shuffle(input_sequence)
         batch_index = 0
         random.shuffle(input_sequence)
         while True:
@@ -313,7 +314,7 @@ class VisualizeLSTM(object):
 
             x = entity_indices[t:t + self.seq_length]
             output = self.lstm_model.predict(x=atleast_2d(x))
-            lstm_layer = K.function([self.lstm_model.layers[0].input], [self.lstm_model.layers[4].output])
+            lstm_layer = K.function([self.lstm_model.layers[0].input], [self.lstm_model.layers[3].output])
             activations = lstm_layer([atleast_2d(x)])[0].T
 
             neuron_activation_map[:, t] = activations[:, 0]
@@ -425,7 +426,7 @@ class VisualizeLSTM(object):
         # a = e%(self.seq_length*self.batch_size)
         # b = (self.seq_length*self.batch_size)
         # ', Epoch process: ' + str('{0:.2f}'.format(a/b*100) + '%'
-        print('\nEpoch: ' + str(epoch) + ', Loss: ' + str(
+        print('\nEpoch: ' + str(epoch+1) + ', Loss: ' + str(
             '{0:.2f}'.format(self.losses[-1])) + ', Validation loss: ' + str(
             '{0:.2f}'.format(self.validation_losses[-1])) + ', Neuron of interest: ' + str(self.neurons_of_interest) + '(/' + str(
             self.n_hiddenNeurons) + ')')
@@ -597,21 +598,21 @@ class VisualizeLSTM(object):
 
 def main():
     attributes = {
-        'text_file': 'Data/LordOfTheRings2.txt',  # 'Data/ted_en.zip',  #
+        'text_file': 'Data/ted_en.zip',  # 'Data/LordOfTheRings2.txt',  #
         'load_lstm_model': False,  # True to load lstm checkpoint model
-        'embedding_model_file': 'None',  # 'Word_Embedding_Model/ted_talks_word2vec.model',  # 'Data/glove_840B_300d.txt'
+        'embedding_model_file': 'Word_Embedding_Model/ted_talks_word2vec.model',  # 'Data/glove_840B_300d.txt'
         'train_embedding_model': False,  # Further train the embedding model
         'save_embedding_model': False,  # Save trained embedding model
         'word_domain': True,  # True for words, False for characters
-        'validation_proportion': .2,  # The proportion of data set used for validation
-        'n_hiddenNeurons': 600,  # Number of hidden neurons, 'Auto' equals to word embedding size
-        'eta': 1e-3,  # Learning rate
-        'batch_size': 10,  # Number of sentences for training for each epoch
+        'validation_proportion': .02,  # The proportion of data set used for validation
+        'n_hiddenNeurons': 400,  # Number of hidden neurons, 'Auto' equals to word embedding size
+        'eta': 5e-5,  # Learning rate
+        'batch_size': 20,  # Number of sentences for training for each epoch
         'n_epochs': 100,  # Total number of epochs, each corresponds to (n book characters)/(seq_length) seq iterations
-        'seq_length': 10,  # Sequence length of each sequence iteration
+        'seq_length': 7,  # Sequence length of each sequence iteration
         'length_synthesized_text': 50,  # Sequence length of each print of text evolution
-        'remote_monitoring_ip': 'http://localhost:9000/',  # Ip for remote monitoring at http://localhost:9000/
-        'save_checkpoints': False  # Save best weights with corresponding arrays iterations and smooth loss
+        'remote_monitoring_ip': '',  # Ip for remote monitoring at http://localhost:9000/
+        'save_checkpoints': True  # Save best weights with corresponding arrays iterations and smooth loss
     }
     lstm_vis = VisualizeLSTM(attributes)
     lstm_vis.train_lstm()
