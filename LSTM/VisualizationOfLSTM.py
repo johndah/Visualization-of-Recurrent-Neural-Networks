@@ -50,13 +50,14 @@ class VisualizeLSTM(object):
             windll.kernel32.SetConsoleMode(c_int(stdout_handle), mode)
 
         if self.word_domain:
-            self.vocabulary, sentences, self.K = self.load_vocabulary()
+            self.vocabulary, self.sentences, self.K = self.load_vocabulary()
 
-            n_validation = int(len(sentences) * self.validation_proportion)
-            n_training = len(sentences) - n_validation
+            n_validation = int(len(self.sentences) * self.validation_proportion)
+            n_training = len(self.sentences) - n_validation
 
-            self.input_sequence = sentences[:n_training]
-            self.input_sequence_validation = sentences[n_training:]
+            random.shuffle(self.sentences)
+            self.input_sequence = self.sentences[:n_training]
+            self.input_sequence_validation = self.sentences[n_training:]
 
             weights_word_embedding = self.vocabulary.syn0
             self.M = size(weights_word_embedding, 0)
@@ -76,12 +77,13 @@ class VisualizeLSTM(object):
 
         self.constants = '# Hidden neurons: ' + str(self.n_hiddenNeurons) \
                          + '\nVocabulary size: ' + str(self.M) \
-                         + '\nOptimizer: Adams' \
+                         + '\nOptimizer: RMS Prop' \
                          + '\n' + r'$\eta$ = ' + "{:.2e}".format(self.eta) \
                          + '\n' + 'Training sequence length: ' + str(self.seq_length) \
                          + '\n' + 'Batch size: ' + str(self.batch_size) \
-                         + '\n#' + self.domain_specification + ' in training text:' + '\n' + str(
-            len(self.input_sequence))
+                         + '\n#' + self.domain_specification[:-1] + 'samples' + ' in corpus:' + '\n' + str(
+            len(self.sentences)) \
+                         + '\n' + 'Proportion validation set: ' + str(self.validation_proportion)
 
         if self.load_lstm_model:
             self.seq_iterations = [i for i in loadtxt('Parameters/seqIterations.txt', delimiter=",", unpack=False)]
@@ -185,7 +187,6 @@ class VisualizeLSTM(object):
             self.lstm_model.add(Dense(units=self.M))
             self.lstm_model.add(Activation('softmax'))
             rms_prop_optimizer = optimizers.RMSprop(lr=self.eta, rho=0.9, epsilon=None, decay=0.0)
-            # adam_optimizer = optimizers.Adam(lr=self.eta)
             self.lstm_model.compile(optimizer=rms_prop_optimizer, loss='sparse_categorical_crossentropy',
                                     metrics=['accuracy'])
         else:
@@ -233,7 +234,7 @@ class VisualizeLSTM(object):
                     return loss
 
         logs = InitLog()
-        self.synthesize_text(0, logs)
+        self.synthesize_text(-1, logs)
 
         self.lstm_model.fit_generator(self.generate_words(self.input_sequence),
                                       steps_per_epoch=int(len(self.input_sequence) / self.batch_size) + 1,
@@ -275,7 +276,7 @@ class VisualizeLSTM(object):
     def synthesize_text(self, epoch, logs={}):
         print('Generating text sequence...')
         self.losses.append(logs.get('loss'))
-        self.seq_iterations.append(epoch)
+        self.seq_iterations.append(epoch+1)
 
         self.load_neuron_intervals()
 
@@ -325,6 +326,7 @@ class VisualizeLSTM(object):
             else:
                 sample_index = len(diff) - 1
 
+            # sample = argmax(output)
             sample = self.index_to_word(sample_index)
             entity_indices[t + self.seq_length - 1] = sample_index
 
@@ -368,7 +370,7 @@ class VisualizeLSTM(object):
         margin = 8
         try:
             color_range_width = max_width - len(table.table_data[0][1]) - (
-                        len(str(max_activation)) + len(str(min_activation)) + margin)
+                    len(str(max_activation)) + len(str(min_activation)) + margin)
             color_range = arange(min_activation, max_activation,
                                  (max_activation - min_activation) / color_range_width)
         except ValueError:
@@ -590,19 +592,19 @@ def main():
     attributes = {
         'text_file': 'Data/LordOfTheRings2.txt',  # 'Data/ted_en.zip',  #
         'load_lstm_model': False,  # True to load lstm checkpoint model
-        'embedding_model_file': 'None',  # 'Word_Embedding_Model/ted_talks_word2vec.model',  # 'Data/glove_840B_300d.txt'
+        'embedding_model_file': 'None', # 'Word_Embedding_Model/ted_talks_word2vec.model',  # 'Data/glove_840B_300d.txt'
         'train_embedding_model': False,  # Further train the embedding model
         'save_embedding_model': False,  # Save trained embedding model
         'word_domain': True,  # True for words, False for characters
-        'validation_proportion': .1,  # The proportion of data set used for validation
+        'validation_proportion': .2,  # The proportion of data set used for validation
         'n_hiddenNeurons': 600,  # Number of hidden neurons, 'Auto' equals to word embedding size
         'eta': 1e-3,  # Learning rate
-        'batch_size': 300,  # Number of sentences for training for each epoch
+        'batch_size': 10,  # Number of sentences for training for each epoch
         'n_epochs': 100,  # Total number of epochs, each corresponds to (n book characters)/(seq_length) seq iterations
         'seq_length': 10,  # Sequence length of each sequence iteration
         'length_synthesized_text': 50,  # Sequence length of each print of text evolution
-        'remote_monitoring_ip': '',  # Ip for remote monitoring at http://localhost:9000/
-        'save_checkpoints': True  # Save best weights with corresponding arrays iterations and smooth loss
+        'remote_monitoring_ip': 'http://localhost:9000/',  # Ip for remote monitoring at http://localhost:9000/
+        'save_checkpoints': False  # Save best weights with corresponding arrays iterations and smooth loss
     }
     lstm_vis = VisualizeLSTM(attributes)
     lstm_vis.train_lstm()
