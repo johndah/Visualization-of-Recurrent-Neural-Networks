@@ -311,7 +311,13 @@ class VisualizeLSTM(object):
             cp = cumsum(output)
             rand = random.uniform()
             diff = cp - rand
-            sample_index = [i for i in range(len(diff)) if diff[i] > 0][0]
+            sample_index = [i for i in range(len(diff)) if diff[i] > 0]
+
+            if sample_index:
+                sample_index = sample_index[0]
+            else:
+                sample_index = len(diff) - 1
+
             sample = self.index_to_word(sample_index)
             entity_indices[t + self.seq_length - 1] = sample_index
 
@@ -394,6 +400,9 @@ class VisualizeLSTM(object):
                 else:
                     self.plot_process = False
 
+        hey = []
+        for word in self.input_sequence[0]:
+            hey.append(self.word_to_index(word))
         if self.plot_color_map:
             self.plot_neural_activity(inputs, neuron_activation_map)
 
@@ -571,9 +580,9 @@ class VisualizeLSTM(object):
 
 def main():
     attributes = {
-        'text_file': 'Data/LordOfTheRings2.txt',  # 'Data/ted_en.zip',  #
+        'text_file': 'Data/ted_en.zip',  # 'Data/LordOfTheRings2.txt',  #
         'load_lstm_model': False,  # True to load lstm checkpoint model
-        'embedding_model_file': 'None',  # 'Word_Embedding_Model/ted_talks_word2vec.model',  # 'Data/glove_840B_300d.txt'
+        'embedding_model_file': 'Word_Embedding_Model/ted_talks_word2vec.model',  # 'Data/glove_840B_300d.txt'
         'train_embedding_model': False,  # Further train the embedding model
         'save_embedding_model': False,  # Save trained embedding model
         'word_domain': True,  # True for words, False for characters

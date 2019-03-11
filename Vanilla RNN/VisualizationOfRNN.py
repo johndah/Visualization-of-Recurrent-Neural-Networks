@@ -629,7 +629,6 @@ class VisualizeRNN(object):
 
         dLdO = []
 
-
         for t in range(tau):
             # dLdO.append(p[t].T - y[t].T)
             dLdO.append(output[t].T - y[t].T)

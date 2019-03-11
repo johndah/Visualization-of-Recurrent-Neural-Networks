@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="Include initial loss. Adjusts dimensionality of inputs for text generations">
+    <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSTM/config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/config.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py" beforeDir="false" afterPath="$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -19,11 +18,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="181">
-              <caret line="585" column="36" selection-start-line="585" selection-start-column="36" selection-end-line="585" selection-end-column="36" />
+            <state relative-caret-position="167">
+              <caret line="180" column="48" selection-start-line="180" selection-start-column="48" selection-end-line="180" selection-end-column="48" />
               <folding>
                 <element signature="e#50#87#0" expanded="true" />
               </folding>
@@ -31,11 +30,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+            <state relative-caret-position="119">
+              <caret line="7" column="23" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
             </state>
           </provider>
         </entry>
@@ -52,8 +51,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="257">
-              <caret line="418" column="20" selection-start-line="418" selection-start-column="19" selection-end-line="418" selection-end-column="20" />
+            <state relative-caret-position="321">
+              <caret line="327" lean-forward="true" selection-start-line="327" selection-end-line="327" />
             </state>
           </provider>
         </entry>
@@ -69,12 +68,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>S.-</find>
-      <find>rtled that I hardly had the wits to hide myself in a more ordinary</find>
-      <find>self.inp</find>
-      <find>self.input</find>
-      <find>' '</find>
-      <find>self.synth</find>
       <find>synthesizeText</find>
       <find>neuronActivations</find>
       <find>generate</find>
@@ -99,6 +92,12 @@
       <find>colorma</find>
       <find>colma</find>
       <find>releva</find>
+      <find>samp</find>
+      <find>loss</find>
+      <find>compute</find>
+      <find>forwardProp</find>
+      <find>backpr</find>
+      <find>dense</find>
     </findStrings>
     <replaceStrings>
       <replace>o, h, a = self.forwardProp</replace>
@@ -139,16 +138,17 @@
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/Vanilla RNN/config.txt" />
         <option value="$PROJECT_DIR$/LSTM/config.txt" />
-        <option value="$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py" />
-        <option value="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" />
         <option value="$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt" />
+        <option value="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" />
+        <option value="$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="-8" />
-    <option name="width" value="977" />
-    <option name="height" value="1038" />
+    <option name="y" value="27" />
+    <option name="width" value="768" />
+    <option name="height" value="1012" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -412,7 +412,14 @@
       <option name="project" value="LOCAL" />
       <updated>1551951919576</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Adjust relevance plot">
+      <created>1552031762909</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1552031762909</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TodoView">
@@ -425,23 +432,23 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <frame x="-6" y="22" width="614" height="809" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.16126901" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.28076255" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32932165" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4990086" visible="true" weight="0.30028328" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49834764" weight="0.3385269" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4990086" weight="0.30028328" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.49834764" visible="true" weight="0.106351554" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32936078" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.32936078" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.26912183" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.50165236" side_tool="true" weight="0.37818697" />
-      <window_info anchor="bottom" id="Python Console" order="10" sideWeight="0.49947312" weight="0.4164306" />
+      <window_info anchor="bottom" id="Python Console" order="10" sideWeight="0.49947312" weight="0.32201535" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -484,7 +491,8 @@
     <MESSAGE value="Details" />
     <MESSAGE value="Fixes issue with getting false high accuracy directly. &#10;&#10;Changed naming convention for function names" />
     <MESSAGE value="Include initial loss. Adjusts dimensionality of inputs for text generations" />
-    <option name="LAST_COMMIT_MESSAGE" value="Include initial loss. Adjusts dimensionality of inputs for text generations" />
+    <MESSAGE value="Adjust relevance plot" />
+    <option name="LAST_COMMIT_MESSAGE" value="Adjust relevance plot" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -576,7 +584,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py</url>
-          <line>441</line>
+          <line>450</line>
           <option name="timeStamp" value="387" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -586,7 +594,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py</url>
-          <line>396</line>
+          <line>405</line>
           <option name="timeStamp" value="475" />
         </line-breakpoint>
       </breakpoints>
@@ -769,27 +777,27 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="7" column="23" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="257">
-          <caret line="418" column="20" selection-start-line="418" selection-start-column="19" selection-end-line="418" selection-end-column="20" />
+        <state relative-caret-position="321">
+          <caret line="327" lean-forward="true" selection-start-line="327" selection-end-line="327" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="181">
-          <caret line="585" column="36" selection-start-line="585" selection-start-column="36" selection-end-line="585" selection-end-column="36" />
+        <state relative-caret-position="167">
+          <caret line="180" column="48" selection-start-line="180" selection-start-column="48" selection-end-line="180" selection-end-column="48" />
           <folding>
             <element signature="e#50#87#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
         </state>
       </provider>
     </entry>

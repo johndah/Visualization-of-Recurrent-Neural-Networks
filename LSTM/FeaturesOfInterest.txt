@@ -5,4 +5,4 @@ Neurons to plot: 0:50
 #7:9, 23, 38, 44, 83, 94
 
 # '\w+|[^\w]' for all words
-Prediction features: ','
+Prediction features: ' '
