@@ -178,11 +178,15 @@ class VisualizeLSTM(object):
             print('Initiate new LSTM model...')
             self.lstm_model = Sequential()
             self.lstm_model.add(Embedding(input_dim=self.M, output_dim=self.K, weights=[self.vocabulary.syn0]))
-            self.lstm_model.add(LSTM(units=self.K))
+            self.lstm_model.add(LSTM(units=self.n_hiddenNeurons, return_sequences=True))
+            self.lstm_model.add(LSTM(units=self.n_hiddenNeurons, return_sequences=True))
+            self.lstm_model.add(LSTM(units=self.n_hiddenNeurons, return_sequences=True))
+            self.lstm_model.add(LSTM(units=self.n_hiddenNeurons))
             self.lstm_model.add(Dense(units=self.M))
             self.lstm_model.add(Activation('softmax'))
-            adam_optimizer = optimizers.Adam(lr=self.eta)
-            self.lstm_model.compile(optimizer=adam_optimizer, loss='sparse_categorical_crossentropy',
+            rms_prop_optimizer = optimizers.RMSprop(lr=self.eta, rho=0.9, epsilon=None, decay=0.0)
+            # adam_optimizer = optimizers.Adam(lr=self.eta)
+            self.lstm_model.compile(optimizer=rms_prop_optimizer, loss='sparse_categorical_crossentropy',
                                     metrics=['accuracy'])
         else:
             model_directory = './LSTM Saved Models/Checkpoints/'
@@ -287,8 +291,11 @@ class VisualizeLSTM(object):
 
         neuron_activation_map = zeros((self.n_hiddenNeurons, self.length_synthesized_text))
 
-        input = atleast_2d(K.eval(self.input)[0, :])
-
+        # input = atleast_2d(K.eval(self.input)[0, :])
+        input = []
+        for word in self.input_sequence[0][:-1]:
+            input.append(self.word_to_index(word))
+        input = atleast_2d(input)
         entity_indices = zeros(self.seq_length - 1 + self.length_synthesized_text)
         entity_indices[:self.seq_length - 1] = atleast_2d(input[0, :])
 
@@ -302,7 +309,7 @@ class VisualizeLSTM(object):
 
             x = entity_indices[t:t + self.seq_length]
             output = self.lstm_model.predict(x=atleast_2d(x))
-            lstm_layer = K.function([self.lstm_model.layers[0].input], [self.lstm_model.layers[1].output])
+            lstm_layer = K.function([self.lstm_model.layers[0].input], [self.lstm_model.layers[4].output])
             activations = lstm_layer([atleast_2d(x)])[0].T
 
             neuron_activation_map[:, t] = activations[:, 0]
@@ -359,10 +366,14 @@ class VisualizeLSTM(object):
         max_activation = amax(neuron_activation_map[self.neurons_of_interest, :])
         min_activation = amin(neuron_activation_map[self.neurons_of_interest, :])
         margin = 8
-        color_range_width = max_width - len(table.table_data[0][1]) - (
-                    len(str(max_activation)) + len(str(min_activation)) + margin)
-        color_range = arange(min_activation, max_activation,
-                             (max_activation - min_activation) / color_range_width)
+        try:
+            color_range_width = max_width - len(table.table_data[0][1]) - (
+                        len(str(max_activation)) + len(str(min_activation)) + margin)
+            color_range = arange(min_activation, max_activation,
+                                 (max_activation - min_activation) / color_range_width)
+        except ValueError:
+            color_range_width = 2
+            color_range = [min_activation, max_activation]
 
         color_range_str = ' ' * margin + str(round(min_activation, 1))
 
@@ -400,9 +411,6 @@ class VisualizeLSTM(object):
                 else:
                     self.plot_process = False
 
-        hey = []
-        for word in self.input_sequence[0]:
-            hey.append(self.word_to_index(word))
         if self.plot_color_map:
             self.plot_neural_activity(inputs, neuron_activation_map)
 
@@ -412,7 +420,7 @@ class VisualizeLSTM(object):
         # a = e%(self.seq_length*self.batch_size)
         # b = (self.seq_length*self.batch_size)
         # ', Epoch process: ' + str('{0:.2f}'.format(a/b*100) + '%'
-        print('\nEpoch: ' + str(int(e / self.seq_length * self.batch_size)) + ', Loss: ' + str(
+        print('\nEpoch: ' + str(epoch) + ', Loss: ' + str(
             '{0:.2f}'.format(self.losses[-1])) + ', Neuron of interest: ' + str(self.neurons_of_interest) + '(/' + str(
             self.n_hiddenNeurons) + ')')
 
@@ -580,23 +588,22 @@ class VisualizeLSTM(object):
 
 def main():
     attributes = {
-        'text_file': 'Data/ted_en.zip',  # 'Data/LordOfTheRings2.txt',  #
+        'text_file': 'Data/LordOfTheRings2.txt',  # 'Data/ted_en.zip',  #
         'load_lstm_model': False,  # True to load lstm checkpoint model
-        'embedding_model_file': 'Word_Embedding_Model/ted_talks_word2vec.model',  # 'Data/glove_840B_300d.txt'
+        'embedding_model_file': 'None',  # 'Word_Embedding_Model/ted_talks_word2vec.model',  # 'Data/glove_840B_300d.txt'
         'train_embedding_model': False,  # Further train the embedding model
         'save_embedding_model': False,  # Save trained embedding model
         'word_domain': True,  # True for words, False for characters
         'validation_proportion': .1,  # The proportion of data set used for validation
-        'n_hiddenNeurons': 'Auto',  # Number of hidden neurons, 'Auto' equals to word embedding size
+        'n_hiddenNeurons': 600,  # Number of hidden neurons, 'Auto' equals to word embedding size
         'eta': 1e-3,  # Learning rate
-        'batch_size': 10,  # Number of sentences for training for each epoch
+        'batch_size': 300,  # Number of sentences for training for each epoch
         'n_epochs': 100,  # Total number of epochs, each corresponds to (n book characters)/(seq_length) seq iterations
         'seq_length': 10,  # Sequence length of each sequence iteration
         'length_synthesized_text': 50,  # Sequence length of each print of text evolution
         'remote_monitoring_ip': '',  # Ip for remote monitoring at http://localhost:9000/
-        'save_checkpoints': False  # Save best weights with corresponding arrays iterations and smooth loss
+        'save_checkpoints': True  # Save best weights with corresponding arrays iterations and smooth loss
     }
-
     lstm_vis = VisualizeLSTM(attributes)
     lstm_vis.train_lstm()
 
