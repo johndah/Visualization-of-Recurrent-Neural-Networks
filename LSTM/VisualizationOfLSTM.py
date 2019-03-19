@@ -136,7 +136,7 @@ class VisualizeLSTM(object):
             if count < self.word_frequency_threshold:
                 words_to_ignore.add(word)
 
-        print('Unique words in corpus after ignoring rare ones: ' + str(len(set(words)))
+        print('Unique words in corpus after ignoring rare ones: ' + str(len(set(words))))
         words_common = set(words) - words_to_ignore
         print('Unique words in corpus after ignoring rare ones: ' + str(len(words_common)))
 

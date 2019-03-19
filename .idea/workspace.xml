@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="Include validation plot">
+    <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -19,8 +18,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-84">
-              <caret line="670" column="32" selection-start-line="670" selection-start-column="32" selection-end-line="670" selection-end-column="32" />
+            <state relative-caret-position="311">
+              <caret line="145" column="53" lean-forward="true" selection-start-line="145" selection-start-column="53" selection-end-line="145" selection-end-column="53" />
               <folding>
                 <element signature="e#50#87#0" expanded="true" />
               </folding>
@@ -484,7 +483,14 @@
       <option name="project" value="LOCAL" />
       <updated>1552645730776</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="Removes rare words.&#10;&#10;Applies dropout and less complex lstm model.">
+      <created>1553009096412</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1553009096412</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TodoView">
@@ -561,7 +567,8 @@
     <MESSAGE value="Really increases the network complexity for the large corpus (4 layers with 600 units)" />
     <MESSAGE value="Shuffle data sets" />
     <MESSAGE value="Include validation plot" />
-    <option name="LAST_COMMIT_MESSAGE" value="Include validation plot" />
+    <MESSAGE value="Removes rare words.&#10;&#10;Applies dropout and less complex lstm model." />
+    <option name="LAST_COMMIT_MESSAGE" value="Removes rare words.&#10;&#10;Applies dropout and less complex lstm model." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -872,8 +879,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-84">
-          <caret line="670" column="32" selection-start-line="670" selection-start-column="32" selection-end-line="670" selection-end-column="32" />
+        <state relative-caret-position="311">
+          <caret line="145" column="53" lean-forward="true" selection-start-line="145" selection-start-column="53" selection-end-line="145" selection-end-column="53" />
           <folding>
             <element signature="e#50#87#0" expanded="true" />
           </folding>
