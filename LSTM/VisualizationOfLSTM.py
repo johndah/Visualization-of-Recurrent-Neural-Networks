@@ -23,13 +23,11 @@ import lxml.etree
 from terminaltables import SingleTable
 
 import tensorflow as tf
-from keras import optimizers
+
 import keras.backend as K
-from keras.models import Sequential
-from keras.models import load_model
-from keras.layers.recurrent import LSTM
-from keras.layers import Dense, Activation
-from keras.layers.embeddings import Embedding
+from keras import optimizers, regularizers
+from keras.models import Sequential, load_model
+from keras.layers import LSTM, Bidirectional, Dropout, Dense, Activation, Embedding
 from keras.callbacks import LambdaCallback, EarlyStopping, ModelCheckpoint, RemoteMonitor
 
 
@@ -77,7 +75,7 @@ class VisualizeLSTM(object):
 
         self.constants = '# Hidden neurons: ' + str(self.n_hiddenNeurons) \
                          + '\nVocabulary size: ' + str(self.M) \
-                         + '\nOptimizer: RMS Prop' \
+                         + '\nOptimizer: ' + self.optimizer \
                          + '\n' + r'$\eta$ = ' + "{:.2e}".format(self.eta) \
                          + '\n' + 'Training sequence length: ' + str(self.seq_length) \
                          + '\n' + 'Batch size: ' + str(self.batch_size) \
@@ -111,7 +109,7 @@ class VisualizeLSTM(object):
             input_text = '\n'.join(doc.xpath('//content/text()'))
             words.extend(re.findall(r"\w+|[^\w]", input_text))
             # words = input_text.split()
-            sentences = list(self.evenly_split(words, self.seq_length))
+            # sentences = list(self.evenly_split(words, self.seq_length))
         else:
             with open(self.text_file, 'r') as f:
                 lines = f.readlines()
@@ -123,7 +121,35 @@ class VisualizeLSTM(object):
                     # words.append('\n')
                     words.extend(re.findall(r"\w+|[^\w]", line))
                     words.append('\n')
-                sentences = list(self.evenly_split(words, self.seq_length))  # [''.join(words).split()]
+                # sentences = list(self.evenly_split(words, self.seq_length))  # [''.join(words).split()]
+
+        print('Words in corpus: ' + str(len(words)))
+        print('Calculating word frequency and ignoring if fewer than ' + str(self.word_frequency_threshold) + '...')
+        # word_frequencies = dict(zip(words, [words.count(word) for word in words]))
+
+        word_frequencies = {}
+        for word in words:
+            word_frequencies[word] = word_frequencies.get(word, 0) + 1
+
+        words_to_ignore = set()
+        for word, count in word_frequencies.items():
+            if count < self.word_frequency_threshold:
+                words_to_ignore.add(word)
+
+        print('Unique words in corpus after ignoring rare ones: ' + str(len(set(words)))
+        words_common = set(words) - words_to_ignore
+        print('Unique words in corpus after ignoring rare ones: ' + str(len(words_common)))
+
+        sentences = []
+
+        ignored_sentences = 0
+        for i in range(len(words) - self.seq_length):
+            if not len(set(words[i:i+self.seq_length]).intersection(words_to_ignore)):
+                sentences.append(words[i:i+self.seq_length])
+            else:
+                ignored_sentences += 1
+
+        print('Sample sequences used in corpus: ' + str(len(sentences)) + ' where ' + str(ignored_sentences) + ' were ignored')
 
         if '.model' in self.embedding_model_file:
             word2vec_model = gensim.models.Word2Vec.load(self.embedding_model_file)
@@ -146,10 +172,10 @@ class VisualizeLSTM(object):
 
                     counter = 0
                     extracted_words = []
-                    for i, line in enumerate(lines):
+                    for line in lines:
                         extracted_words.append(line.split()[0])
 
-                intersection = set(words).intersection(set(extracted_words))
+                intersection = set(words_common).intersection(set(extracted_words))
                 extracted_lines = [str(len(intersection)) + ' 300\n']
                 print('Done with reading')
                 with open(self.embedding_model_file, 'r', encoding="utf8") as f:
@@ -157,11 +183,10 @@ class VisualizeLSTM(object):
                     for line in lines:
                         if line.split()[0] in intersection:
                             extracted_lines.append(line)
-                print(len(extracted_words))
-                print(len(intersection))
-                self.embedding_model_file = self.embedding_model_file[:-4] + '_extracted.txt'
+                print('Size model: ' + str(len(extracted_words)))
+                print('Size merge model: ' + str(len(intersection)))
+                self.embedding_model_file = self.embedding_model_file.split('/')[-1][:-4] + '_extracted.txt'
                 with open(self.embedding_model_file, 'r+', encoding="utf8") as f:
-                    f.writelines(str(counter) + ' 300')
                     f.writelines(extracted_lines)
             elif self.merge_embedding_model_corpus and '.txt' not in self.embedding_model_file:
                 print('Merge only allows .txt files! ')
@@ -179,10 +204,10 @@ class VisualizeLSTM(object):
 
             print('Training word embedding model with corpus ' + self.text_file + '...')
             word2vec_model.build_vocab(sentences, update=True)
-            word2vec_model.train(sentences, total_examples=1, epochs=100)
+            word2vec_model.train(sentences, total_examples=1, epochs=1)
 
             if self.save_embedding_model:
-                word2vec_model.save('Word_Embedding_Model/' + self.text_file.split('.')[0].split('/')[-1] + "_extracted.model")
+                word2vec_model.save('Word_Embedding_Model/' + self.text_file.split('.')[0].split('/')[-1] + '_' + self.embedding_model_file.split('/')[-1][:-4] + "_extracted.model")
 
             '''
             print('Searching for corpus words not in model...')
@@ -222,11 +247,16 @@ class VisualizeLSTM(object):
             for i in range(self.n_hidden_layers-1):
                 self.lstm_model.add(LSTM(units=self.n_hiddenNeurons, return_sequences=True))
             self.lstm_model.add(LSTM(units=self.n_hiddenNeurons))
+            if self.dropout > 0:
+                self.lstm_model.add(Dropout(self.dropout))
             self.lstm_model.add(Dense(units=self.M))
             self.lstm_model.add(Activation('softmax'))
-            ada_delta_optimizer = optimizers.Adadelta(lr=1.0, rho=0.95, epsilon=None, decay=0.0)
+            if 'RMS' in self.optimizer:
+                optimizer = optimizers.RMSprop(lr=self.eta, rho=0.9)
+            else:
+                optimizer = optimizers.Adadelta(lr=1.0, rho=0.95, epsilon=None, decay=0.0)
 
-            self.lstm_model.compile(optimizer=ada_delta_optimizer, loss='sparse_categorical_crossentropy',
+            self.lstm_model.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy',
                                     metrics=['accuracy'])
         else:
             model_directory = './LSTM Saved Models/Checkpoints/'
@@ -242,8 +272,8 @@ class VisualizeLSTM(object):
         self.lstm_model.summary()
 
         synthesize_text = LambdaCallback(on_epoch_end=self.synthesize_text)
-        # early_stopping = EarlyStopping(monitor='val_loss', patience=5)
-        callbacks = [synthesize_text]
+        early_stopping = EarlyStopping(monitor='val_loss', patience=5)
+        callbacks = [synthesize_text, early_stopping]
 
         if self.save_checkpoints:
             file_path = "./LSTM Saved Models/Checkpoints/epoch{epoch:03d}-sequence%d-loss{loss:.4f}-val_loss{val_loss:.4f}" % (
@@ -283,7 +313,6 @@ class VisualizeLSTM(object):
                                       validation_steps=int(len(self.input_sequence_validation) / self.batch_size) + 1)
 
     def generate_words(self, input_sequence):
-        random.shuffle(input_sequence)
         batch_index = 0
         random.shuffle(input_sequence)
         while True:
@@ -296,6 +325,7 @@ class VisualizeLSTM(object):
                         x[i, t] = self.word_to_index(entity)
                     except KeyError:
                         entity = '-'
+                        print('Entity "' + entity + '"' + ' not in model, replaced with "-".')
                         x[i, t] = self.word_to_index(entity)
 
                 label_entity = sentence[-1]
@@ -304,6 +334,7 @@ class VisualizeLSTM(object):
                     y[i] = array([self.word_to_index(label_entity)])
                 except KeyError:
                     label_entity = '-'
+                    print('Label "' + label_entity + '"' + ' not in model, replaced with "-".')
                     y[i] = array([self.word_to_index(label_entity)])
 
             batch_index += self.batch_size
@@ -353,7 +384,7 @@ class VisualizeLSTM(object):
 
             x = entity_indices[t:t + self.seq_length]
             output = self.lstm_model.predict(x=atleast_2d(x))
-            lstm_layer = K.function([self.lstm_model.layers[0].input], [self.lstm_model.layers[4].output])
+            lstm_layer = K.function([self.lstm_model.layers[0].input], [self.lstm_model.layers[self.n_hidden_layers].output])
             activations = lstm_layer([atleast_2d(x)])[0].T
 
             neuron_activation_map[:, t] = activations[:, 0]
@@ -369,7 +400,7 @@ class VisualizeLSTM(object):
             else:
                 sample_index = len(diff) - 1
 
-            # sample = argmax(output)
+            sample_index = argmax(output)
             sample = self.index_to_word(sample_index)
             entity_indices[t + self.seq_length - 1] = sample_index
 
@@ -637,23 +668,34 @@ def main():
     attributes = {
         'text_file': 'Data/ted_en.zip',  # 'Data/LordOfTheRings2.txt',  #
         'load_lstm_model': False,  # True to load lstm checkpoint model
-        'embedding_model_file':  'Word_Embedding_Model/ted_talks_word2vec_extracted.model',  # Data/glove_840B_300d_extracted.txt',  # 'None'  # Word_Embedding_Model/ted_talks_word2vec.model',  #
+        'optimizer': 'RMS Prop',
+        'dropout': 0.2,
+        'embedding_model_file': 'Word_Embedding_Model/ted_en_glove_840B_300d_extracted_extracted.model',  # 'Data/glove_840B_300d_extracted.txt', # 'Word_Embedding_Model/ted_talks_word2vec_extracted.model',  # 'Data/glove_840B_300d_extracted.txt',
+        'word_frequency_threshold': 10,
         'merge_embedding_model_corpus': False,  # Extract the intersection between embedding model and corpus
         'train_embedding_model': False,  # Further train the embedding model
         'save_embedding_model': False,  # Save trained embedding model
         'word_domain': True,  # True for words, False for characters
         'validation_proportion': .02,  # The proportion of data set used for validation
-        'corpus_proportion': .3,  # The proportion of the corpus used for training and validation
-        'n_hiddenNeurons': 600,  # Number of hidden neurons, 'Auto' equals to word embedding size
-        'n_hidden_layers': 4,  # Number of hidden LSTM layers
-        'eta': 1e-4,  # Learning rate
-        'batch_size': 60,  # Number of sentences for training for each epoch
+        'corpus_proportion': 1,  # The proportion of the corpus used for training and validation
+        'n_hiddenNeurons': 128,  # Number of hidden neurons, 'Auto' equals to word embedding size
+        'n_hidden_layers': 1,  # Number of hidden LSTM layers
+        'eta': 1e-3,  # Learning rate
+        'batch_size': 32,  # Number of sentences for training for each epoch
         'n_epochs': 100,  # Total number of epochs, each corresponds to (n book characters)/(seq_length) seq iterations
-        'seq_length': 7,  # Sequence length of each sequence iteration
-        'length_synthesized_text': 50,  # Sequence length of each print of text evolution
-        'remote_monitoring_ip': 'http://192.168.151.148:9000/',  # Ip for remote monitoring at http://localhost:9000/
-        'save_checkpoints': False  # Save best weights with corresponding arrays iterations and smooth loss
+        'seq_length': 9,  # Sequence length of each sequence iteration
+        'length_synthesized_text': 100,  # Sequence length of each print of text evolution
+        'remote_monitoring_ip': '',  # Ip for remote monitoring at http://localhost:9000/
+        'save_checkpoints': True  # Save best weights with corresponding arrays iterations and smooth loss
     }
+
+    #embedding_dimentions = ['Word_Embedding_Model/ted_talks_100d.model', 'Word_Embedding_Model/ted_talks_300d.model']
+
+    #attributes['embedding_model_file'] = embedding_dimentions[int(2*random.rand())]
+    #attributes['n_hiddenNeurons'] = 50*(2 + int(18*random.rand()))
+    #attributes['n_hidden_layers'] = int(5*random.rand()) + 1
+    #attributes['seq_length'] = 2 + int(8*random.rand())
+
     lstm_vis = VisualizeLSTM(attributes)
     lstm_vis.train_lstm()
 

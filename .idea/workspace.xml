@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="">
+    <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="Include validation plot">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSTM/Parameters/losses.txt" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/Parameters/losses.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSTM/Parameters/seqIterations.txt" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/Parameters/seqIterations.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -17,11 +16,26 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6512">
-              <caret line="608" column="37" selection-start-line="608" selection-start-column="37" selection-end-line="608" selection-end-column="37" />
+            <state relative-caret-position="-84">
+              <caret line="670" column="32" selection-start-line="670" selection-start-column="32" selection-end-line="670" selection-end-column="32" />
+              <folding>
+                <element signature="e#50#87#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://D:/VisualizationOfLSTM.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="509">
+              <caret line="541" column="30" lean-forward="true" selection-end-line="698" selection-end-column="14" />
+              <folding>
+                <element signature="e#50#87#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -44,11 +58,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="199">
-              <caret line="240" column="31" selection-start-line="240" selection-start-column="31" selection-end-line="240" selection-end-column="31" />
+            <state relative-caret-position="191">
+              <caret line="328" column="27" selection-start-line="328" selection-start-column="24" selection-end-line="328" selection-end-column="27" />
             </state>
           </provider>
         </entry>
@@ -64,20 +78,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>plot_neural_activity</find>
-      <find>rota</find>
-      <find>colorma</find>
-      <find>colma</find>
-      <find>releva</find>
-      <find>samp</find>
-      <find>loss</find>
-      <find>compute</find>
-      <find>forwardProp</find>
-      <find>backpr</find>
-      <find>earlyS</find>
-      <find>layers</find>
-      <find>lstm</find>
-      <find>lstm'</find>
       <find>ad</find>
       <find>add</find>
       <find>.add</find>
@@ -89,11 +89,25 @@
       <find>epoch</find>
       <find>synthesize_text</find>
       <find>self.synthesize_text</find>
-      <find>le</find>
       <find>self.losses</find>
       <find>validation_losses</find>
       <find>dense</find>
       <find>units</find>
+      <find>le</find>
+      <find>hPrev =</find>
+      <find>hPrev</find>
+      <find>forwardProp</find>
+      <find>.mod</find>
+      <find>def ba</find>
+      <find>def bac</find>
+      <find>def back</find>
+      <find>synthe</find>
+      <find>n_hidde</find>
+      <find>n_hidden_l</find>
+      <find>back</find>
+      <find>loss =</find>
+      <find>rms</find>
+      <find>optim</find>
     </findStrings>
     <replaceStrings>
       <replace>o, h, a = self.forwardProp</replace>
@@ -137,22 +151,22 @@
         <option value="$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt" />
         <option value="$PROJECT_DIR$/LSTM/config.txt" />
         <option value="$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py" />
+        <option value="D:/VisualizationOfLSTM.py" />
         <option value="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-10" />
-    <option name="y" value="40" />
-    <option name="width" value="1370" />
-    <option name="height" value="1258" />
+    <option name="x" value="423" />
+    <option name="y" value="-24" />
+    <option name="width" value="1350" />
+    <option name="height" value="1260" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -163,16 +177,28 @@
             <path>
               <item name="Visualization-of-Recurrent-Neural-Networks" type="b2602c69:ProjectViewProjectNode" />
               <item name="Visualization-of-Recurrent-Neural-Networks" type="462c0819:PsiDirectoryNode" />
+              <item name="LSTM" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Visualization-of-Recurrent-Neural-Networks" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Visualization-of-Recurrent-Neural-Networks" type="462c0819:PsiDirectoryNode" />
+              <item name="LSTM" type="462c0819:PsiDirectoryNode" />
+              <item name="Word_Embedding_Model" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Visualization-of-Recurrent-Neural-Networks" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Visualization-of-Recurrent-Neural-Networks" type="462c0819:PsiDirectoryNode" />
               <item name="Vanilla RNN" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../Feed forward visualization" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../03-19-lstm_lyrics-master" />
     <property name="restartRequiresConfirmation" value="false" />
     <property name="settings.editor.selected.configurable" value="preferences.keymap" />
   </component>
@@ -451,7 +477,14 @@
       <option name="project" value="LOCAL" />
       <updated>1552319399979</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="Include validation plot">
+      <created>1552645730776</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1552645730776</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TodoView">
@@ -467,39 +500,39 @@
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19299406" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.13152677" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32932165" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4990086" weight="0.22237961" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.49834764" visible="true" weight="0.40084985" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49834764" weight="0.48300284" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32936078" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.32936078" />
-      <window_info anchor="bottom" id="Terminal" order="8" weight="0.26912183" />
-      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.50165236" side_tool="true" weight="0.37818697" />
-      <window_info anchor="bottom" id="Python Console" order="10" sideWeight="0.49947312" weight="0.3217768" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.3427762" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.50165236" side_tool="true" weight="0.16288953" />
+      <window_info anchor="bottom" id="Python Console" order="10" sideWeight="0.49834764" weight="0.16288953" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
     </layout>
     <layout-to-restore>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.16523464" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.13152677" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32932165" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4990086" weight="0.37677053" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.49834764" visible="true" weight="0.37818697" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4990086" weight="0.22237961" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49834764" weight="0.48300284" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info anchor="bottom" id="Terminal" order="8" weight="0.32713348" />
-      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.50165236" side_tool="true" visible="true" weight="0.37818697" />
-      <window_info anchor="bottom" id="Python Console" order="10" sideWeight="0.49947312" weight="0.4182015" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.32936078" />
+      <window_info anchor="bottom" id="Version Control" order="7" weight="0.32936078" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.3427762" />
+      <window_info active="true" anchor="bottom" id="Event Log" order="9" sideWeight="0.50165236" side_tool="true" visible="true" weight="0.16288953" />
+      <window_info anchor="bottom" id="Python Console" order="10" sideWeight="0.49834764" visible="true" weight="0.16288953" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -617,6 +650,21 @@
           <url>file://$PROJECT_DIR$/test.py</url>
           <line>484</line>
           <option name="timeStamp" value="358" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py</url>
+          <line>161</line>
+          <option name="timeStamp" value="490" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py</url>
+          <line>387</line>
+          <option name="timeStamp" value="491" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py</url>
+          <line>111</line>
+          <option name="timeStamp" value="492" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -790,13 +838,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="7" column="23" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://D:/Data 03-15/VisualizationOfLSTM.py" />
     <entry file="file://$PROJECT_DIR$/LSTM/config.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
@@ -804,24 +846,37 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="191">
+          <caret line="328" column="27" selection-start-line="328" selection-start-column="24" selection-end-line="328" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="7" column="23" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://D:/VisualizationOfLSTM.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="125">
-          <caret line="181" column="47" lean-forward="true" selection-end-line="623" selection-end-column="14" />
+        <state relative-caret-position="509">
+          <caret line="541" column="30" lean-forward="true" selection-end-line="698" selection-end-column="14" />
+          <folding>
+            <element signature="e#50#87#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6512">
-          <caret line="608" column="37" selection-start-line="608" selection-start-column="37" selection-end-line="608" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="199">
-          <caret line="240" column="31" selection-start-line="240" selection-start-column="31" selection-end-line="240" selection-end-column="31" />
+        <state relative-caret-position="-84">
+          <caret line="670" column="32" selection-start-line="670" selection-start-column="32" selection-end-line="670" selection-end-column="32" />
+          <folding>
+            <element signature="e#50#87#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
