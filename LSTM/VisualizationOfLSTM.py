@@ -10,6 +10,7 @@ import platform
 from sty import bg, RgbBg
 
 from numpy import *
+from copy import copy, deepcopy
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
 
@@ -260,8 +261,8 @@ class VisualizeLSTM(object):
         callbacks = [synthesize_text, early_stopping]
 
         if self.save_checkpoints:
-            file_path = "./LSTM Saved Models/Checkpoints/epoch{epoch:03d}-neurons%d-layers%d-loss{loss:.4f}-val_loss{val_loss:.4f}" % (
-                self.n_hidden_neurons, self.n_hidden_layers)
+            file_path = "./LSTM Saved Models/Checkpoints/val_loss{val_loss:.4f}-loss{loss:.4f}-epoch{epoch:03d}-neurons%d-layers%d-batch_size-%d-drop%f-eta-%f-flip%d"%(
+                self.n_hidden_neurons, self.n_hidden_layers, self.batch_size, self.dropout, self.eta, self.flip_input)
             checkpoint = ModelCheckpoint(file_path, monitor='val_loss', save_best_only=True)
             callbacks.append(checkpoint)
 
@@ -313,6 +314,8 @@ class VisualizeLSTM(object):
                         x[i, t] = self.word_to_index(entity)
 
                 label_entity = sentence[-1]
+                if self.flip_input:
+                    x = flip(x, axis=1)
 
                 try:
                     y[i] = array([self.word_to_index(label_entity)])
@@ -367,7 +370,12 @@ class VisualizeLSTM(object):
         for t in range(self.length_synthesized_text):
 
             x = entity_indices[t:t + self.seq_length-1]
-            output = self.lstm_model.predict(x=atleast_2d(x))
+            if self.flip_input:
+                x_predict = flip(atleast_2d(x), axis=1)
+            else:
+                x_predict = atleast_2d(deepcopy(x))
+
+            output = self.lstm_model.predict(x=x_predict)
             lstm_layer = K.function([self.lstm_model.layers[0].input], [self.lstm_model.layers[self.n_hidden_layers].output])
             activations = lstm_layer([atleast_2d(x)])[0].T
 
@@ -639,10 +647,37 @@ class VisualizeLSTM(object):
                         self.interval_limits = array(self.interval_limits)
 
     def word_to_index(self, word):
-        return self.word_to_indices[word]
+        # return self.words_to_indices[word]
+        return self.vocabulary.vocab[word].index
 
     def index_to_word(self, index):
-        return self.indices_to_words[index]
+        # return self.indices_to_words[index]
+        return self.vocabulary.index2word[index]
+
+
+def randomize_hyper_parameters(n_configurations, attributes):
+
+    attributes['n_epochs'] = 3
+
+    for i in range(n_configurations):
+        attributes['n_hidden_neurons'] = 128*int(7*random.rand()+1)
+        attributes['n_hidden_layers'] = int(6*random.rand()) + 1
+        attributes['batch_size'] = 32*int(10*random.rand() + 1)
+        attributes['dropout'] = float(floor(30*random.rand() + 10)*.01)
+        attributes['eta'] = int(8*random.rand() + 2)*10**int(-3 - 4*random.rand())
+        attributes['flip_input'] = random.rand() < 0.2
+
+        print('\nn: ' + str(attributes['n_hidden_neurons']))
+        print('layers: ' + str(attributes['n_hidden_layers']))
+        print('batch_size: ' + str(attributes['batch_size']))
+        print('dropout: ' + str(attributes['dropout']))
+        print('eta: ' + str(attributes['eta']))
+        print('flip_input: ' + str(attributes['flip_input']) + '\n')
+
+        lstm_vis = VisualizeLSTM(attributes)
+        lstm_vis.train_lstm()
+
+        K.clear_session()
 
 
 def main():
@@ -650,7 +685,7 @@ def main():
         'text_file': 'Data/ted_en.zip',  # 'Data/LordOfTheRings2.txt',  #
         'load_lstm_model': False,  # True to load lstm checkpoint model
         'optimizer': 'RMS Prop',
-        'dropout': 0.1,
+        'dropout': 0.25,
         'embedding_model_file': 'Word_Embedding_Model/ted_en_glove_840B_300d_extracted.model',
         'word_frequency_threshold': 10,
         'merge_embedding_model_corpus': False,  # Extract the intersection between embedding model and corpus
@@ -660,18 +695,23 @@ def main():
         'validation_proportion': .02,  # The proportion of data set used for validation
         'corpus_proportion': 1,  # The proportion of the corpus used for training and validation
         'n_hidden_neurons': 512,  # Number of hidden neurons, 'Auto' equals to word embedding size
-        'n_hidden_layers': 4,  # Number of hidden LSTM layers
-        'eta': 1e-3,  # Learning rate
-        'batch_size': 384,  # Number of sentences for training for each epoch
+        'n_hidden_layers': 3,  # Number of hidden LSTM layers
+        'eta': 3e-4,  # Learning rate
+        'batch_size': 224,  # Number of sentences for training for each epoch
         'n_epochs': 100,  # Total number of epochs, each corresponds to (n book characters)/(seq_length) seq iterations
         'seq_length': 9,  # Sequence length of each sequence iteration
+        'flip_input': False,
         'length_synthesized_text': 100,  # Sequence length of each print of text evolution
         'remote_monitoring_ip': 'http://192.168.151.148:9000/',  # Ip for remote monitoring at http://localhost:9000/
         'save_checkpoints': True  # Save best weights with corresponding arrays iterations and smooth loss
     }
+
+    # randomize_hyper_parameters(500, attributes)
+
     lstm_vis = VisualizeLSTM(attributes)
     lstm_vis.train_lstm()
 
+    K.clear_session()
 
 if __name__ == '__main__':
     random.seed(1)
