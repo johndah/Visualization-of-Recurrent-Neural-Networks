@@ -1,18 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="Allows hyper-paramenter randomization.">
+    <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="Part of Speech tags can be chosen as feature of interests.&#10;&#10;Inference process is an available alternative to training process.&#10;&#10;Plotting of Fourier transform to extract patterns with periodicity is included.&#10; &#10;Visualization of LSTM gates rather than final layer outputs is introduced but does not yet work.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSTM/LSTM Saved Models/Checkpoints/epoch001-sequence5-loss3.2303-val_loss2.9708" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSTM/LSTM Saved Models/Checkpoints/epoch001-sequence5-loss4.2569-val_loss3.3516" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSTM/LSTM Saved Models/Checkpoints/epoch002-sequence5-loss3.3564-val_loss3.1216" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSTM/LSTM Saved Models/lstm_model.h5" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSTM/Parameters/losses.txt" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/Parameters/losses.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSTM/Parameters/seqIterations.txt" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/Parameters/seqIterations.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSTM/config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/config.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py" beforeDir="false" afterPath="$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -25,11 +17,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="161">
-              <caret line="420" column="66" selection-start-line="420" selection-start-column="66" selection-end-line="420" selection-end-column="66" />
+            <state relative-caret-position="387">
+              <caret line="427" column="46" lean-forward="true" selection-start-line="427" selection-start-column="46" selection-end-line="427" selection-end-column="46" />
               <folding>
                 <element signature="e#50#87#0" expanded="true" />
               </folding>
@@ -85,11 +77,20 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="196">
-              <caret line="352" column="127" lean-forward="true" selection-start-line="352" selection-start-column="19" selection-end-line="352" selection-end-column="127" />
+            <state relative-caret-position="183">
+              <caret line="882" column="70" lean-forward="true" selection-start-line="882" selection-start-column="70" selection-end-line="882" selection-end-column="70" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://D:/03-22-Visualization-of-Recurrent-Neural-Networks-master (Reduced)/Vanilla RNN/VisualizationOfRNN.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="85">
+              <caret line="5" lean-forward="true" selection-end-line="904" />
             </state>
           </provider>
         </entry>
@@ -105,8 +106,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>kernel_f</find>
-      <find>self.f</find>
       <find>load</find>
       <find>K</find>
       <find>get_value</find>
@@ -133,8 +132,10 @@
       <find>(</find>
       <find>call(</find>
       <find>inputs</find>
-      <find>try</find>
       <find>lstm(</find>
+      <find>try</find>
+      <find>validation</find>
+      <find>input_sequence_validation</find>
     </findStrings>
     <replaceStrings>
       <replace>o, h, a = self.forwardProp</replace>
@@ -178,20 +179,21 @@
         <option value="$PROJECT_DIR$/VisualizationOfLSTM.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/Vanilla RNN/config.txt" />
-        <option value="$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py" />
         <option value="D:/VisualizationOfLSTM.py" />
         <option value="$PROJECT_DIR$/test.py" />
         <option value="$PROJECT_DIR$/LSTM/config.txt" />
         <option value="$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt" />
         <option value="$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/site-packages/keras/layers/recurrent.py" />
         <option value="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" />
+        <option value="$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-7" />
-    <option name="width" value="974" />
-    <option name="height" value="1047" />
+    <option name="x" value="125" />
+    <option name="y" value="279" />
+    <option name="width" value="977" />
+    <option name="height" value="1028" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -248,7 +250,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.VisualizationOfLSTM">
+  <component name="RunManager" selected="Python.VisualizationOfRNN">
     <configuration name="VisualizationOfLSTM" type="PythonConfigurationType" factoryName="Python">
       <module name="Visualization-of-Recurrent-Neural-Networks" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -532,7 +534,14 @@
       <option name="project" value="LOCAL" />
       <updated>1553771030922</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="Part of Speech tags can be chosen as feature of interests.&#10;&#10;Inference process is an available alternative to training process.&#10;&#10;Plotting of Fourier transform to extract patterns with periodicity is included.&#10; &#10;Visualization of LSTM gates rather than final layer outputs is introduced but does not yet work.">
+      <created>1555055670673</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1555055670673</updated>
+    </task>
+    <option name="localTasksCounter" value="31" />
     <servers />
   </component>
   <component name="TodoView">
@@ -587,7 +596,6 @@
     </layout-to-restore>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Predict words utilizing cdf of similarities rather than normal distribution outcome of index" />
     <MESSAGE value="Including color map. Change of colors to hot-cold (Red-Blue). Indicator included in output print" />
     <MESSAGE value="Including parameters to Git. Cleaning up code." />
     <MESSAGE value="Makes implementation compatible with utilization of character domains on top of word domains." />
@@ -612,7 +620,8 @@
     <MESSAGE value="Detail" />
     <MESSAGE value="Solves issue with prediction which now works properly" />
     <MESSAGE value="Allows hyper-paramenter randomization." />
-    <option name="LAST_COMMIT_MESSAGE" value="Allows hyper-paramenter randomization." />
+    <MESSAGE value="Part of Speech tags can be chosen as feature of interests.&#10;&#10;Inference process is an available alternative to training process.&#10;&#10;Plotting of Fourier transform to extract patterns with periodicity is included.&#10; &#10;Visualization of LSTM gates rather than final layer outputs is introduced but does not yet work." />
+    <option name="LAST_COMMIT_MESSAGE" value="Part of Speech tags can be chosen as feature of interests.&#10;&#10;Inference process is an available alternative to training process.&#10;&#10;Plotting of Fourier transform to extract patterns with periodicity is included.&#10; &#10;Visualization of LSTM gates rather than final layer outputs is introduced but does not yet work." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -717,6 +726,11 @@
           <line>415</line>
           <option name="timeStamp" value="564" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://D:/03-22-Visualization-of-Recurrent-Neural-Networks-master (Reduced)/Vanilla RNN/VisualizationOfRNN.py</url>
+          <line>55</line>
+          <option name="timeStamp" value="567" />
+        </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
@@ -728,7 +742,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/U.txt" />
     <entry file="file://$PROJECT_DIR$/x0.txt" />
     <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/site-packages/numpy/lib/npyio.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -886,13 +899,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="196">
-          <caret line="352" column="127" lean-forward="true" selection-start-line="352" selection-start-column="19" selection-end-line="352" selection-end-column="127" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/site-packages/tensorflow/python/framework/ops.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-808">
@@ -904,13 +910,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="212">
           <caret line="2921" selection-start-line="2921" selection-end-line="2921" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="35" selection-start-line="6" selection-start-column="35" selection-end-line="6" selection-end-column="35" />
         </state>
       </provider>
     </entry>
@@ -926,11 +925,32 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="161">
-          <caret line="420" column="66" selection-start-line="420" selection-start-column="66" selection-end-line="420" selection-end-column="66" />
+        <state relative-caret-position="387">
+          <caret line="427" column="46" lean-forward="true" selection-start-line="427" selection-start-column="46" selection-end-line="427" selection-end-column="46" />
           <folding>
             <element signature="e#50#87#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" column="35" selection-start-line="6" selection-start-column="35" selection-end-line="6" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://D:/03-22-Visualization-of-Recurrent-Neural-Networks-master (Reduced)/Vanilla RNN/VisualizationOfRNN.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" lean-forward="true" selection-end-line="904" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="183">
+          <caret line="882" column="70" lean-forward="true" selection-start-line="882" selection-start-column="70" selection-end-line="882" selection-end-column="70" />
         </state>
       </provider>
     </entry>
