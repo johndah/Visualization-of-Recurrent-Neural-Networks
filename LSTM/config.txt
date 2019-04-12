@@ -1,3 +1,4 @@
-plot_process: True  # Plot learning curve
+plot_process: False # Plot learning curve
 plot_color_map: True  # Plot color map of neuron activations
+plot_fft: True  # False Fast Fourier Transform of neuron activations
 

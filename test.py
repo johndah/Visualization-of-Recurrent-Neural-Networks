@@ -372,6 +372,7 @@ with zipfile.ZipFile('Data/ted_en-20160408.zip', 'r') as z:
     doc = lxml.etree.parse(z.open('ted_en-20160408.xml', 'r'))
 input_text = '\n'.join(doc.xpath('//content/text()'))
 '''
+'''
 #from __future__ import print_function
 
 __author__ = 'maxim'
@@ -387,7 +388,7 @@ from keras.layers import Dense, Activation
 from keras.models import Sequential
 from keras.utils.data_utils import get_file
 
-'''
+#
 print('\nFetching the text...')
 url = 'https://raw.githubusercontent.com/maxim5/stanford-tensorflow-tutorials/master/data/arxiv_abstracts.txt'
 path = get_file('arxiv_abstracts.txt', origin=url)
@@ -401,7 +402,6 @@ print('Num sentences:', len(sentences))
 
 print('\nTraining word2vec...')
 word_model = gensim.models.Word2Vec(sentences, size=100, min_count=1, window=5, iter=100)
-'''
 from gensim.models import KeyedVectors
 import zipfile
 import lxml.etree
@@ -532,7 +532,6 @@ hey = 2
 # activations = model2._predict(train_x)
 
 
-'''
 from keras import backend as K
 
 inp = model.input                                           # input placeholder
@@ -557,4 +556,176 @@ for i in range(3):
     aa.append(layer_output)
 
 hey = 2
+import spacy
+
+# spacy.prefer_gpu()
+nlp = spacy.load('en_core_web_sm')
+
+#input = 'I we are Apple is looking at buying U.K. startup for $1 billion'
+input = ' '
+doc = nlp(u''.join(input))
+
+for token in doc:
+    print(token.text, token.lemma_, token.pos_, token.tag_, token.dep_,
+          token.shape_, token.is_alpha, token.is_stop)
+####
+import platform
+import subprocess
+from ctypes import windll, c_int, byref
+from sty import bg, RgbBg
+
+neuron_activation = 0.7
+bg.set_style('activationColor', RgbBg(0, 0, int(abs(neuron_activation) * 255)))
+
+colored_word = bg.activationColor + 'hey' + bg.rs
+from colorama import init as colorama_init
+colored_word_succ ='\x1b[6;30;42m' + 'Success!' + '\x1b[0m' # bg.activationColor + 'hey' + bg.rs
+
+print(colored_word)
+# Allowing ANSI Escape Sequences for colors
+if platform.system().lower() == 'windows':
+    stdout_handle = windll.kernel32.GetStdHandle(c_int(-11))
+    mode = c_int(0)
+    windll.kernel32.GetConsoleMode(c_int(stdout_handle), byref(mode))
+    mode = c_int(mode.value | 4)
+    windll.kernel32.SetConsoleMode(c_int(stdout_handle), mode)
 '''
+'''
+
+
+print(colored_word)
+from colr import color
+
+print(color('Hello there.', fore=(255, 0, 0), back=(255, 0, 0)))
+import spacy
+
+print(colored_word)
+
+subprocess.call('', shell=True)
+print(colored_word)
+print(color('Hello world.', back=(50,0,0)))
+'''
+'''
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
+import matplotlib.pyplot as plt
+import numpy as np
+
+def sigmoid(x, derivative=False):
+    sigm = 1. / (1. + np.exp(-x))
+    if derivative:
+        return sigm * (1. - sigm)
+    return sigm
+
+a = 3.5
+X = np.arange(-a, a, 0.25)
+Y = np.arange(-a, a, 0.25)
+X, Y = np.meshgrid(X, Y)
+R = np.sqrt(X**2 + Y**2)
+shift=0 # 0.5
+b = 100*(sigmoid(X+shift) * sigmoid(shift-X) * sigmoid(Y+shift) * sigmoid(shift-Y))
+c = 4#np.amax(b)
+Z = b/c - np.mean(b/c)
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm,
+    linewidth=0, antialiased=False)
+ax.set_zlim(-1.01, 1.01)
+
+ax.zaxis.set_major_locator(LinearLocator(10))
+ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+
+#fig.colorbar(surf, shrink=0.5, aspect=5)
+#plt.title('Sigmod')
+ax.grid(False)
+# Hide axes ticks
+ax.set_xticks([])
+ax.set_yticks([])
+ax.set_zticks([])
+plt.axis('off')
+plt.grid(b=None)
+ax.view_init(17, -126)
+#plt.show()
+
+print('saving')
+plt.savefig('f5.png', transparent=True)
+
+
+import numpy as np
+from viznet import connecta2a, node_sequence, NodeBrush, EdgeBrush, DynamicShow
+
+
+def draw_feed_forward(ax, num_node_list):
+  
+    num_hidden_layer = len(num_node_list) - 2
+    token_list = ['\sigma^z'] + \
+        ['y^{(%s)}' % (i + 1) for i in range(num_hidden_layer)] + ['\psi']
+    kind_list = ['nn.recurrent'] + ['nn.hidden'] * num_hidden_layer + ['nn.recurrent']
+    radius_list = [0.7] + [0.035] * num_hidden_layer + [0.7]
+    y_list = 2.5 * np.arange(len(num_node_list))
+
+    seq_list = []
+    for n, kind, radius, y in zip(num_node_list, kind_list, radius_list, y_list):
+        b = NodeBrush(kind, ax)
+        seq_list.append(node_sequence(b, n, center=(0, y)))
+
+    eb = EdgeBrush('-->', ax)
+    for st, et in zip(seq_list[:-1], seq_list[1:]):
+        connecta2a(st, et, eb)
+
+
+def real_bp():
+    with DynamicShow((6, 6), '_feed_forward.png') as d:
+        draw_feed_forward(d.ax, num_node_list=[4, 3, 3, 4])
+
+
+if __name__ == '__main__':
+    real_bp()
+
+'''
+
+from numpy import *
+import matplotlib.pyplot as plt
+from matplotlib import cm
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
+
+Fs = 1
+T = 1/Fs
+L = 1500
+t = arange(0, L-1)*T
+S = zeros((10, len(t)))
+for i in range(10):
+    S[i, :] = sin(2*pi*.05*i*t)
+# S = array([sin(2*pi*.5*t), random.randn(2*pi*.5*t)]) # + sin(2*pi*120*t);
+X = S  # + 2*random.randn(size(t));
+
+f = fft.fft(X)
+P2 = abs(f/L)
+# P1 = P2[1:1000/2+1]
+P1 = P2[:, 0:int(L/2)]
+P1[:, 2:-2] = 2*P1[:, 2:-2]
+
+#freq = Fs*(0:(L/2))/L;
+freq = Fs*arange(0,L/2)/L
+neurons = arange(0, 10)
+neurons, freq = meshgrid(neurons, freq)
+
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+ax.view_init(40, 70)
+surf = ax.plot_surface(neurons, freq, P1.T, rstride=1, cstride=1, cmap=cm.coolwarm,linewidth=0, antialiased=False)
+#ax.set_zlim(-1.01, 1.01)
+
+ax.zaxis.set_major_locator(LinearLocator(10))
+ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+
+# max_activation = amax(neuron_activation_map)
+# min_activation = amin(neuron_activation_map)
+fig.colorbar(surf, shrink=0.5, aspect='auto')#, vmin=min_activation, vmax=max_activation
+
+plt.title('Fourier Amplitude Spectrum of Neuron Activation')
+plt.xlabel('Frequency (/sequence time step)')
+plt.ylabel('Neurons of interest')
+plt.show()

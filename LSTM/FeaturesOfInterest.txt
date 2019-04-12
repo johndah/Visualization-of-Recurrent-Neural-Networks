@@ -1,8 +1,24 @@
 # Choose index of neuron to watch in the visualization
 
-Neurons to print: 15, 29, 48:50
-Neurons to plot: 0:50
+Neurons to print: 70:80
+# 15, 29, 48:50
+Neurons for heatmap: 70:80
 #7:9, 23, 38, 44, 83, 94
+Neurons to fourier transform: 70:80
 
-# '\w+|[^\w]' for all words
-Prediction features: ' '
+
+# '\w+|[^\w]' for all words, or Part of Speech classes:
+# 'VB': 'Verb'
+# 'VBG': 'Verb, Gerund'
+# 'NN': 'Noun'
+# 'NNS': 'Noun, Plural'
+# 'NNP': 'Proper Noun'
+# 'NNP': 'Noun, Plural'
+# 'POS': 'Possessive Ending'
+# 'PRP': 'Personal Pronoun'
+# 'PRP$': 'Possessive Pronoun'
+# 'JJ': 'Adjective'
+# 'JJS': 'Adjective, Superlative'
+
+Prediction features: '\w+|[^\w]'
+
