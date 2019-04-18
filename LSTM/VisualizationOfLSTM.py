@@ -6,6 +6,7 @@
 
 from __future__ import print_function
 import os
+import pickle
 import platform
 from sty import bg, RgbBg
 
@@ -31,9 +32,9 @@ from terminaltables import SingleTable
 import tensorflow as tf
 
 import keras.backend as K
-from keras import optimizers, regularizers
-from keras.models import Sequential, load_model
-from keras.layers import LSTM, Dropout, Dense, Activation, Embedding
+from keras import optimizers
+from keras.models import Model, load_model
+from keras.layers import Input, Embedding, LSTM, Dropout, Dense, Flatten, Activation
 from keras.callbacks import LambdaCallback, EarlyStopping, ModelCheckpoint, RemoteMonitor
 
 
@@ -53,21 +54,45 @@ class VisualizeLSTM(object):
             mode = c_int(mode.value | 4)
             windll.kernel32.SetConsoleMode(c_int(stdout_handle), mode)
 
-        self.pos_features = {}
-        self.pos_features['VB'] = 'Verb'
-        self.pos_features['VBG'] = 'Verb, Gerund'
-        self.pos_features['NN'] = 'Noun'
-        self.pos_features['NNS'] = 'Noun, Plural'
-        self.pos_features['NNP'] = 'Proper Noun'
-        self.pos_features['NNP'] = 'Noun, Plural'
-        self.pos_features['POS'] = 'Possessive Ending'
-        self.pos_features['PRP'] = 'Personal Pronoun'
-        self.pos_features['PRP$'] = 'Possessive Pronoun'
-        self.pos_features['JJ'] = 'Adjective'
-        self.pos_features['JJS'] = 'Adjective, Superlative'
+        self.pos_features = {
+            'VB': 'Verb',
+            'VBG': 'Verb, Gerund',
+            'NN': 'Noun',
+            'NNS': 'Noun, Plural',
+            'NNP': 'Proper Noun',
+            'NNP': 'Noun, Plural',
+            'POS': 'Possessive Ending',
+            'PRP': 'Personal Pronoun',
+            'PRP$': 'Possessive Pronoun',
+            'JJ': 'Adjective',
+            'JJS': 'Adjective, Superlative'
+        }
 
         if self.word_domain:
-            self.vocabulary, self.sentences, self.K = self.load_vocabulary()
+
+            if self.save_sentences:
+                self.vocabulary, self.sentences, self.K = self.load_vocabulary()
+
+                with open('./Data/vocabulary.word2VecKeyedVector', 'wb') as file:
+                    pickle.dump(self.vocabulary, file)
+
+                with open('./Data/sentences.list', 'wb') as file:
+                    pickle.dump(self.sentences, file)
+
+                with open('./Data/K.int', 'wb') as file:
+                    pickle.dump(self.K, file)
+
+            elif self.load_sentences:
+                with open('./Data/vocabulary.word2VecKeyedVector', 'rb') as file:
+                    self.vocabulary = pickle.load(file)
+
+                with open('./Data/sentences.list', 'rb') as file:
+                    self.sentences = pickle.load(file)
+
+                with open('./Data/K.int', 'rb') as file:
+                    self.K = pickle.load(file)
+            else:
+                self.vocabulary, self.sentences, self.K = self.load_vocabulary()
 
             if self.train_lstm_model:
                 n_validation = int(len(self.sentences) * self.validation_proportion)
@@ -109,7 +134,8 @@ class VisualizeLSTM(object):
         if self.load_lstm_model:
             self.seq_iterations = [i for i in loadtxt('Parameters/seqIterations.txt', delimiter=",", unpack=False)]
             self.losses = [i for i in loadtxt('Parameters/losses.txt', delimiter=",", unpack=False)]
-            self.validation_losses = [i for i in loadtxt('Parameters/validation_losses.txt', delimiter=",", unpack=False)]
+            self.validation_losses = [i for i in
+                                      loadtxt('Parameters/validation_losses.txt', delimiter=",", unpack=False)]
             self.seq_iteration = self.seq_iterations[-1]
         else:
             self.seq_iterations = []
@@ -163,14 +189,15 @@ class VisualizeLSTM(object):
 
         ignored_sentences = 0
         for i in range(len(words) - self.seq_length):
-            if not len(set(words[i:i+self.seq_length]).intersection(words_to_ignore)):
-                sentences.append(words[i:i+self.seq_length])
+            if not len(set(words[i:i + self.seq_length]).intersection(words_to_ignore)):
+                sentences.append(words[i:i + self.seq_length])
                 if not self.train_lstm_model:
                     break
             else:
                 ignored_sentences += 1
 
-        print('Sample sequences used in corpus: ' + str(len(sentences)) + ' where ' + str(ignored_sentences) + ' were ignored')
+        print('Sample sequences used in corpus: ' + str(len(sentences)) + ' where ' + str(
+            ignored_sentences) + ' were ignored')
 
         if '.model' in self.embedding_model_file:
             word2vec_model = gensim.models.Word2Vec.load(self.embedding_model_file)
@@ -228,7 +255,8 @@ class VisualizeLSTM(object):
             word2vec_model.train(sentences, total_examples=1, epochs=100)
 
             if self.save_embedding_model:
-                word2vec_model.save('Word_Embedding_Model/' + self.text_file.split('.')[0].split('/')[-1] + '_' + self.embedding_model_file.split('/')[-1][:-4] + "_extracted.model")
+                word2vec_model.save('Word_Embedding_Model/' + self.text_file.split('.')[0].split('/')[-1] + '_' +
+                                    self.embedding_model_file.split('/')[-1][:-4] + "_extracted.model")
         else:
             K = 300
             print('Training word embedding model...')
@@ -240,7 +268,7 @@ class VisualizeLSTM(object):
         vocabulary = word2vec_model.wv
         del word2vec_model
 
-        return vocabulary, sentences[:int(self.corpus_proportion*len(sentences))], K
+        return vocabulary, sentences[:int(self.corpus_proportion * len(sentences))], K
 
     def evenly_split(self, items, lengths):
         for i in range(0, len(items) - lengths, lengths):
@@ -251,22 +279,26 @@ class VisualizeLSTM(object):
 
         if not self.load_lstm_model:
             print('Initialize new LSTM model...')
+            '''
             self.lstm_model = Sequential()
             self.lstm_model.add(Embedding(input_dim=self.M, output_dim=self.K, weights=[self.vocabulary.syn0]))
             for i in range(self.n_hidden_layers-1):
-                self.lstm_model.add(LSTM(units=self.n_hidden_neurons, return_sequences=True))
-            self.lstm_model.add(LSTM(units=self.n_hidden_neurons))
+                self.lstm_model.add(LSTM(units=self.n_hidden_neurons, return_sequences=True, return_state=True))
+            self.lstm_model.add(LSTM(units=self.n_hidden_neurons, return_state=True))
             if self.dropout > 0:
                 self.lstm_model.add(Dropout(self.dropout))
             self.lstm_model.add(Dense(units=self.M))
             self.lstm_model.add(Activation('softmax'))
-            if 'RMS' in self.optimizer:
-                optimizer = optimizers.RMSprop(lr=self.eta, rho=0.9)
-            else:
-                optimizer = optimizers.Adadelta(lr=1.0, rho=0.95, epsilon=None, decay=0.0)
+            '''
 
-            self.lstm_model.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy',
-                                    metrics=['accuracy'])
+            if 'RMS' in self.optimizer:
+                self.optimizer = optimizers.RMSprop(lr=self.eta, rho=0.9)
+            else:
+                self.optimizer = optimizers.Adadelta(lr=1.0, rho=0.95, epsilon=None, decay=0.0)
+
+            self.lstm_model = self.create_lstm_model(batch_size=self.batch_size)
+
+            self.lstm_model.compile(optimizer=self.optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
         else:
             model_directory = './LSTM Saved Models/Checkpoints/'
             model = model_directory + os.listdir(model_directory)[-1]
@@ -285,7 +317,7 @@ class VisualizeLSTM(object):
         callbacks = [synthesize_text, early_stopping]
 
         if self.train_lstm_model and self.save_checkpoints:
-            file_path = "./LSTM Saved Models/Checkpoints/val_loss{val_loss:.4f}-loss{loss:.4f}-epoch{epoch:03d}-neurons%d-layers%d-batch_size-%d-drop%f-eta-%f-flip%d"%(
+            file_path = "./LSTM Saved Models/Checkpoints/val_loss{val_loss:.4f}-loss{loss:.4f}-epoch{epoch:03d}-neurons%d-layers%d-batch_size-%d-drop%f-eta-%f-flip%d" % (
                 self.n_hidden_neurons, self.n_hidden_layers, self.batch_size, self.dropout, self.eta, self.flip_input)
             checkpoint = ModelCheckpoint(file_path, monitor='val_loss', save_best_only=True)
             callbacks.append(checkpoint)
@@ -302,9 +334,15 @@ class VisualizeLSTM(object):
             if i < len(self.input_sequence[0]) - 1:
                 x[0, i] = self.word_to_index(entity)
             else:
-                y = atleast_2d(self.word_to_index(entity))
+                y = atleast_2d(array(self.word_to_index(entity)))
 
-        loss = self.lstm_model.evaluate(x, y)[0]
+        # Re-create model with batch size 1 to evaluate performance
+        self.lstm_model_evaluate = self.create_lstm_model(batch_size=1)
+        weights = self.lstm_model.get_weights()
+        self.lstm_model_evaluate.set_weights(weights)
+        self.lstm_model_evaluate.compile(optimizer=self.optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+        loss = self.lstm_model_evaluate.evaluate(x, y, batch_size=1)[0]
 
         class InitLog:
             def get(self, attribute):
@@ -321,22 +359,51 @@ class VisualizeLSTM(object):
                                           epochs=self.n_epochs,
                                           callbacks=callbacks,
                                           validation_data=self.generate_words(self.input_sequence_validation),
-                                          validation_steps=int(len(self.input_sequence_validation) / self.batch_size) + 1)
+                                          validation_steps=int(
+                                              len(self.input_sequence_validation) / self.batch_size) + 1)
         else:
             for i in range(100):
-                loss = self.lstm_model.evaluate(x, y)[0]
+                weights = self.lstm_model.get_weights()
+                self.lstm_model_evaluate.set_weights(weights)
+                self.lstm_model_evaluate.compile(optimizer=self.optimizer, loss='sparse_categorical_crossentropy',
+                                        metrics=['accuracy'])
+
+                loss = self.lstm_model_evaluate.evaluate(x, y, batch_size=1)[0]
 
                 logs = InitLog()
                 self.synthesize_text(-1, logs, evaluate=True)
                 input("\nPress Enter to continue...")
 
+    def create_lstm_model(self, batch_size):
+        input_layer = Input(batch_shape=(batch_size, self.seq_length-1,))
+        embedding_layer = Embedding(input_dim=self.M, output_dim=self.K, weights=[self.vocabulary.syn0])(input_layer)
+
+        lstm_input = embedding_layer
+        for i in range(self.n_hidden_layers - 1):
+            lstm_input = LSTM(units=self.n_hidden_neurons, return_sequences=True, return_state=True)(lstm_input)
+            if self.dropout > 0:
+                lstm_input = Dropout(self.dropout)(lstm_input)
+
+        final_lstm_layer, lstm_outputs, lstm_gate_outputs = LSTM(units=self.n_hidden_neurons, return_state=True,
+                                                                 stateful=True)(lstm_input)
+        if self.dropout > 0:
+            final_lstm_layer = Dropout(self.dropout)(final_lstm_layer)
+
+        fully_connected_layer = Dense(units=self.M)(final_lstm_layer)
+
+        output_layer = Activation('softmax')(fully_connected_layer)
+
+        # self.lstm_model = Model(inputs=input_layer, outputs=[output_layer, lstm_outputs, lstm_gate_outputs])
+        lstm_model = Model(inputs=input_layer, outputs=output_layer)
+
+        return lstm_model
 
     def generate_words(self, input_sequence):
         batch_index = 0
         random.shuffle(input_sequence)
         while True:
             x = zeros((self.batch_size, self.seq_length - 1), dtype=int32)
-            y = zeros((self.batch_size), dtype=int32)
+            y = zeros(self.batch_size, dtype=int32)
 
             for i, sentence in enumerate(input_sequence[batch_index:batch_index + self.batch_size]):
                 for t, entity in enumerate(sentence[:-1]):
@@ -373,7 +440,6 @@ class VisualizeLSTM(object):
             self.seq_iterations.append(self.seq_iteration)
             self.seq_iteration += 1
 
-
         self.load_neuron_intervals()
 
         table_data = [['Neuron ' + str(self.neurons_of_interest[int(i / 2)]), ''] if i % 2 == 0 else ['\n', '\n'] for i
@@ -402,30 +468,82 @@ class VisualizeLSTM(object):
 
         print('Input sentence: ' + input_sentence)
 
+        # Update weights of evaluating model with batch size 1
+        weights = self.lstm_model.get_weights()
+        self.lstm_model_evaluate.set_weights(weights)
+        self.lstm_model_evaluate.compile(optimizer=self.optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+        # Generate text sequence
         for t in range(self.length_synthesized_text):
 
-            x = entity_indices[t:t + self.seq_length-1]
+            x = entity_indices[t:t + self.seq_length - 1]
             if self.flip_input:
                 x_predict = flip(atleast_2d(x), axis=1)
             else:
                 x_predict = atleast_2d(deepcopy(x))
 
-            output = self.lstm_model.predict(x=x_predict)
+            output = self.lstm_model_evaluate.predict(x=x_predict, batch_size=1)
 
-            lstm_layer = self.lstm_model.layers[self.lstm_layer_of_interest]
-            layer = lstm_layer.inputs
+            lstm_layer = self.lstm_model.layers[self.lstm_layer_of_interest+1]
+
+            final_lstm_layer = K.function([self.lstm_model.layers[0].input],
+                                          [self.lstm_model.layers[self.n_hidden_layers + 1].output[0]])
+
+            lstm_cell_outputs = K.function([self.lstm_model.layers[0].input],
+                                           [self.lstm_model.layers[self.n_hidden_layers + 1].output[2]])
+
+            lstm_layer_input = K.function([self.lstm_model.layers[0].input],
+                                           [self.lstm_model.layers[self.n_hidden_layers + 1].input])
+            # lstm_final_layer = K.function([self.lstm_model.layers[0].input],
+            #                              [self.lstm_model.layers[self.n_hidden_layers + 1].output])
+
+            activations = final_lstm_layer([atleast_2d(x_predict)])[0].T
+            '''
+            h_tm1 = final_lstm_layer([atleast_2d(x_predict)])[0].T
+            c_tm1 = lstm_cell_outputs([atleast_2d(x_predict)])[0].T
+            '''
+            lstm_input = lstm_layer_input([atleast_2d(x_predict)])[0][0, -1, :]
+
+
+            '''
+            kernel_i = K.get_value(lstm_layer.cell.kernel_i)
+            kernel_c = K.get_value(lstm_layer.cell.kernel_c)
+            kernel_o = K.get_value(lstm_layer.cell.kernel_o)
+
+            x_i = dot(lstm_input, kernel_i)
+            x_c = dot(lstm_input, kernel_c)
+            x_o = dot(lstm_input, kernel_o)
+
+            i = self.recurrent_activation(x_i + K.dot(h_tm1_i,
+                                                      self.recurrent_kernel_i))
+            c = f * c_tm1 + i * self.activation(x_c + K.dot(h_tm1_c,
+                                                            self.recurrent_kernel_c))
+            o = self.recurrent_activation(x_o + K.dot(h_tm1_o,
+                                                      self.recurrent_kernel_o))
+            '''
+            h_tm1 = lstm_layer.states[0]
+            c_tm1 = K.get_value(lstm_layer.states[1])  # previous carry state
 
             if self.lstm_gate_attribute == 'input':
                 activations = K.get_value(lstm_layer.cell.kernel_i)
+
             elif self.lstm_gate_attribute == 'forget':
-                activations = K.get_value(lstm_layer.cell.kernel_f)
+                kernel_f = K.get_value(lstm_layer.cell.kernel_f)
+                x_f = dot(lstm_input, kernel_f)
+                h_tm1_f = K.get_value(h_tm1)
+                recurrent_kernel_f = K.get_value(lstm_layer.cell.recurrent_kernel_f)
+
+                forget_input = x_f + dot(h_tm1_f, recurrent_kernel_f)
+                forget_input_tensor = tf.convert_to_tensor(forget_input, dtype=float32)
+                f_tensor = lstm_layer.cell.recurrent_activation(forget_input_tensor)
+                activations = K.get_value(f_tensor).T
+
+
             elif self.lstm_gate_attribute == 'cell':
                 activations = K.get_value(lstm_layer.cell.kernel_c)
             elif self.lstm_gate_attribute == 'output':
                 activations = K.get_value(lstm_layer.cell.kernel_o)
-            else:
-                lstm_final_layer = K.function([self.lstm_model.layers[0].input], [self.lstm_model.layers[self.n_hidden_layers].output])
-                activations = lstm_final_layer([atleast_2d(x_predict)])[0].T
+            # else:
 
 
             neuron_activation_map[:, t] = activations[:, 0]
@@ -520,7 +638,7 @@ class VisualizeLSTM(object):
                     self.plot_color_map = ''.join(line.split()).split(':')[1] == 'True'
                     # break
                 # else:
-                 #  self.plot_color_map = False
+                #  self.plot_color_map = False
                 if 'plot_process:' in line:
                     self.plot_process = ''.join(line.split()).split(':')[1] == 'True'
                     # break
@@ -542,9 +660,10 @@ class VisualizeLSTM(object):
             self.plot_learning_curve()
 
         if not self.load_lstm_model or (self.load_lstm_model and not evaluate):
-            print('\nEpoch: ' + str(epoch+1) + ', Loss: ' + str(
+            print('\nEpoch: ' + str(epoch + 1) + ', Loss: ' + str(
                 '{0:.2f}'.format(self.losses[-1])) + ', Validation loss: ' + str(
-                '{0:.2f}'.format(self.validation_losses[-1])) + ', Neuron of interest: ' + str(self.neurons_of_interest) + '(/' + str(
+                '{0:.2f}'.format(self.validation_losses[-1])) + ', Neuron of interest: ' + str(
+                self.neurons_of_interest) + '(/' + str(
                 self.n_hidden_neurons) + ')')
 
         # Allowing ANSI Escape Sequences for colors
@@ -589,7 +708,7 @@ class VisualizeLSTM(object):
         plt.ylabel('Cross-entropy loss')
         plt.xlabel('Epoch')
         plt.plot(self.seq_iterations[1:], self.losses[1:], LineWidth=2, label='Training')
-        plt.plot(self.seq_iterations[1:], self.validation_losses[1:], LineWidth=2,  label='Validation')
+        plt.plot(self.seq_iterations[1:], self.validation_losses[1:], LineWidth=2, label='Validation')
         plt.grid()
 
         plt.legend(loc='upper left')
@@ -608,7 +727,7 @@ class VisualizeLSTM(object):
             input_indices_of_interest = []
             inputs_of_interest = []
             for i in range(len(inputs)):
-                #doc = self.nlp(u''.join(inputs[i]))
+                # doc = self.nlp(u''.join(inputs[i]))
                 pos_tag = nltk.pos_tag([inputs[i]])[-1][-1]
 
                 if (feature.isupper() and feature in pos_tag) or (bool(re.fullmatch(r''.join(feature), inputs[i]))):
@@ -628,7 +747,8 @@ class VisualizeLSTM(object):
         x = range(len(inputs_of_interest))
         axarr[0].set_xticks(x)
         axarr[0].set_xlabel('Predicted sequence (' + feature_label + ')')
-        axarr[0].set_xticklabels(inputs_of_interest, fontsize=7, rotation=90 * self.word_domain * (len(feature) > 1) * (len(inputs_of_interest) >= 15))
+        axarr[0].set_xticklabels(inputs_of_interest, fontsize=7,
+                                 rotation=90 * self.word_domain * (len(feature) > 1) * (len(inputs_of_interest) >= 15))
         axarr[1].set_xticks([])
 
         y = range(len(self.neurons_of_interest_plot))
@@ -649,7 +769,8 @@ class VisualizeLSTM(object):
         colmap = axarr[0].imshow(neuron_feature_extracted_map, cmap='coolwarm', interpolation='nearest', aspect='auto',
                                  vmin=min_activation, vmax=max_activation)
         colmap = axarr[1].imshow(
-            array([mean(neuron_feature_extracted_map, axis=1)]).T / array([mean(neuron_activation_rows, axis=1)]).T - 1,
+            array([abs(mean(neuron_feature_extracted_map, axis=1))]).T / array(
+                [abs(mean(neuron_activation_rows, axis=1))]).T,
             cmap='coolwarm', interpolation='nearest', aspect='auto', vmin=min_activation, vmax=max_activation)
         axarr[1].set_title('Relevance')
 
@@ -671,7 +792,7 @@ class VisualizeLSTM(object):
 
         # sampling_frequency = 1
         # T = 1 / Fs
-        neuron_activations[-1, :] = sin(2*pi*0.5*arange(0, len(neuron_activations[-1,:] )))
+        neuron_activations[-1, :] = sin(2 * pi * 0.5 * arange(0, len(neuron_activations[-1, :])))
         fft_neuron_activations_complex = fft.fft(neuron_activations)
 
         fft_neuron_activations_abs = abs(fft_neuron_activations_complex / self.length_synthesized_text)
@@ -687,15 +808,16 @@ class VisualizeLSTM(object):
         plt.clf()
         ax = fig.gca(projection='3d')
         ax.view_init(20, -120)
-        surf = ax.plot_surface(freq, neurons_of_interest_fft, fft_neuron_activations_single_sided.T, rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0,
+        surf = ax.plot_surface(freq, neurons_of_interest_fft, fft_neuron_activations_single_sided.T, rstride=1,
+                               cstride=1, cmap=cm.coolwarm, linewidth=0,
                                antialiased=False)
         # ax.set_zlim(-1.01, 1.01)
 
         ax.zaxis.set_major_locator(LinearLocator(10))
         ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
 
-        max_activation = amax(fft_neuron_activations_single_sided)
-        min_activation = amin(fft_neuron_activations_single_sided)
+        # max_activation = amax(fft_neuron_activations_single_sided)
+        # min_activation = amin(fft_neuron_activations_single_sided)
         fig.colorbar(surf, shrink=0.5, aspect='auto')
 
         plt.title('Fourier Amplitude Spectrum of Neuron Activation')
@@ -704,7 +826,6 @@ class VisualizeLSTM(object):
         # plt.show()
 
         plt.pause(.1)
-
 
     def load_neuron_intervals(self):
         self.neurons_of_interest = []
@@ -773,6 +894,7 @@ class VisualizeLSTM(object):
                                 interval = str(max(int(interval), 0))
                                 interval = str(min(int(interval), self.n_hidden_neurons - 1))
                                 self.neurons_of_interest_fft.append(int(interval))
+
     def word_to_index(self, word):
         # return self.words_to_indices[word]
         return self.vocabulary.vocab[word].index
@@ -783,15 +905,14 @@ class VisualizeLSTM(object):
 
 
 def randomize_hyper_parameters(n_configurations, attributes):
-
     attributes['n_epochs'] = 3
 
     for i in range(n_configurations):
-        attributes['n_hidden_neurons'] = 128*int(7*random.rand()+1)
-        attributes['n_hidden_layers'] = int(6*random.rand()) + 1
-        attributes['batch_size'] = 32*int(10*random.rand() + 1)
-        attributes['dropout'] = float(floor(30*random.rand() + 10)*.01)
-        attributes['eta'] = int(8*random.rand() + 2)*10**int(-3 - 4*random.rand())
+        attributes['n_hidden_neurons'] = 128 * int(7 * random.rand() + 1)
+        attributes['n_hidden_layers'] = int(6 * random.rand()) + 1
+        attributes['batch_size'] = 32 * int(10 * random.rand() + 1)
+        attributes['dropout'] = float(floor(30 * random.rand() + 10) * .01)
+        attributes['eta'] = int(8 * random.rand() + 2) * 10 ** int(-3 - 4 * random.rand())
         attributes['flip_input'] = random.rand() < 0.2
 
         print('\nn: ' + str(attributes['n_hidden_neurons']))
@@ -809,11 +930,11 @@ def randomize_hyper_parameters(n_configurations, attributes):
 
 def main():
     attributes = {
-        'text_file': 'Data/ted_en.zip', # 'Data/LordOfTheRings.txt',  #
-        'load_lstm_model': True,  # True to load lstm checkpoint model
-        'train_lstm_model': False,  # True to train the model, otherwise only inference is applied
+        'text_file': 'Data/ted_en.zip',  # 'Data/LordOfTheRings.txt',  #
+        'load_lstm_model': False,  # True to load lstm checkpoint model
+        'train_lstm_model': True,  # True to train the model, otherwise only inference is applied
         'lstm_gate_attribute': 'forget',  # The input, forget, cell, output or final_layer_output to visualize
-        'lstm_layer_of_interest': 1, # LSTM layer to visualize
+        'lstm_layer_of_interest': 1,  # LSTM layer to visualize
         'optimizer': 'RMS Prop',
         'dropout': 0.3,
         'embedding_model_file': 'Word_Embedding_Model/ted_en_glove_840B_300d_extracted.model',
@@ -821,6 +942,8 @@ def main():
         'merge_embedding_model_corpus': False,  # Extract the intersection between embedding model and corpus
         'train_embedding_model': False,  # Further train the embedding model
         'save_embedding_model': False,  # Save trained embedding model
+        'save_sentences': False,  # Save sentences and vocabulary
+        'load_sentences': True,  # Load sentences and vocabulary
         'word_domain': True,  # True for words, False for characters
         'validation_proportion': .02,  # The proportion of data set used for validation
         'corpus_proportion': 1,  # The proportion of the corpus used for training and validation
@@ -831,9 +954,9 @@ def main():
         'n_epochs': 100,  # Total number of epochs, each corresponds to (n book characters)/(seq_length) seq iterations
         'seq_length': 9,  # Sequence length of each sequence iteration
         'flip_input': False,
-        'length_synthesized_text': 350,  # Sequence length of each print of text evolution
+        'length_synthesized_text': 50,  # Sequence length of each print of text evolution
         'remote_monitoring_ip': 'http://192.168.151.148:9000/',  # Ip for remote monitoring at http://localhost:9000/
-        'save_checkpoints': True  # Save best weights with corresponding arrays iterations and smooth loss
+        'save_checkpoints': False  # Save best weights with corresponding arrays iterations and smooth loss
     }
 
     # randomize_hyper_parameters(500, attributes)
@@ -842,6 +965,7 @@ def main():
     lstm_vis.run_lstm()
 
     K.clear_session()
+
 
 if __name__ == '__main__':
     random.seed(1)

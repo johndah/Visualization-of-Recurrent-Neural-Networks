@@ -1,7 +1,7 @@
 
 from __future__ import print_function
-
 '''
+
 import spacy
 
 nlp = spacy.load('en_core_web_lg')  # make sure to use larger model!
@@ -651,19 +651,20 @@ ax.view_init(17, -126)
 print('saving')
 plt.savefig('f5.png', transparent=True)
 
+'''
 
 import numpy as np
 from viznet import connecta2a, node_sequence, NodeBrush, EdgeBrush, DynamicShow
 
 
 def draw_feed_forward(ax, num_node_list):
-  
+
     num_hidden_layer = len(num_node_list) - 2
     token_list = ['\sigma^z'] + \
         ['y^{(%s)}' % (i + 1) for i in range(num_hidden_layer)] + ['\psi']
-    kind_list = ['nn.recurrent'] + ['nn.hidden'] * num_hidden_layer + ['nn.recurrent']
-    radius_list = [0.7] + [0.035] * num_hidden_layer + [0.7]
-    y_list = 2.5 * np.arange(len(num_node_list))
+    kind_list = ['nn.input'] + ['nn.input'] + ['nn.input'] #+ ['nn.hidden'] * num_hidden_layer + ['nn.recurrent']
+    radius_list = [.5] + [.5] + [.5]#[1.2] + [0.035] * num_hidden_layer + [0.7]
+    y_list = 1 * np.arange(len(num_node_list))
 
     seq_list = []
     for n, kind, radius, y in zip(num_node_list, kind_list, radius_list, y_list):
@@ -677,14 +678,14 @@ def draw_feed_forward(ax, num_node_list):
 
 def real_bp():
     with DynamicShow((6, 6), '_feed_forward.png') as d:
-        draw_feed_forward(d.ax, num_node_list=[4, 3, 3, 4])
+        draw_feed_forward(d.ax, num_node_list=[3, 1, 1])
 
 
 if __name__ == '__main__':
     real_bp()
 
-'''
 
+'''
 from numpy import *
 import matplotlib.pyplot as plt
 from matplotlib import cm
@@ -729,3 +730,4 @@ plt.title('Fourier Amplitude Spectrum of Neuron Activation')
 plt.xlabel('Frequency (/sequence time step)')
 plt.ylabel('Neurons of interest')
 plt.show()
+'''

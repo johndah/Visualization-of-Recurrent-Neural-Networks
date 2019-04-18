@@ -1,6 +1,6 @@
 # Choose index of neuron to watch in the visualization
 
-Neurons to print: 70:80
+Neurons to print: 1
 # 15, 29, 48:50
 Neurons for heatmap: 70:80
 #7:9, 23, 38, 44, 83, 94
