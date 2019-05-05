@@ -1,4 +1,5 @@
 plot_process: False # Plot learning curve
 plot_color_map: False  # Plot color map of neuron activations
-plot_fft: False  # False Fast Fourier Transform of neuron activations
+plot_fft: False  # Plot Fast Fourier Transform (FFT) of neuron activations
+auto_detect_fft_peak: False # Detect the most prominent FFT frequency component and plot its neighborhood
 

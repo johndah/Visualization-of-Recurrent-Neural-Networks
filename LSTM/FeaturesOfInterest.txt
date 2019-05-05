@@ -1,10 +1,12 @@
 # Choose index of neuron to watch in the visualization
 
-Neurons to print: 1
+Neurons to print: 0:700
 # 15, 29, 48:50
-Neurons for heatmap: 70:80
+Neurons for heatmap: 30:40
 #7:9, 23, 38, 44, 83, 94
-Neurons to fourier transform: 70:80
+Neurons to fourier transform: 160:190
+# 10+, 160+
+Band width to auto-detect prominent frequency components (Hz): 0.4:0.5
 
 
 # '\w+|[^\w]' for all words, or Part of Speech classes:
@@ -20,5 +22,7 @@ Neurons to fourier transform: 70:80
 # 'JJ': 'Adjective'
 # 'JJS': 'Adjective, Superlative'
 
-Prediction features: '\w+|[^\w]'
+Prediction features: ' '
 
+# The input, forget, cell, output gate or final_layer_output to visualize
+lstm_gate_of_interest: 'output'
