@@ -17,7 +17,7 @@ from copy import copy, deepcopy
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
 from matplotlib import cm
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
+from matplotlib.ticker import LinearLocator, FormatStrFormatter, MaxNLocator
 from mpl_toolkits.mplot3d import Axes3D
 
 import nltk
@@ -108,7 +108,7 @@ class VisualizeLSTM(object):
                 self.input_sequence = self.sentences
                 self.input_sequence_validation = self.sentences
 
-            weights_word_embedding = self.vocabulary.syn0
+            weights_word_embedding = self.vocabulary.vectors
             self.M = size(weights_word_embedding, 0)
         else:
             self.input_sequence, self.charToInd, self.indToChar = self.loadCharacters()
@@ -215,7 +215,7 @@ class VisualizeLSTM(object):
             if self.save_embedding_model:
                 word2vec_model.save('Word_Embedding_Model/' + self.embedding_model_file)
 
-            K = size(word2vec_model.wv.syn0, 1)
+            K = size(word2vec_model.wv.vectors, 1)
 
         elif '.txt' in self.embedding_model_file or '.bin' in self.embedding_model_file:
             is_binary = self.embedding_model_file[-4:] == '.bin'
@@ -273,9 +273,10 @@ class VisualizeLSTM(object):
             if self.save_embedding_model:
                 word2vec_model.save('Word_Embedding_Model/' + self.text_file.split('.')[0].split('/')[-1] + ".model")
 
+        vocabulary = word2vec_model.wv
+
         if self.n_words_pca_plot:
             from mpl_toolkits.mplot3d import proj3d
-            vocabulary = word2vec_model.wv
             #fig = plt.figure()
             #ax = Axes3D(fig)
             pca = PCA(n_components=2)
@@ -315,7 +316,7 @@ class VisualizeLSTM(object):
             print('Initialize new LSTM model...')
             '''
             self.lstm_model = Sequential()
-            self.lstm_model.add(Embedding(input_dim=self.M, output_dim=self.K, weights=[self.vocabulary.syn0]))
+            self.lstm_model.add(Embedding(input_dim=self.M, output_dim=self.K, weights=[self.vocabulary.vectors]))
             for i in range(self.n_hidden_layers-1):
                 self.lstm_model.add(LSTM(units=self.n_hidden_neurons, return_sequences=True, return_state=True))
             self.lstm_model.add(LSTM(units=self.n_hidden_neurons, return_state=True))
@@ -408,7 +409,7 @@ class VisualizeLSTM(object):
                                           validation_steps=int(
                                               len(self.input_sequence_validation) / self.batch_size) + 1)
         else:
-            for i in range(1):
+            for i in range(3):
 
                 weights = self.lstm_model.get_weights()
                 self.lstm_model_evaluate.set_weights(weights)
@@ -423,7 +424,7 @@ class VisualizeLSTM(object):
 
     def create_lstm_model(self, batch_size):
         input_layer = Input(batch_shape=(batch_size, self.seq_length - 1,))
-        embedding_layer = Embedding(input_dim=self.M, output_dim=self.K, weights=[self.vocabulary.syn0])(input_layer)
+        embedding_layer = Embedding(input_dim=self.M, output_dim=self.K, weights=[self.vocabulary.vectors])(input_layer)
 
         lstm_input = embedding_layer
         for i in range(self.n_hidden_layers - 1):
@@ -519,7 +520,7 @@ class VisualizeLSTM(object):
         self.lstm_model_evaluate.compile(optimizer=self.lstm_optimizer, loss='sparse_categorical_crossentropy',
                                          metrics=['accuracy'])
 
-        prediction_input = input_sentence
+        prediction_input = input_sentence[-1] #input_sentence
 
         # Generate text sequence
         for t in range(self.length_synthesized_text):
@@ -552,22 +553,28 @@ class VisualizeLSTM(object):
             entity_indices[t + self.seq_length - 1] = sample_index
 
             for i in range(len(self.neurons_of_interest)):
-                neuron_activation = neuron_activations[i, 0]
+                neuron_activation = 0.75*neuron_activations[i, 0]
 
+                w = self.white_background
+
+                # print(w*255, inactive_color, inactive_color)
+                # print((inactive_color, inactive_color, w*255))
                 if neuron_activation > 0:
-                    bg.set_style('activationColor', RgbBg(int(neuron_activation * 255), 0, 0))
+                    inactive_color = w*255 - (2*w - 1)*int(neuron_activation * 255)
+                    bg.set_style('activationColor', RgbBg(w*255, inactive_color, inactive_color))
                 else:
-                    bg.set_style('activationColor', RgbBg(0, 0, int(abs(neuron_activation) * 255)))
+                    inactive_color = w*255 + (2*w - 1)*int(neuron_activation * 255)
+                    bg.set_style('activationColor', RgbBg(inactive_color, inactive_color, w*255))
 
                 colored_word = bg.activationColor + prediction_input + bg.rs
-                prediction_input = sample
 
                 # activation_color = bg.activationColor
                 # reset_color = bg.rs
 
+                y_n[:][i].append(prediction_input)
+                y[:][i].append(colored_word)
 
-                y_n[i].append(sample)
-                y[i].append(colored_word)
+            prediction_input = sample
 
         for i in range(len(self.neurons_of_interest)):
             wrapped_string = ''
@@ -576,16 +583,18 @@ class VisualizeLSTM(object):
             for j in range(len(y[i])):
                 table_row = y[i][j]
                 if '\n' in table_row:
-                    wrapped_string += table_row.split('\n')[0] + '\\n' + table_row.split('\n')[1] + '\n'
-                    line_width = 0
-                    wrapped_string += ' ' * (max_width - line_width) * 0 + '\n'
+                    for k in range(len(table_row.split('\n')) - 1):
+                        wrapped_string += table_row.split('\n')[k] + '\\n' + bg.rs + '\n'
+                        #wrapped_string += table_row.split('\n')[0] + '\\n' + table_row.split('\n')[1] + '\n'
+                        line_width = 0
+                    # wrapped_string += ' ' * (max_width - line_width) * 0 + '\n'
                 else:
-                    wrapped_string += ''.join(y[i][j])
+                    wrapped_string += ''.join(table_row)
 
                 line_width += len(y_n[i][j])
                 if line_width > max_width - 10:
                     line_width = 0
-                    wrapped_string += ' ' * (max_width - line_width) * 0 + '\n'
+                    wrapped_string += ' ' * (max_width - line_width) * 0 + bg.rs +'\n'
 
             table.table_data[2 * i + 1][1] = wrapped_string
 
@@ -595,32 +604,36 @@ class VisualizeLSTM(object):
         else:
             max_activation, min_activation = 0, 0
 
-        margin = 8
+        margin = 12
         try:
             color_range_width = max_width - len(table.table_data[0][1]) - (
-                    len(str(max_activation)) + len(str(min_activation)) + margin)
+                    len(str(max_activation)) + len(str(min_activation)) + 2 + margin)
             color_range = arange(min_activation, max_activation,
                                  (max_activation - min_activation) / color_range_width)
         except ValueError:
             color_range_width = 2
             color_range = [min_activation, max_activation]
 
-        color_range_str = ' ' * margin + str(round(min_activation, 1))
+        color_range_str = ' ' * margin + str(round(min_activation, 1)) + ' '
 
         for i in range(color_range_width):
 
-            color_range_value = color_range[i]
+            color_range_value = 0.75*color_range[i]
+
+            w = self.white_background
 
             if color_range_value > 0:
-                bg.set_style('activationColor', RgbBg(int(color_range_value * 255), 0, 0))
+                inactive_color = w * 255 - (2 * w - 1) * int(color_range_value * 255)
+                bg.set_style('activationColor', RgbBg(w*255, inactive_color, inactive_color))
             else:
-                bg.set_style('activationColor', RgbBg(0, 0, int(abs(color_range_value) * 255)))
+                inactive_color = w * 255 + (2 * w - 1) * int(color_range_value * 255)
+                bg.set_style('activationColor', RgbBg(inactive_color, inactive_color, w*255))
 
             colored_indicator = bg.activationColor + ' ' + bg.rs
 
             color_range_str += colored_indicator
 
-        color_range_str += str(round(max_activation, 1))
+        color_range_str += ' ' + str(round(max_activation, 1))
         table.table_data[0][1] += color_range_str
 
         table.table_data[1:] = flip(table.table_data[1:], axis=0)
@@ -649,25 +662,13 @@ class VisualizeLSTM(object):
                 self.neurons_of_interest) + '(/' + str(
                 self.n_hidden_neurons) + ')')
 
-        # Allowing ANSI Escape Sequences for colors
-        if platform.system().lower() == 'windows':
-            stdout_handle = windll.kernel32.GetStdHandle(c_int(-11))
-            mode = c_int(0)
-            windll.kernel32.GetConsoleMode(c_int(stdout_handle), byref(mode))
-            mode = c_int(mode.value | 4)
-            windll.kernel32.SetConsoleMode(c_int(stdout_handle), mode)
-
-        import subprocess
-        subprocess.call('', shell=True)
-
-        table_file = 'Results/' + str(self.lstm_gate_of_interest) + str(self.inference_iteration) + '.table'
-
-        with open(table_file, 'wb') as file:
-            pickle.dump(table.table, file)
-
-        # print(table.table)
-
-
+        if self.present_table == 'terminal':
+            print(table.table)
+        else:
+            table_file = 'Results/' + str(self.lstm_gate_of_interest) + str(self.inference_iteration) + '.table'
+            self.inference_iteration += 1
+            with open(table_file, 'wb') as file:
+                pickle.dump(table.table, file)
 
         if self.train_lstm_model and self.save_checkpoints:
             savetxt('Parameters/seqIterations.txt', self.seq_iterations, delimiter=',')
@@ -684,7 +685,8 @@ class VisualizeLSTM(object):
                     lstm_gate_of_interest = line.split(':')[1].split("'")[1]
                     break
 
-        lstm_gate_of_interest = self.lstm_gate_of_interest
+            self.lstm_gate_of_interest = lstm_gate_of_interest
+        # lstm_gate_of_interest = self.lstm_gate_of_interest
 
         if not lstm_gate_of_interest:
             warnings.warn('lstm_gate_of_interest not properly specified in "FeaturesOfInterest.txt", set to None')
@@ -705,8 +707,8 @@ class VisualizeLSTM(object):
 
         '''
         '''
-        h_tm1 = final_lstm_layer([atleast_2d(x_predict)])[0].T
-        c_tm1 = lstm_cell_outputs([atleast_2d(x_predict)])[0].T
+        # h_tm1 = final_lstm_layer([atleast_2d(x_predict)])[0].T
+        # c_tm1 = lstm_cell_outputs([atleast_2d(x_predict)])[0].T
 
         lstm_input = lstm_layer_input([atleast_2d(x_predict)])[0][0, -1, :]
 
@@ -828,7 +830,7 @@ class VisualizeLSTM(object):
                 # doc = self.nlp(u''.join(inputs[i]))
                 pos_tag = nltk.pos_tag([inputs[i]])[-1][-1]
 
-                if (feature.isupper() and feature in pos_tag) or (bool(re.fullmatch(r''.join(feature), inputs[i]))):
+                if (feature.isupper() and pos_tag in feature.split(', ')) or (bool(re.fullmatch(r''.join(feature), inputs[i]))):
                     input_indices_of_interest.append(i)
                     if inputs[i] == '\n':
                         inputs[i] = '\\n'
@@ -836,17 +838,24 @@ class VisualizeLSTM(object):
         except Exception as ex:
             print(ex)
 
+        # print(input_indices_of_interest)
+
         f, axarr = plt.subplots(1, 2, num=1, gridspec_kw={'width_ratios': [5, 1]}, clear=True)
         axarr[0].set_title('Colormap of hidden neuron activations')
 
-        feature_label = 'Feature: "' + self.pos_features.get(feature, feature) + '"'
+        feature_label = 'Extracted feature: "' + self.pos_features.get(feature, feature) + '"'
         if not self.word_domain and (feature == '.' or feature == '\w+|[^\w]'):
             feature_label = 'Feature: ' + '$\it{Any}$'
         x = range(len(inputs_of_interest))
-        axarr[0].set_xticks(x)
+
         axarr[0].set_xlabel('Predicted sequence (' + feature_label + ')')
-        axarr[0].set_xticklabels(inputs_of_interest, fontsize=7,
-                                 rotation=90 * self.word_domain * (len(feature) > 1) * (len(inputs_of_interest) >= 15))
+        if (len(inputs_of_interest)<10):
+            axarr[0].set_xticks(x)
+            axarr[0].set_xticklabels(inputs_of_interest, fontsize=7,
+                                     rotation=90 * self.word_domain * (len(feature) > 1) * (len(inputs_of_interest) >= 6))
+        else:
+            axarr[0].set_xticks([])
+
         axarr[1].set_xticks([])
 
         y = range(len(self.neurons_of_interest_plot))
@@ -871,6 +880,18 @@ class VisualizeLSTM(object):
                                  vmin=min_activation, vmax=max_activation)
         extracted_mean = array([mean(neuron_feature_extracted_map, axis=1)]).T
         remaining_mean = array([mean(neuron_feature_remaining_map, axis=1)]).T
+        '''
+        # print('Extracted:')
+        # print(neuron_feature_extracted_map)
+        print('Means')
+        print(extracted_mean)
+        print('Remaining')
+        print(neuron_feature_remaining_map)
+        print('Remaining means')
+        print(remaining_mean)
+        print('Diff:')
+        print(diff)
+        '''
         diff = abs(extracted_mean - remaining_mean)
         relevance = diff / amax(diff)
         colmap = axarr[1].imshow(relevance, cmap='coolwarm',
@@ -893,6 +914,8 @@ class VisualizeLSTM(object):
 
         f.colorbar(colmap, ax=axarr.ravel().tolist())
 
+        plt.savefig('f5.png', transparent=True)
+
         plt.pause(.1)
 
     def plot_fft_neural_activity(self, neuron_activation_map):
@@ -911,10 +934,11 @@ class VisualizeLSTM(object):
 
         neurons_of_interest_fft = self.neurons_of_interest_fft
 
-        start_neuron_index = self.neurons_of_interest_plot_intervals[0][0]
-        neuron_window = [start_neuron_index]*2
+        neuron_window = []
 
         if self.auto_detect_fft_peak:
+            start_neuron_index = self.neurons_of_interest_plot_intervals[0][0]
+            neuron_window = [start_neuron_index]*2
             reduced_window_size = 10
             domain_relevant_freq = (freq > self.band_width[0]) & (freq < self.band_width[1])
             # freq = freq[domain_relevant_freq]
@@ -938,18 +962,27 @@ class VisualizeLSTM(object):
         surf = ax.plot_surface(freq, neurons_of_interest_fft, fft_neuron_activations_single_sided.T, rstride=1,
                                cstride=1, cmap=cm.coolwarm, linewidth=0,
                                antialiased=False)
-        # ax.set_zlim(-1.01, 1.01)
+
+
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 
         ax.zaxis.set_major_locator(LinearLocator(10))
         ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
 
         # max_activation = amax(fft_neuron_activations_single_sided)
         # min_activation = amin(fft_neuron_activations_single_sided)
-        fig.colorbar(surf, shrink=0.5, aspect='auto')
+
+        # fig.colorbar(surf, shrink=0.8, aspect='auto')
+
+        # for tick in ax.yaxis.get_major_ticks():
+        #    tick.label.set_fontsize(9)
+
+        ax.zaxis.set_rotate_label(False)
 
         plt.title('Fourier Amplitude Spectrum of Neuron Activation')
-        plt.xlabel('Frequency (/sequence time step)')
+        plt.xlabel('Frequency')
         plt.ylabel('Neurons of interest')
+        ax.set_zlabel(r'$|\mathcal{F}|$')
 
         plt.pause(.1)
 
@@ -982,9 +1015,10 @@ class VisualizeLSTM(object):
                     if 'Neurons to fourier transform:' in line:
                         line = line.replace('Neurons to fourier transform:', '')
                         intervals = ''.join(line.split()).split(',')
-                        self.intervals_to_plot = []
-                        self.interval_limits = []
-                        self.interval_label_shift = '      '
+                        if self.auto_detect_fft_peak:
+                            self.intervals_to_plot = []
+                            self.interval_limits = []
+                            self.interval_label_shift = '' # '      '
                         for interval in intervals:
                             if ':' in interval:
                                 interval = interval.split(':')
@@ -1040,7 +1074,7 @@ class VisualizeLSTM(object):
                         intervals = ''.join(line.split()).split(',')
                         self.intervals_to_plot = []
                         self.interval_limits = []
-                        self.interval_label_shift = '      '
+                        self.interval_label_shift = ''# '      '
 
                         for interval in intervals:
                             if ':' in interval:
@@ -1116,6 +1150,8 @@ def randomize_hyper_parameters(n_configurations, attributes):
 
 def main():
     attributes = {
+        'present_table': 'table',  # Save tables in files or 'terminal' for only printing visualization
+        'white_background': True,
         'text_file': 'Data/ted_en.zip',  # 'Data/LordOfTheRings.txt'
         'load_lstm_model': True,  # True to load lstm checkpoint model
         'train_lstm_model': False,  # True to train the model, otherwise only inference is applied
@@ -1129,8 +1165,8 @@ def main():
         'train_embedding_model': False,  # Further train the embedding model
         'save_embedding_model': False,  # Save trained embedding model
         'save_sentences': False,  # Save sentences and vocabulary
-        'load_sentences': False,  # Load sentences and vocabulary
-        'n_words_pca_plot': 25,
+        'load_sentences': True,  # Load sentences and vocabulary
+        'n_words_pca_plot': 0,
         'word_domain': True,  # True for words, False for characters
         'validation_proportion': .02,  # The proportion of data set used for validation
         'corpus_proportion': 1,  # The proportion of the corpus used for training and validation
@@ -1140,9 +1176,10 @@ def main():
         'batch_size': 352,  # Number of sentences for training for each epoch
         'patience': 2,  # Number of epochs to carry on training before early stopping while loss increases
         'n_epochs': 100,  # Total number of epochs, each corresponds to (n book characters)/(seq_length) seq iterations
+        'inference_iteration': 0,
         'seq_length': 9,  # Sequence length of each sequence iteration
         'flip_input': False,
-        'length_synthesized_text': 500,  # Sequence length of each print of text evolution
+        'length_synthesized_text': 200,  # Sequence length of each print of text evolution
         'remote_monitoring_ip': 'http://192.168.155.100:9000/',  # Ip for remote monitoring at http://localhost:9000/
         'save_checkpoints': True  # Save best weights with corresponding arrays iterations and smooth loss
     }
@@ -1150,24 +1187,13 @@ def main():
     # randomize_hyper_parameters(1000, attributes)
 
     # lstm_gates_of_interest = ['input', 'forget', 'cell', 'final_layer_output', 'output']
-
-    print('lstm_gates_of_interest: ' + str(lstm_gates_of_interest))
-
-    for inference_iteration in range(30):
-        for lstm_gate_of_interest in lstm_gates_of_interest:
-            print('Iteration: ' + str(inference_iteration) + '\t Gate: ' + lstm_gate_of_interest)
-            try:
-                attributes['lstm_gate_of_interest'] = lstm_gate_of_interest
-                attributes['inference_iteration'] = inference_iteration
-                lstm_vis = VisualizeLSTM(attributes)
-                lstm_vis.run_lstm()
-            except Exception as e:
-                print(e)
+    lstm_vis = VisualizeLSTM(attributes)
+    lstm_vis.run_lstm()
 
     K.clear_session()
 
 
 if __name__ == '__main__':
-    random.seed(1)
+    random.seed(9)
     main()
     plt.show()

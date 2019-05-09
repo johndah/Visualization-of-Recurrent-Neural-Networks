@@ -652,6 +652,7 @@ print('saving')
 plt.savefig('f5.png', transparent=True)
 
 '''
+'''
 
 import numpy as np
 from viznet import connecta2a, node_sequence, NodeBrush, EdgeBrush, DynamicShow
@@ -684,7 +685,7 @@ def real_bp():
 if __name__ == '__main__':
     real_bp()
 
-
+'''
 '''
 from numpy import *
 import matplotlib.pyplot as plt
