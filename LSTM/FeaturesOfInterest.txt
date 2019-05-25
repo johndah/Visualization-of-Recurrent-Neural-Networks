@@ -1,10 +1,11 @@
 # Choose index of neuron to watch in the visualization
 
-Neurons to print: 0:700
-# 144:154
+Neurons to print: 595:599
+# 144:154, 454:456
 Neurons for heatmap: 0:700
 # 144:154
-Neurons to fourier transform: 78, 82
+#  595:599
+Neurons to fourier transform: 592:602
 # 10+, 160+
 Band width to auto-detect prominent frequency components (Hz): 0.4:0.5
 
@@ -22,8 +23,7 @@ Band width to auto-detect prominent frequency components (Hz): 0.4:0.5
 # 'JJ': 'Adjective'
 # 'JJS': 'Adjective, Superlative'
 
-Prediction features: '[Tt]he|[Oo]f|on|be|[Tt]his|it|people|I|that|[Tt]here'
-# ^[A-Za-z0-9]*
+Prediction features: '\w+|[^\w]'
 
 # The input, forget, cell, output gate or final_layer_output to visualize
-lstm_gate_of_interest: 'output'
+lstm_gate_of_interest: 'final_layer_output'

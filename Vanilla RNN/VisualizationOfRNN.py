@@ -9,6 +9,10 @@ import sklearn.preprocessing
 from numpy import *
 from copy import *
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator, FormatStrFormatter, MaxNLocator
+from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.offsetbox import AnchoredText
 import platform
 from sty import bg, RgbBg
@@ -23,6 +27,9 @@ import datetime
 import os
 import pickle
 from decimal import Decimal
+
+
+
 
 
 class VisualizeRNN(object):
@@ -89,6 +96,9 @@ class VisualizeRNN(object):
         self.sizes = [(self.nHiddenNeurons, self.nHiddenNeurons), (self.K, self.nHiddenNeurons), \
                       (self.nHiddenNeurons, self.K), (self.nHiddenNeurons, 1), (self.K, 1)]
 
+        self.initEpoch = 0
+        self.initIteration = 0
+
         # Weight initialization
         if self.weightInit == 'Load':
             print('Loading weights...')
@@ -120,7 +130,7 @@ class VisualizeRNN(object):
             self.initEpoch = int(self.model_directory.split('epoch')[1][0])
             self.initIteration = 0 # int(self.model_directory.split('iteration')[1].split('-')[0])
             self.nHiddenNeurons = int(self.model_directory.split('neurons')[1][:3])
-            self.eta = float(self.model_directory.split('eta-')[1][:8])
+            self.eta = float(self.model_directory.split('eta-')[1][:7])
 
         self.x0 = ' '
         self.h0 = zeros((self.nHiddenNeurons, 1))
@@ -285,7 +295,7 @@ class VisualizeRNN(object):
 
                 smoothLoss = (1 - self.lossMomentum) * smoothLoss + self.lossMomentum * loss
 
-                if time.time() - previous_time > 1800 or (time.time() - start_time < 5 and time.time() - previous_time > 3) or e >= len(self.input_sequence)-2*self.seqLength-1:
+                if time.time() - previous_time > 900 or (time.time() - start_time < 5 and time.time() - previous_time > 3) or e >= len(self.input_sequence)-2*self.seqLength-1:
                     seqIterationsTemp.append(seqIteration)
                     smoothLossesTemp.append(smoothLoss)
 
@@ -317,6 +327,8 @@ class VisualizeRNN(object):
                     if self.plotColorMap:
                         self.plotNeuralActivity(inputs, neuron_activation_map)
 
+                    self.plot_fft_neural_activity(neuron_activation_map)
+
                     time_passed = time.time() - start_time
                     estimated_total_time = time_passed/(max(e, 1)/len(self.input_sequence))
                     remaining_time = estimated_total_time - time_passed
@@ -329,6 +341,8 @@ class VisualizeRNN(object):
                           str(self.neuronsOfInterest) + '(/' + str(self.nHiddenNeurons) + ')')
 
                     print(table)
+
+                    input("\nPress Enter to continue...")
 
                     if validationLoss <= lowestValidationLoss:
                         seqIterations += seqIterationsTemp
@@ -440,16 +454,19 @@ class VisualizeRNN(object):
                     feature = line.split(':')[1].split("'")[1]
                     break
         try:
-            input_indices_of_interets = []
-            inputs_of_interets = []
+            input_indices_of_interest = []
+            inputs_of_interest = []
             for i in range(len(inputs)):
                 if bool(re.fullmatch(r''.join(feature), inputs[i])):
-                    input_indices_of_interets.append(i)
+                    input_indices_of_interest.append(i)
                     if inputs[i] == '\n':
                         inputs[i] = '\\n'
-                    inputs_of_interets.append('"' + inputs[i] + '"')
+                        inputs_of_interest.append('"' + inputs[i] + '"')
         except Exception as ex:
             print(ex)
+
+        if len(inputs_of_interest) > 20:
+            inputs_of_interest = [' ']*len(inputs_of_interest)
 
         f, axarr = plt.subplots(1, 2, num=1, gridspec_kw={'width_ratios': [5, 1]}, clear=True)
         axarr[0].set_title('Colormap of hidden neuron activations')
@@ -457,11 +474,103 @@ class VisualizeRNN(object):
         feature_label = 'Feature: "' + feature + '"'
         if not self.word_domain and feature == '.':
             feature_label = 'Feature: ' + '$\it{Any}$'
-        x = range(len(inputs_of_interets))
+        x = range(len(inputs_of_interest))
         axarr[0].set_xticks(x)
         axarr[0].set_xlabel('Predicted sequence (' + feature_label + ')')
-        axarr[0].set_xticklabels(inputs_of_interets, fontsize=7, rotation=90 * self.word_domain)
+        axarr[0].set_xticklabels(inputs_of_interest, fontsize=7, rotation=90 * self.word_domain)
         axarr[1].set_xticks([])
+
+        if self.relevance_auto_detect:
+            neuron_activation_rows = neuron_activation_map
+        else:
+            neuron_activation_rows = neuron_activation_map[self.neuronsOfInterestPlot, :]
+
+        # f = plt.subplot(1, 2)
+        # f, (ax1) = plt.subplot(1, 2, 1)
+        max_activation = amax(neuron_activation_map)
+        min_activation = amin(neuron_activation_map)
+
+        input_indices_of_interest_conjugate = list(set(range(len(inputs))) - set(input_indices_of_interest))
+        neuron_feature_extracted_map = flip(neuron_activation_rows[:, input_indices_of_interest], axis=0)
+        neuron_feature_remaining_map = flip(neuron_activation_rows[:, input_indices_of_interest_conjugate], axis=0)
+
+        before_action_potential = array(input_indices_of_interest) - 1
+        after_action_potential = array(input_indices_of_interest) + 1
+        before_action_potential[array(input_indices_of_interest) - 1 == -1] = 1
+        after_action_potential[array(input_indices_of_interest) + 1 == size(neuron_activation_rows, 1)] = size(
+            neuron_activation_rows, 1) - 2
+        prominences = 2 * neuron_activation_rows[:, input_indices_of_interest] - neuron_activation_rows[:,
+                                         before_action_potential] - neuron_activation_rows[:,after_action_potential]
+        prominence = atleast_2d(mean(abs(prominences), axis=1)).T
+
+        extracted_mean = array([mean(neuron_feature_extracted_map, axis=1)]).T
+        remaining_mean = array([mean(neuron_feature_remaining_map, axis=1)]).T
+
+        difference = atleast_2d(mean(abs(extracted_mean - remaining_mean), axis=1)).T
+
+        score = prominence + difference
+        relevance = score / amax(score)
+
+        if self.relevance_auto_detect:
+            reduced_window_size = 10
+
+            argmax_row = where(relevance == amax(relevance))[0][0]
+            # fft_neuron_activations_single_sided = domain_relevant_components[start_neuron:end_neuron, :]
+            neuron_window = [0]*2
+            neuron_window[0] = max(argmax_row - int(reduced_window_size / 2), 0)
+            neuron_window[1] = min(argmax_row + int(reduced_window_size / 2 + 1), size(relevance, 0))
+            relevance = relevance[neuron_window[0]:neuron_window[1], :]
+            neurons_of_interest_relevance = range(neuron_window[0], neuron_window[1])
+            print('\nAuto-detected relevance peak for feature "' + feature + '":')
+            print('Neuron: ' + str(argmax_row))
+            print('Value: ' + str(amax(relevance)) + '\n')
+
+            neuron_activation_rows = neuron_activation_map[neurons_of_interest_relevance, :]
+
+            neuron_feature_extracted_map = flip(neuron_activation_rows[:, input_indices_of_interest], axis=0)
+
+            '''
+            self.intervals_to_plot = []
+            self.interval_limits = []
+            frequency = 1 + 4*int(len(self.neurons_of_interest) > 5)
+            intermediate_range = [i for i in range(int(neuron_window[0]) + 1, int(neuron_window[-1])) if i % frequency == 0]
+            intermediate_range.insert(0, int(neuron_window[0]))
+            intermediate_range.append(int(neuron_window[-1]))
+            intermediate_range_str = [str(i) for i in intermediate_range]
+            intermediate_range_str[-1] += self.interval_label_shift
+            self.intervals_to_plot.extend(intermediate_range_str)
+            self.interval_limits.extend(intermediate_range)
+            self.neurons_of_interest_plot = range(neuron_window[0], neuron_window[1])
+
+            
+            self.neuronsOfInterestPlot = range(0, self.nHiddenNeurons - 1)
+            self.neuronsOfInterestPlotIntervals = [[0], [self.nHiddenNeurons - 1]]
+            self.intervals_to_plot = ['0', str(self.nHiddenNeurons - 1)]
+            self.interval_limits = self.neuronsOfInterestPlot
+
+            self.interval_limits = [0, self.nHiddenNeurons - 1]
+
+            '''
+            self.intervals_to_plot = []
+            self.interval_limits = []
+
+            interval = [str(neuron_window[0]),  str(neuron_window[1])]
+
+            interval[0] = str(max(int(interval[0]), 0))
+            interval[-1] = str(min(int(interval[-1]), self.K - 1))
+            self.neuronsOfInterestPlot.extend(range(int(interval[0]), int(interval[-1]) + 1))
+            self.neuronsOfInterestPlotIntervals.append(range(int(interval[0]), int(interval[-1]) + 1))
+            intermediate_range = [i for i in range(int(interval[0]) + 1, int(interval[-1]))]
+            intermediate_range.insert(0, int(interval[0]))
+            intermediate_range.append(int(interval[-1]))
+            intermediate_range_str = [str(i) for i in intermediate_range]
+            intermediate_range_str[-1] += self.interval_label_shift
+            self.intervals_to_plot.extend(intermediate_range_str)
+            self.interval_limits.extend(intermediate_range)
+
+            self.interval_limits = array(self.interval_limits)
+
+            self.neuronsOfInterestPlot = range(neuron_window[0], neuron_window[1])
 
         y = range(len(self.neuronsOfInterestPlot))
         intervals = [
@@ -470,33 +579,103 @@ class VisualizeRNN(object):
 
         for i in range(len(axarr)):
             axarr[i].set_yticks(y)
-            axarr[i].set_yticklabels(intervals, fontsize=7)
+            axarr[i].set_yticklabels(flip(intervals), fontsize=7)
             axarr[0].set_ylabel('Neuron')
 
-        neuron_activation_rows = neuron_activation_map[self.neuronsOfInterestPlot, :]
-        # f = plt.subplot(1, 2)
-        # f, (ax1) = plt.subplot(1, 2, 1)
-        max_activation = amax(neuron_activation_map)
-        min_activation = amin(neuron_activation_map)
-        neuron_feature_extracted_map = neuron_activation_rows[:, input_indices_of_interets]
+
         colmap = axarr[0].imshow(neuron_feature_extracted_map, cmap='coolwarm', interpolation='nearest', aspect='auto',
                                  vmin=min_activation, vmax=max_activation)
-        colmap = axarr[1].imshow(
-            array([abs(mean(neuron_feature_extracted_map, axis=1))]).T / array([abs(mean(neuron_activation_rows, axis=1))]).T,
+        colmap = axarr[1].imshow(relevance,
             cmap='coolwarm', interpolation='nearest', aspect='auto', vmin=min_activation, vmax=max_activation)
         axarr[1].set_title('Relevance')
 
-        interval = 0
-        for i in range(len(self.neuronsOfInterestPlotIntervals) + 1):
-            if i > 0:
-                limit = self.neuronsOfInterestPlotIntervals[i - 1]
-                interval += 1 + limit[-1] - limit[0]
-            axarr[0].plot(arange(-.5, len(input_indices_of_interets) + .5),
-                          (len(input_indices_of_interets) + 1) * [interval - 0.5], 'k--', LineWidth=1)
+        if not self.relevance_auto_detect:
+            interval = 0
+            for i in range(len(self.neuronsOfInterestPlotIntervals) + 1):
+                if i > 0:
+                    limit = self.neuronsOfInterestPlotIntervals[i - 1]
+                    interval += 1 + limit[-1] - limit[0]
+                axarr[0].plot(arange(-.5, len(input_indices_of_interest) + .5),
+                              (len(input_indices_of_interest) + 1) * [interval - 0.5], 'k--', LineWidth=1)
 
         f.colorbar(colmap, ax=axarr.ravel().tolist())
 
         plt.pause(.1)
+
+    def plot_fft_neural_activity(self, neuron_activation_map):
+
+        neurons_of_interest_fft = range(16, 21)
+        if not self.fft_auto_detect:
+            neuron_activations = neuron_activation_map[neurons_of_interest_fft, :]
+        else:
+            neuron_activations = neuron_activation_map
+        # neuron_activations[-1, :] = sin(2 * pi * 0.5 * arange(0, len(neuron_activations[-1, :])))
+        fft_neuron_activations_complex = fft.fft(neuron_activations)
+
+        fft_neuron_activations_abs = abs(fft_neuron_activations_complex / self.lengthSynthesizedText)
+
+        fft_neuron_activations_single_sided = fft_neuron_activations_abs[:, 0:int(self.lengthSynthesizedText / 2)]
+        fft_neuron_activations_single_sided[:, 2:-2] = 2 * fft_neuron_activations_single_sided[:, 2:-2]
+
+        freq = arange(0, floor(self.lengthSynthesizedText / 2)) / self.lengthSynthesizedText
+
+        if self.fft_auto_detect:
+            self.band_width = [0.1, 0.4]
+            start_neuron_index = 0
+            neuron_window = [start_neuron_index] * 2
+            reduced_window_size = 10
+            domain_relevant_freq = (freq > self.band_width[0]) & (freq < self.band_width[1])
+            # freq = freq[domain_relevant_freq]
+            domain_relevant_components = fft_neuron_activations_single_sided[:, domain_relevant_freq]
+            argmax_row = where(fft_neuron_activations_single_sided == amax(domain_relevant_components))[0][0]
+            # argmax_row = argmax(mean(fft_neuron_activations_single_sided, axis=1))
+            # fft_neuron_activations_single_sided = domain_relevant_components[start_neuron:end_neuron, :]
+            neuron_window[0] += max(argmax_row - int(reduced_window_size / 2), 0)
+            neuron_window[1] += min(argmax_row + int(reduced_window_size / 2 + 1), size(domain_relevant_components, 0))
+            fft_neuron_activations_single_sided = fft_neuron_activations_single_sided[
+                                                  neuron_window[0] - start_neuron_index:neuron_window[
+                                                                                            1] - start_neuron_index, :]
+            neurons_of_interest_fft = range(neuron_window[0], neuron_window[1])
+            print('\nAuto-detected FFT periodicity peak in band width interval ' + str(self.band_width) + ':')
+            print('Neuron: ' + str(argmax_row))
+            print('Value: ' + str(amax(domain_relevant_components)) + '\n')
+
+        neurons_of_interest_fft, freq = meshgrid(neurons_of_interest_fft, freq)
+
+        fig = plt.figure(3)
+        plt.clf()
+        ax = fig.gca(projection='3d')
+        ax.view_init(20, -120)
+        # ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+
+        cmap_color = cm.coolwarm  # cm.coolwarm
+        surf = ax.plot_surface(freq, neurons_of_interest_fft, fft_neuron_activations_single_sided.T, rstride=1,
+                               cstride=1, cmap=cmap_color, linewidth=0,
+                               antialiased=False)
+
+        ax.zaxis.set_major_locator(LinearLocator(10))
+        ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+
+
+
+        # max_activation = amax(fft_neuron_activations_single_sided)
+        # min_activation = amin(fft_neuron_activations_single_sided)
+
+        # fig.colorbar(surf, shrink=0.8, aspect='auto')
+
+        # for tick in ax.yaxis.get_major_ticks():
+        #    tick.label.set_fontsize(9)
+
+        ax.zaxis.set_rotate_label(False)
+
+        plt.title('Fourier Amplitude Spectrum of Neuron Activation')
+        plt.xlabel('Frequency')
+        plt.ylabel('Neurons of interest')
+        ax.set_zlabel(r'$|\mathcal{F}|$')
+
+        plt.pause(.1)
+
 
     def forwardProp(self, x, hPrev, weights={}):
         if not weights:
@@ -536,9 +715,12 @@ class VisualizeRNN(object):
 
         self.loadNeuronIntervals()
 
+        print('Predicting sentence from previous ' + self.domain_specification[:-1].lower() + ' "' + x0 + '"')
+
         table_data = [['Neuron ' + str(self.neuronsOfInterest[int(i/2)]), ''] if i % 2 == 0 else ['\n', '\n'] for i in range(2*len(self.neuronsOfInterest))]
         table = SingleTable(table_data)
-        table.table_data.insert(0, ['Neuron ', 'Predicted sentence from previous ' + self.domain_specification[:-1].lower() + ' "' + x0 + '"'])
+
+        table.table_data.insert(0, ['Neuron ', 'Predicted sentence'])
 
         max_width = table.column_max_width(1)
 
@@ -586,12 +768,24 @@ class VisualizeRNN(object):
 
             for i in range(len(self.neuronsOfInterest)):
 
-                neuronActivation = nan_to_num(neuronActivations[i, 0])
-
+                neuronActivation = nan_to_num(neuronActivations[i, 0])/20.0
+                '''
                 if neuronActivation > 0:
                     bg.set_style('activationColor', RgbBg(int(neuronActivation * 255), 0, 0))
                 else:
                     bg.set_style('activationColor', RgbBg(0, 0, int(abs(neuronActivation) * 255)))
+
+                coloredWord = bg.activationColor + sample + bg.rs
+
+                '''
+                w = self.white_background
+
+                if neuronActivation > 0:
+                    inactive_color = w * 255 - (2 * w - 1) * int(neuronActivation * 255)
+                    bg.set_style('activationColor', RgbBg(w * 255, inactive_color, inactive_color))
+                else:
+                    inactive_color = w * 255 + (2 * w - 1) * int(neuronActivation * 255)
+                    bg.set_style('activationColor', RgbBg(inactive_color, inactive_color, w * 255))
 
                 coloredWord = bg.activationColor + sample + bg.rs
 
@@ -623,27 +817,41 @@ class VisualizeRNN(object):
         max_activation = amax(neuron_activation_map[self.neuronsOfInterest, :])
         min_activation = amin(neuron_activation_map[self.neuronsOfInterest, :])
         margin = 8
-        color_range_width = max_width - len(table.table_data[0][1]) - (len(str(max_activation)) + len(str(min_activation)) + margin)
+        color_range_width = max_width - len(table.table_data[0][1]) - (len(str(max_activation)) + len(str(min_activation)) + 2)
         color_range = arange(min_activation, max_activation,
                              (max_activation - min_activation) / color_range_width)
 
-        color_range_str = ' '*margin + str(round(min_activation, 1))
+        color_range_str = ' '*margin + str(round(min_activation, 1)) + ' '
 
         for i in range(color_range_width):
 
-            color_range_value = nan_to_num(color_range[i])
+            color_range_value = nan_to_num(color_range[i])/20.0
 
+            w = self.white_background
+
+            if color_range_value > 0:
+                inactive_color = w * 255 - (2 * w - 1) * int(color_range_value * 255)
+                bg.set_style('activationColor', RgbBg(w * 255, inactive_color, inactive_color))
+            else:
+                inactive_color = w * 255 + (2 * w - 1) * int(color_range_value * 255)
+                bg.set_style('activationColor', RgbBg(inactive_color, inactive_color, w * 255))
+
+            '''
+            coloredWord = bg.activationColor + sample + bg.rs
             if color_range_value > 0:
                 bg.set_style('activationColor', RgbBg(int(color_range_value * 255), 0, 0))
             else:
                 bg.set_style('activationColor', RgbBg(0, 0, int(abs(color_range_value) * 255)))
+            '''
 
             colored_indicator = bg.activationColor + ' ' + bg.rs
 
             color_range_str += colored_indicator
 
-        color_range_str += str(round(max_activation, 1))
+        color_range_str += ' ' + str(round(max_activation, 1))
         table.table_data[0][1] += color_range_str
+
+        table.table_data[1:] = flip(table.table_data[1:], axis=0)
 
         return table.table, neuron_activation_map, y_n[0]
 
@@ -670,7 +878,7 @@ class VisualizeRNN(object):
                         intervals = ''.join(line.split()).split(',')
                         self.intervals_to_plot = []
                         self.interval_limits = []
-                        self.interval_label_shift = '      '
+                        self.interval_label_shift = '' # '      '
 
                         for interval in intervals:
                             if ':' in interval:
@@ -931,6 +1139,10 @@ def main():
     attributes = {
         'textFile': 'Data/ted_en.zip',  # Name of book text file, needs to be longer than lengthSynthesizedTextBest
         'model_file': 'Data/glove_short.txt',  # 'Data/glove_840B_300d.txt',  #
+        'fft_auto_detect': False,
+        'relevance_auto_detect': True,
+        'white_background': True,
+        'model_directory': 'Models/val_loss2.072-val_acc0.445-loss1.335-epoch6-iteration674039-neurons224-eta-9.00e-5/',
         'word_domain': False,  # True for words, False for characters
         'save_sentences': False,  # Save sentences and vocabulary
         'load_sentences': True,  # Load sentences and vocabulary
@@ -938,35 +1150,35 @@ def main():
         'corpus_proportion': 1,  # The proportion of the corpus used for training and validation
         'adaGradSGD': True,  # Stochastic gradient decent, True for adaGrad, False for regular SGD
         'clipGradients': True,  # True to avoid exploding gradients
-        'weightInit': 'He',  # 'He', 'Load' or 'Random'
-        'eta': 5e-4,  # Learning rate
+        'weightInit': 'Load',  # 'He', 'Load' or 'Random'
+        'eta': 9.00e-5,  # Learning rate
         'gradientClipThreshold': 5,  # Threshold for clipping gradients
-        'nHiddenNeurons': 10,  # Number of hidden neurons
-        'nEpochs': 3,  # Total number of epochs, each corresponds to (n book characters)/(seqLength) seq iterations
+        'nHiddenNeurons': 224,  # Number of hidden neurons
+        'nEpochs': 10,  # Total number of epochs, each corresponds to (n book characters)/(seqLength) seq iterations
         'seqLength': 25,  # Sequence length of each sequence iteration
-        'lengthSynthesizedText': 200,  # Sequence length of each print of text evolution
+        'lengthSynthesizedText': 1500,  # Sequence length of each print of text evolution
         'lengthSynthesizedTextBest': 1000,  # Sequence length of final best sequence, requires saveParameters
         'rmsProp': True,  # Implementation of rmsProp to adaGradSGD
         'gamma': 0.9,  # Weight factor of rmsProp
-        'saveParameters': True  # Save best weights with corresponding arrays iterations and smooth loss
+        'saveParameters': False  # Save best weights with corresponding arrays iterations and smooth loss
     }
 
-    if not attributes['adaGradSGD']:
-        attributes['eta'] = 0.01*attributes['eta']
+    # if not attributes['adaGradSGD']:
+    #    attributes['eta'] = 0.01*attributes['eta']
 
     # model_directory = './LSTM Saved Models/Checkpoints/'
     # model = model_directory + os.listdir(model_directory)[-1]
     # print('Loading LSTM model ' + model + '...')
 
 
-    randomize_hyper_parameters(500, attributes)
-    # rnn = VisualizeRNN(attributes)
+    # randomize_hyper_parameters(500, attributes)
+    rnn = VisualizeRNN(attributes)
     # rnn.testComputedGradients()
-    # rnn.adaGrad()
+    rnn.adaGrad()
     print('Finished!')
 
 
 if __name__ == '__main__':
-    # random.seed(1)
+    random.seed(2)
     main()
     plt.show()

@@ -1,4 +1,13 @@
 
-LSTM/Data/*
+LSTM/Data/NonRelevant/*
 LSTM/Remote Monitor/*
 Vanilla RNN/Data/*
+LSTM/Results/*
+LSTM/FoundNeuronsOfInterest.txt
+LSTM/LSTM Saved Models/Final Training/*
+LSTM/LSTM Saved Models/Fine Tuning/*
+LSTM/LSTM Saved Models/Previous Checkpoints/*
+LSTM/LSTM Saved Models/Previous Checkpoints/val_loss2.7504-loss2.8218-epoch001-neurons256-layers1-batch_size-256-drop0.300000-eta-0.000300-flip0.txt
+Data/*
+Temp/*
+Vanilla RNN/*
