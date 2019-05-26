@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="">
+    <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="Cleaning up code">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <list id="e387393f-31b3-4972-ace3-cdb41596f432" name="Revert: Cleaning up code" comment="" />
@@ -19,8 +19,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="253">
-              <caret line="1172" column="28" lean-forward="true" selection-start-line="1172" selection-start-column="28" selection-end-line="1172" selection-end-column="28" />
+            <state relative-caret-position="187">
+              <caret line="1187" column="90" lean-forward="true" selection-start-line="1187" selection-start-column="90" selection-end-line="1187" selection-end-column="90" />
             </state>
           </provider>
         </entry>
@@ -174,8 +174,8 @@
         <option value="$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py" />
         <option value="$PROJECT_DIR$/LSTM/config.txt" />
         <option value="$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt" />
-        <option value="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" />
       </list>
     </option>
   </component>
@@ -605,7 +605,14 @@
       <option name="project" value="LOCAL" />
       <updated>1558905978547</updated>
     </task>
-    <option name="localTasksCounter" value="40" />
+    <task id="LOCAL-00040" summary="Cleaning up code">
+      <created>1558905987167</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1558905987167</updated>
+    </task>
+    <option name="localTasksCounter" value="41" />
     <servers />
   </component>
   <component name="TodoView">
@@ -1171,8 +1178,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="253">
-          <caret line="1172" column="28" lean-forward="true" selection-start-line="1172" selection-start-column="28" selection-end-line="1172" selection-end-column="28" />
+        <state relative-caret-position="187">
+          <caret line="1187" column="90" lean-forward="true" selection-start-line="1187" selection-start-column="90" selection-end-line="1187" selection-end-column="90" />
         </state>
       </provider>
     </entry>
