@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="Cleaning up code">
+    <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <list id="e387393f-31b3-4972-ace3-cdb41596f432" name="Revert: Cleaning up code" comment="" />
@@ -19,20 +19,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="39">
-              <caret line="1086" lean-forward="true" selection-start-line="1086" selection-end-line="1086" />
-              <folding>
-                <element signature="e#50#87#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/.gitignore">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="10" column="6" selection-start-line="10" selection-start-column="6" selection-end-line="10" selection-end-column="6" />
+            <state relative-caret-position="253">
+              <caret line="1172" column="28" lean-forward="true" selection-start-line="1172" selection-start-column="28" selection-end-line="1172" selection-end-column="28" />
             </state>
           </provider>
         </entry>
@@ -156,6 +144,7 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="MIXED" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -609,7 +598,14 @@
       <option name="project" value="LOCAL" />
       <updated>1558887744951</updated>
     </task>
-    <option name="localTasksCounter" value="39" />
+    <task id="LOCAL-00039" summary="Cleaning up code">
+      <created>1558905978547</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1558905978547</updated>
+    </task>
+    <option name="localTasksCounter" value="40" />
     <servers />
   </component>
   <component name="TodoView">
@@ -623,10 +619,11 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1296" height="696" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Structure" order="0" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="1" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="2" visible="true" weight="0.19793323" />
+      <window_info active="true" content_ui="combo" id="Project" order="2" visible="true" weight="0.19793323" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.13314448" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49841937" weight="0.3090586" />
@@ -634,9 +631,9 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3286119" />
-      <window_info active="true" anchor="bottom" id="Version Control" order="7" sideWeight="0.76629573" visible="true" weight="0.5346359" />
+      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.76629573" visible="true" weight="0.053285968" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.34127843" />
-      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.2337043" side_tool="true" visible="true" weight="0.5346359" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.2337043" side_tool="true" visible="true" weight="0.053285968" />
       <window_info anchor="bottom" id="Python Console" order="10" sideWeight="0.49679488" weight="0.39869988" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -1174,11 +1171,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="39">
-          <caret line="1086" lean-forward="true" selection-start-line="1086" selection-end-line="1086" />
-          <folding>
-            <element signature="e#50#87#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="253">
+          <caret line="1172" column="28" lean-forward="true" selection-start-line="1172" selection-start-column="28" selection-end-line="1172" selection-end-column="28" />
         </state>
       </provider>
     </entry>
