@@ -1,7 +1,6 @@
 
 LSTM/Data/NonRelevant/*
 LSTM/Remote Monitor/*
-Vanilla RNN/Data/*
 LSTM/Results/*
 LSTM/FoundNeuronsOfInterest.txt
 LSTM/LSTM Saved Models/Final Training/*
