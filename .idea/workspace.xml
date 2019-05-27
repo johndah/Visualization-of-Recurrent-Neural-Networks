@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="" />
+    <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <list id="cffc9ca4-1da7-441e-a46b-0a3c320c1c1f" name="Cleaning up code" comment="">
       <change afterPath="$PROJECT_DIR$/LSTM/LSTM Saved Models/Checkpoints/val_acc0.5561-val_loss2.51053-loss2.56519-epoch007-neurons672-layers1-batch_size-352-drop0.44-eta5.000e-5" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <list id="e387393f-31b3-4972-ace3-cdb41596f432" name="Revert: Cleaning up code" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -21,8 +22,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="574">
-              <caret line="1189" column="34" lean-forward="true" selection-start-line="1189" selection-start-column="34" selection-end-line="1189" selection-end-column="34" />
+            <state relative-caret-position="351">
+              <caret line="1183" column="43" selection-start-line="1183" selection-start-column="43" selection-end-line="1183" selection-end-column="43" />
             </state>
           </provider>
         </entry>
@@ -31,7 +32,7 @@
         <entry file="file://$PROJECT_DIR$/.gitignore">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="204">
-              <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
+              <caret line="12" selection-start-line="12" selection-end-line="12" />
             </state>
           </provider>
         </entry>
@@ -86,9 +87,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>bg.</find>
-      <find>table.table_dat</find>
-      <find>flip</find>
       <find>synthes</find>
       <find>synthesizeText</find>
       <find>self.x0</find>
@@ -116,6 +114,9 @@
       <find>optimizer</find>
       <find>frequency = 50</find>
       <find>evenly_split</find>
+      <find>embedding_model_file</find>
+      <find>load_vocabulary</find>
+      <find>load_sentences</find>
     </findStrings>
     <replaceStrings>
       <replace>self.input_sequence</replace>
@@ -185,8 +186,8 @@
         <option value="$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py" />
         <option value="$PROJECT_DIR$/LSTM/config.txt" />
         <option value="$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt" />
-        <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -217,6 +218,13 @@
               <item name="Visualization-of-Recurrent-Neural-Networks" type="462c0819:PsiDirectoryNode" />
               <item name="LSTM" type="462c0819:PsiDirectoryNode" />
               <item name="LSTM Saved Models" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Visualization-of-Recurrent-Neural-Networks" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Visualization-of-Recurrent-Neural-Networks" type="462c0819:PsiDirectoryNode" />
+              <item name="LSTM" type="462c0819:PsiDirectoryNode" />
+              <item name="LSTM Saved Models" type="462c0819:PsiDirectoryNode" />
+              <item name="Checkpoints" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Visualization-of-Recurrent-Neural-Networks" type="b2602c69:ProjectViewProjectNode" />
@@ -326,9 +334,9 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.test" />
       <item itemvalue="Python.VisualizationOfLSTM" />
       <item itemvalue="Python.VisualizationOfRNN" />
+      <item itemvalue="Python.test" />
     </list>
   </component>
   <component name="SvnConfiguration">
@@ -624,7 +632,35 @@
       <option name="project" value="LOCAL" />
       <updated>1558905987167</updated>
     </task>
-    <option name="localTasksCounter" value="41" />
+    <task id="LOCAL-00041" summary="Cleaning up code">
+      <created>1558906528979</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1558906528980</updated>
+    </task>
+    <task id="LOCAL-00042" summary="Cleaning up code">
+      <created>1558942191308</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1558942191309</updated>
+    </task>
+    <task id="LOCAL-00043" summary="Cleaning up code">
+      <created>1558945017566</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1558945017566</updated>
+    </task>
+    <task id="LOCAL-00044" summary="Including preprocessed sentences">
+      <created>1558945754932</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1558945754932</updated>
+    </task>
+    <option name="localTasksCounter" value="45" />
     <servers />
   </component>
   <component name="TodoView">
@@ -642,7 +678,7 @@
     <layout>
       <window_info id="Structure" order="0" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="1" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="2" visible="true" weight="0.19125395" />
+      <window_info active="true" content_ui="combo" id="Project" order="2" visible="true" weight="0.19125395" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.13314448" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49841937" weight="0.3090586" />
@@ -650,7 +686,7 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3286119" />
-      <window_info active="true" anchor="bottom" id="Version Control" order="7" sideWeight="0.76659644" visible="true" weight="0.2708559" />
+      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.76659644" visible="true" weight="0.2708559" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.34127843" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.23340358" side_tool="true" visible="true" weight="0.2708559" />
       <window_info anchor="bottom" id="Python Console" order="10" sideWeight="0.49679488" weight="0.39869988" />
@@ -705,7 +741,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Started code skeleton for visualization of LSTM" />
     <MESSAGE value="Implemented visualization of LSTM. Prediction gets only one word at a time. Will be updated to get the same sequence format as fit" />
     <MESSAGE value="Working LSTM. Allows remote monitoring and plots learning curve (needs to be edited). Models may be saved and loaded" />
     <MESSAGE value="Losses file added" />
@@ -730,7 +765,8 @@
     <MESSAGE value="Visualization of LSTM Gates and states works, PCA plot of word embedding, ability to load and continue training LSTM models, dropout in the LSTM network and not right after, auto-detection of Fourier Transform peaks, updated Relevance calculation." />
     <MESSAGE value="Include option for tables with white backgrounds. Includes the first input word before first prediction to be presented and highlighted. Fixing up the FFT plot presentation." />
     <MESSAGE value="Cleaning up code" />
-    <option name="LAST_COMMIT_MESSAGE" value="Cleaning up code" />
+    <MESSAGE value="Including preprocessed sentences" />
+    <option name="LAST_COMMIT_MESSAGE" value="Including preprocessed sentences" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1184,14 +1220,14 @@
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="204">
-          <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
+          <caret line="12" selection-start-line="12" selection-end-line="12" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="574">
-          <caret line="1189" column="34" lean-forward="true" selection-start-line="1189" selection-start-column="34" selection-end-line="1189" selection-end-column="34" />
+        <state relative-caret-position="351">
+          <caret line="1183" column="43" selection-start-line="1183" selection-start-column="43" selection-end-line="1183" selection-end-column="43" />
         </state>
       </provider>
     </entry>
