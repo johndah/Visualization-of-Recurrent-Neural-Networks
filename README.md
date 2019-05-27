@@ -8,7 +8,7 @@ This developed system is the implementation of my Master Thesis to visualize Rec
 Predicted text highligted based on neural activity of the LSTM hidden state output. Neuron 597 is detected to be relevant for spaces independently through the heatmap and fourier heat surfance. It seem to have an action potential that goes from negative up to zero when triggered by the spaces.
 ![Sample of terminal output](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMSpaces-Terminal0.PNG)
 ### Corresponding heatmap with relevance scores
-Heatmap of extracted feature of interest " " (space) (left) and automatic found relevant neuron 597 through relevance heatmap (right)
+Heatmap of extracted feature of interest " " (space) (left) and automatic found relevant neuron 597 through relevance heatmap (right).
 ![Corresponding heatmap](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMSpaces-Heatmap0.png)
 ### Corresponding Fourier transform heat surface
 Fourier transform and automatically detected peak for neuron 597 at frequency 0.5 (every second word).
