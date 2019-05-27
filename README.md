@@ -14,7 +14,7 @@ Fourier transform and automatically detected peak for neuron 597 at frequency 0.
 
 ## Another sample of terminal output
 Predicted text highligted based on neural activity of the LSTM hidden state output. Neuron 455 is detected to be significantly active durong sentences and get deactivated by dots and question marks.
-![Sample of terminal output](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMDots-Terminal0.PNG)
+![Sample of terminal output](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMDots-Terminal1.PNG)
 ## Corresponding heatmap with relevance scores
 Heatmap of extracted feature of interest ".", "?" and "!" (left) and automatic found relevant neuron 455 through relevance heatmap (right).
-![Corresponding heatmap](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMDots-Heatmap0.png)
+![Corresponding heatmap](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMDots-Heatmap1.png)
