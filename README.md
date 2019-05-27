@@ -25,10 +25,10 @@ Heatmap of extracted feature of interest ".", "?" and "!" (left) and automatic f
 
 ### Sample of terminal output
 Predicted text highligted based on neural activity of the LSTM hidden state output. Neuron 18 is detected to many frequency components. The neuron seems to have a pattern to get deactivated when triggered by the second letter of synthesized words.
-![Sample of terminal output](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMSpaces-Terminal0.PNG)
+![Sample of terminal output](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/AllCharacters-Terminal.PNG)
 ### Corresponding heatmap with relevance scores
 Heatmap extracting all features. Thus, the relevance is zero.
-![Corresponding heatmap](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMSpaces-Heatmap0.png)
+![Corresponding heatmap](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/AllCharacters-Heatmap.png)
 ### Corresponding Fourier transform heat surface
 Fourier transform and automatically detected peak for neuron 18, it has multiple frequency components.  
-![Corresponding Fourier transform heat surface](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMSpaces-Fouriermap0.png)
+![Corresponding Fourier transform heat surface](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/AllCharacters-Fouriermap.png)
