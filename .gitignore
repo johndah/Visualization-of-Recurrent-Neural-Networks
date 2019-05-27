@@ -1,5 +1,6 @@
 
 LSTM/Data/NonRelevant/*
+LSTM/Data/ted_talks_word2vec.model
 LSTM/Remote Monitor/*
 LSTM/Results/*
 LSTM/FoundNeuronsOfInterest.txt

@@ -1158,7 +1158,7 @@ def template_configurations(attributes, configuaration):
 def main():
     attributes = {
         'present_table': 'terminal',  # Save tables in files or 'terminal' for only printing visualization
-        'white_background': True,  # True for white background, else black (Terminal properties needs to be adjusted)
+        'white_background': False,  # True for white background, else black (Terminal properties needs to be adjusted)
         'text_file': 'Data/ted_en.zip',  # Path to textfile to train on
         'load_lstm_model': True,  # True to load lstm checkpoint model
         'train_lstm_model': False,  # True to train the model, otherwise only inference is applied
@@ -1172,7 +1172,7 @@ def main():
         'train_embedding_model': False,  # Further train the embedding model
         'save_embedding_model': False,  # Save trained embedding model
         'save_sentences': False,  # Save sentences and vocabulary
-        'load_sentences': True,  # Load sentences and vocabulary
+        'load_sentences': False,  # Load sentences and vocabulary
         'n_words_pca_plot': 0,  # Positive if this number of most common words should be plotted through PCA
         'validation_proportion': .02,  # The proportion of data set used for validation
         'corpus_proportion': 1,  # The proportion of the corpus used for training and validation
