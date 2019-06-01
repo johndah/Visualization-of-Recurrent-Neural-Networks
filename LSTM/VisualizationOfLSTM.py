@@ -822,7 +822,7 @@ class VisualizeLSTM(object):
         neuron_window = []
 
         if self.auto_detect_peak == 'Relevance':
-            reduced_window_size = 10
+            reduced_window_size = 5 # 10
 
             argmax_row = where(relevance == amax(relevance))[0][0]
             # fft_neuron_activations_single_sided = domain_relevant_components[start_neuron:end_neuron, :]
@@ -841,7 +841,7 @@ class VisualizeLSTM(object):
 
             self.intervals_to_plot = []
             self.interval_limits = []
-            frequency = 1 + 4*int(len(self.neurons_of_interest) > 5)
+            frequency = 1 + 4*(neuron_window[1] - neuron_window[1] > 5)
 
             intermediate_range = [i for i in range(int(neuron_window[0]) + 1, int(neuron_window[-1])) if i % frequency == 0]
             intermediate_range.insert(0, int(neuron_window[0]))
@@ -945,7 +945,7 @@ class VisualizeLSTM(object):
         if self.auto_detect_peak == 'FFT':
             start_neuron_index = self.neurons_of_interest_plot_intervals[0][0]
             neuron_window = [start_neuron_index]*2
-            reduced_window_size = 10
+            reduced_window_size = 5 # 10
             domain_relevant_freq = (freq > self.band_width[0]) & (freq < self.band_width[1])
             domain_relevant_components = fft_neuron_activations_single_sided[:, domain_relevant_freq]
             argmax_row = where(fft_neuron_activations_single_sided == amax(domain_relevant_components))[0][0]
@@ -1158,7 +1158,7 @@ def template_configurations(attributes, configuaration):
 def main():
     attributes = {
         'present_table': 'terminal',  # Save tables in files or 'terminal' for only printing visualization
-        'white_background': False,  # True for white background, else black (Terminal properties needs to be adjusted)
+        'white_background': True,  # True for white background, else black (Terminal properties needs to be adjusted)
         'text_file': 'Data/ted_en.zip',  # Path to textfile to train on
         'load_lstm_model': True,  # True to load lstm checkpoint model
         'train_lstm_model': False,  # True to train the model, otherwise only inference is applied
@@ -1172,7 +1172,7 @@ def main():
         'train_embedding_model': False,  # Further train the embedding model
         'save_embedding_model': False,  # Save trained embedding model
         'save_sentences': False,  # Save sentences and vocabulary
-        'load_sentences': False,  # Load sentences and vocabulary
+        'load_sentences': True,  # Load sentences and vocabulary
         'n_words_pca_plot': 0,  # Positive if this number of most common words should be plotted through PCA
         'validation_proportion': .02,  # The proportion of data set used for validation
         'corpus_proportion': 1,  # The proportion of the corpus used for training and validation
@@ -1190,7 +1190,8 @@ def main():
         'save_checkpoints': True  # Save best weights with corresponding arrays iterations and smooth loss
     }
 
-    attributes, seed = template_configurations(attributes, 0)
+
+    attributes, seed = template_configurations(attributes, 1)
 
     random.seed(seed)
     lstm_vis = VisualizeLSTM(attributes)

@@ -1156,7 +1156,7 @@ def main():
         'nHiddenNeurons': 224,  # Number of hidden neurons
         'nEpochs': 10,  # Total number of epochs, each corresponds to (n book characters)/(seqLength) seq iterations
         'seqLength': 25,  # Sequence length of each sequence iteration
-        'lengthSynthesizedText': 1500,  # Sequence length of each print of text evolution
+        'lengthSynthesizedText': 300,  # Sequence length of each print of text evolution
         'lengthSynthesizedTextBest': 1000,  # Sequence length of final best sequence, requires saveParameters
         'rmsProp': True,  # Implementation of rmsProp to adaGradSGD
         'gamma': 0.9,  # Weight factor of rmsProp

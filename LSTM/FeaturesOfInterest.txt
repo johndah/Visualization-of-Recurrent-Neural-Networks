@@ -2,7 +2,7 @@
 
 Neurons to print: 595:599
 # 144:154, 454:456
-Neurons for heatmap: 0:700
+Neurons for heatmap: 595:599
 # 144:154
 #  595:599
 Neurons to fourier transform: 592:602
@@ -23,7 +23,7 @@ Band width to auto-detect prominent frequency components (Hz): 0.4:0.5
 # 'JJ': 'Adjective'
 # 'JJS': 'Adjective, Superlative'
 
-Prediction features: '\w+|[^\w]'
+Prediction features: ' '
 
 # The input, forget, cell, output gate or final_layer_output to visualize
 lstm_gate_of_interest: 'final_layer_output'
