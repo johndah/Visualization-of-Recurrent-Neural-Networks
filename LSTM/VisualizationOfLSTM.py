@@ -502,6 +502,8 @@ class VisualizeLSTM(object):
             output = self.lstm_model_evaluate.predict(x=x_predict, batch_size=1)
 
             activations = self.get_neuron_activations(x_predict)
+            # self.activation_lower_limit = 0
+            # activations = random.rand(self.n_hidden_neurons, self.length_synthesized_text)
             neuron_activation_map[:, t] = activations[:, 0]
             neuron_activations = activations[self.neurons_of_interest]
 
@@ -797,6 +799,8 @@ class VisualizeLSTM(object):
         except Exception as ex:
             print(ex)
 
+
+
         print('Relevant input_indices_of_interest ')
         print(input_indices_of_interest)
         print('Relevant stuff ')
@@ -822,36 +826,55 @@ class VisualizeLSTM(object):
         neuron_window = []
 
         if self.auto_detect_peak == 'Relevance':
-            reduced_window_size = 5 # 10
+            self.reduced_window_size = 3 # 10
 
-            argmax_row = where(relevance == amax(relevance))[0][0]
-            # fft_neuron_activations_single_sided = domain_relevant_components[start_neuron:end_neuron, :]
-            neuron_window = [0]*2
-            neuron_window[0] = max(argmax_row - int(reduced_window_size / 2), 0)
-            neuron_window[1] = min(argmax_row + int(reduced_window_size / 2 + 1), size(relevance, 0))
-            relevance = relevance[neuron_window[0]:neuron_window[1], :]
-            neurons_of_interest_relevance = range(neuron_window[0], neuron_window[1])
-            print('\nAuto-detected relevance peak for feature "' + feature + '":')
-            print('Neuron: ' + str(argmax_row))
-            print('Value: ' + str(amax(relevance)) + '\n')
+            argmaxima = relevance[:, 0].argsort(axis=0)[-self.n_auto_detect:]
+
+            self.intervals_to_plot = []
+            self.interval_limits = []
+
+            neuron_windows = []
+            extracted_relevances = zeros((self.n_auto_detect*self.reduced_window_size, 1))
+            neurons_of_interest_relevance = []
+            self.neurons_of_interest_plot = []
+            self.neurons_of_interest_plot_intervals = []
+
+            for argmax_row in sort(argmaxima):
+
+                neuron_window = [0]*2
+                neuron_window[0] = max(argmax_row - int(self.reduced_window_size / 2), 0)
+                neuron_window[1] = min(argmax_row + int(self.reduced_window_size / 2 + 1), size(relevance, 0))
+                neuron_windows.append(neuron_window)
+                start_range = where(argmaxima == argmax_row)[0][0]*self.reduced_window_size
+                end_range = start_range + self.reduced_window_size
+                extracted_relevances[start_range:end_range, 0] = relevance[neuron_window[0]:neuron_window[1], 0]
+                neurons_of_interest_relevance.extend(range(neuron_window[0], neuron_window[1]))
+
+                print('\nAuto-detected relevance peak for feature "' + feature + '":')
+                print('Neuron: ' + str(argmax_row))
+                print('Value: ' + str(amax(relevance)) + '\n')
+
+                self.neurons_of_interest_plot.extend(range(int(neuron_window[0]), int(neuron_window[-1])))
+                self.neurons_of_interest_plot_intervals.append(
+                    range(int(neuron_window[0]), int(neuron_window[-1])))
+
+                intermediate_range = [neuron_window[0], argmax_row, neuron_window[1]-1]
+                intermediate_range_str = [str(i) for i in intermediate_range]
+                intermediate_range_str[-1] += self.interval_label_shift
+                self.intervals_to_plot.extend(intermediate_range_str)
+                self.interval_limits.extend(intermediate_range)
+
+            relevance = extracted_relevances
 
             neuron_activation_rows = neuron_activation_map[neurons_of_interest_relevance, :]
 
             neuron_feature_extracted_map = flip(neuron_activation_rows[:, input_indices_of_interest], axis=0)
 
-            self.intervals_to_plot = []
-            self.interval_limits = []
-            frequency = 1 + 4*(neuron_window[1] - neuron_window[1] > 5)
+        self.plot_color_maps(feature, inputs_of_interest, neuron_feature_extracted_map, relevance)
 
-            intermediate_range = [i for i in range(int(neuron_window[0]) + 1, int(neuron_window[-1])) if i % frequency == 0]
-            intermediate_range.insert(0, int(neuron_window[0]))
-            intermediate_range.append(int(neuron_window[-1]))
-            intermediate_range_str = [str(i) for i in intermediate_range]
-            intermediate_range_str[-1] += self.interval_label_shift
-            self.intervals_to_plot.extend(intermediate_range_str)
-            self.interval_limits.extend(intermediate_range)
-            self.neurons_of_interest_plot = range(neuron_window[0], neuron_window[1])
+        return neuron_window
 
+    def plot_color_maps(self, feature, inputs_of_interest, neuron_feature_extracted_map, relevance):
         f, axarr = plt.subplots(1, 2, num=1, gridspec_kw={'width_ratios': [5, 1]}, clear=True)
         axarr[0].set_title('Colormap of hidden neuron activations')
 
@@ -865,14 +888,16 @@ class VisualizeLSTM(object):
             axarr[0].set_xticks(x)
             axarr[0].set_xticklabels(inputs_of_interest, fontsize=7,
                                      rotation=90 * (len(feature) > 1) * (
-                                                 len(inputs_of_interest) >= 6))
+                                             len(inputs_of_interest) >= 6))
         else:
             axarr[0].set_xticks([])
 
         axarr[1].set_xticks([])
 
         y = range(len(self.neurons_of_interest_plot))
-        intervals = [self.intervals_to_plot[where(array(self.interval_limits) == i)[0][0]] if i in self.interval_limits else ' ' for i in self.neurons_of_interest_plot]
+        intervals = [
+            self.intervals_to_plot[where(array(self.interval_limits) == i)[0][0]] if i in self.interval_limits else ' '
+            for i in self.neurons_of_interest_plot]
 
         for i in range(len(axarr)):
             axarr[i].set_yticks(y)
@@ -886,15 +911,20 @@ class VisualizeLSTM(object):
 
         colmap = axarr[0].imshow(neuron_feature_extracted_map, cmap=cmap, interpolation='nearest', aspect='auto',
                                  vmin=self.activation_lower_limit, vmax=1)
-        colmap = axarr[1].imshow(relevance, cmap=cmap, interpolation='nearest', aspect='auto',  vmin=self.activation_lower_limit, vmax=1)
+        colmap = axarr[1].imshow(relevance, cmap=cmap, interpolation='nearest', aspect='auto',
+                                 vmin=self.activation_lower_limit, vmax=1)
+
+        for y in range(self.reduced_window_size+1, (self.n_auto_detect-1)*self.reduced_window_size+1, self.reduced_window_size):
+            axarr[0].plot([1, size(neuron_feature_extracted_map, 1)-2], array([y, y])-.5, color='black', LineStyle='dashed', LineWidth=2)
+
+        for y in range(self.reduced_window_size, (self.n_auto_detect-1)*self.reduced_window_size+1, self.reduced_window_size):
+            axarr[1].plot([-.35, .35], array([y, y])-.5, color='black', LineStyle='dashed', LineWidth=2)
 
         axarr[1].set_title('Relevance')
 
         f.colorbar(colmap, ax=axarr.ravel().tolist())
 
         plt.pause(.1)
-
-        return neuron_window
 
     def adjusted_color_range(self, cmap, start=0, midpoint=0.5, stop=1.0, name='adjusted_color_range'):
 
@@ -945,12 +975,12 @@ class VisualizeLSTM(object):
         if self.auto_detect_peak == 'FFT':
             start_neuron_index = self.neurons_of_interest_plot_intervals[0][0]
             neuron_window = [start_neuron_index]*2
-            reduced_window_size = 5 # 10
+            self.reduced_window_size = 5 # 10
             domain_relevant_freq = (freq > self.band_width[0]) & (freq < self.band_width[1])
             domain_relevant_components = fft_neuron_activations_single_sided[:, domain_relevant_freq]
             argmax_row = where(fft_neuron_activations_single_sided == amax(domain_relevant_components))[0][0]
-            neuron_window[0] += max(argmax_row - int(reduced_window_size/2), 0)
-            neuron_window[1] += min(argmax_row + int(reduced_window_size/2+1), size(domain_relevant_components, 0))
+            neuron_window[0] += max(argmax_row - int(self.reduced_window_size/2), 0)
+            neuron_window[1] += min(argmax_row + int(self.reduced_window_size/2+1), size(domain_relevant_components, 0))
             fft_neuron_activations_single_sided = fft_neuron_activations_single_sided[neuron_window[0]-start_neuron_index:neuron_window[1]-start_neuron_index, :]
             neurons_of_interest_fft = range(neuron_window[0], neuron_window[1])
             print('\nAuto-detected FFT periodicity peak in band width interval ' + str(self.band_width) + ':')
@@ -1003,6 +1033,8 @@ class VisualizeLSTM(object):
                     self.plot_fft = ''.join(line.split()).split(':')[1] == 'True'
                 if 'auto_detect_peak:' in line:
                     self.auto_detect_peak = line.split("'")[1]
+                if 'n_auto_detect:' in line:
+                    self.n_auto_detect = int(line.split()[1])
 
         if self.auto_detect_peak in ['Relevance', 'FFT']:
             self.intervals_to_plot = []
