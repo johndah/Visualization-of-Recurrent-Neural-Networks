@@ -605,12 +605,13 @@ subprocess.call('', shell=True)
 print(colored_word)
 print(color('Hello world.', back=(50,0,0)))
 '''
-'''
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 import matplotlib.pyplot as plt
 import numpy as np
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 
 def sigmoid(x, derivative=False):
     sigm = 1. / (1. + np.exp(-x))
@@ -636,18 +637,85 @@ ax.set_zlim(-1.01, 1.01)
 ax.zaxis.set_major_locator(LinearLocator(10))
 ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
 
+x_vec = [-3, -3, 3, 3]
+y_vec = [0, 0, 0, 0]
+z = np.atleast_2d([0, 1, 0, 1])
+xx, yy = np.meshgrid(x_vec, y_vec)
+point = np.array([0, 0, 0])
+normal = np.array([1e-4, 1, 1e-4])
+d = -point.dot(normal)
+
+# calculate corresponding z
+zz = (-normal[0] * xx - normal[1] * yy - d) * 1. /normal[2]
+
+xs = np.linspace(-3, 3, 100)
+zs = np.linspace(0, 1, 100)
+
+X, Z = np.meshgrid(xs, zs)
+Y = 0*X
+
+ax.plot_surface(X, Y, Z, alpha=.2, color='black')
+cset = ax.contour(X, Y, Z, zdir='x', offset=3, colors='black', linestyles='dashed', linewidths=2)
+cset = ax.contour(X, Y, Z, zdir='x', offset=-3, colors='black', linestyles='dashed', linewidths=2)
+cset = ax.contour(X, Y, Z, zdir='z', offset=-1, colors='black', linestyles='dashed', linewidths=2)
+cset = ax.contour(X, Y, Z, zdir='z', offset=1, colors='black', linestyles='dashed', linewidths=2)
+
 #fig.colorbar(surf, shrink=0.5, aspect=5)
 #plt.title('Sigmod')
-ax.grid(False)
+#ax.grid(False)
 # Hide axes ticks
-ax.set_xticks([])
-ax.set_yticks([])
-ax.set_zticks([])
-plt.axis('off')
-plt.grid(b=None)
-ax.view_init(17, -126)
-#plt.show()
+#ax.set_xticks([])
+#ax.set_zticks([])
 
+#intervals = range(-3, 3)
+#plt.yticks(intervals, (range(-6, 6, 2)))
+
+
+#for y in range(3, (3 - 1) * 3 + 1, 3):
+#    x_vec = [1, np.size(X, 1) - 2]
+#    y_vec = np.array([y, y]) - .5
+#    z_vec = [0, 0]
+#    plt.plot(x_vec, y_vec, z_vec, color='black', LineStyle='dashed', LineWidth=2)
+
+# ax.set_yticks([])
+#plt.axis('off')
+#plt.grid(b=None)
+#fig, axes = plt.subplots(nrows=2, sharex=True)
+
+#ax = axes[0]
+'''
+divider = make_axes_locatable(ax.yaxis)
+ax2 = divider.new_vertical(size="100%", pad=0.1)
+fig.add_axes(ax2)
+
+ax.scatter(X, Y)
+ax.set_ylim(0, 1)
+ax.spines['top'].set_visible(False)
+ax2.scatter(X, Y)
+ax2.set_ylim(10, 100)
+ax2.tick_params(bottom="off", labelbottom='off')
+ax2.spines['bottom'].set_visible(False)
+
+
+# From https://matplotlib.org/examples/pylab_examples/broken_axis.html
+d = .015  # how big to make the diagonal lines in axes coordinates
+# arguments to pass to plot, just so we don't keep repeating them
+kwargs = dict(transform=ax2.transAxes, color='k', clip_on=False)
+ax2.plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
+ax2.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
+
+kwargs.update(transform=ax.transAxes)  # switch to the bottom axes
+ax.plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
+ax.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
+
+
+'''
+'''
+'''
+#ax.view_init(17, -126)
+plt.show()
+
+'''
 print('saving')
 plt.savefig('f5.png', transparent=True)
 
