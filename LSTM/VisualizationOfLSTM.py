@@ -1058,20 +1058,24 @@ class VisualizeLSTM(object):
         ax.view_init(20, -120)
         ax.yaxis.set_major_locator(MaxNLocator(integer=True))
 
-        cmap_color = cm.coolwarm  # cm.coolwarm
+        cmap_color = cm.coolwarm
         surf = ax.plot_surface(freq, neurons_of_interest_fft, fft_neuron_activations_single_sided.T, rstride=1,
                                cstride=1, cmap=cmap_color, linewidth=0,
                                antialiased=False)
 
         ax.zaxis.set_major_locator(LinearLocator(10))
         ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
-
         ax.zaxis.set_rotate_label(False)
+
+        ax.yaxis.set_major_formatter(FormatStrFormatter('%.02f'))
 
         plt.title('Fourier Amplitude Spectrum of Neuron Activation')
         plt.xlabel('Frequency')
         plt.ylabel('Neurons of Interest')
         ax.set_zlabel(r'$|\mathcal{F}|$')
+
+        neuron_labels = ax.get_yticklabels()
+        neuron_labels.set_fontsize(8)
 
         y = range(len(self.neurons_of_interest_plot))
         intervals = [

@@ -4,8 +4,6 @@
     <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSTM/config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/config.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -21,8 +19,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="558">
-              <caret line="65" column="33" lean-forward="true" selection-start-line="65" selection-start-column="33" selection-end-line="65" selection-end-column="33" />
+            <state relative-caret-position="335">
+              <caret line="996" column="60" lean-forward="true" selection-start-line="996" selection-start-column="60" selection-end-line="996" selection-end-column="60" />
             </state>
           </provider>
         </entry>
@@ -86,9 +84,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>plot_ne</find>
-      <find>data</find>
-      <find>\n</find>
       <find>get_activat</find>
       <find>if self.au</find>
       <find>n_auto</find>
@@ -116,6 +111,9 @@
       <find>[\n</find>
       <find>auto_detect_peak</find>
       <find>['\</find>
+      <find>Neurons of</find>
+      <find>font</find>
+      <find>reduced_window_size =</find>
     </findStrings>
     <replaceStrings>
       <replace>save_checkpoints</replace>
@@ -600,7 +598,14 @@
       <option name="project" value="LOCAL" />
       <updated>1559484442283</updated>
     </task>
-    <option name="localTasksCounter" value="36" />
+    <task id="LOCAL-00036" summary="Allowing multiple auto-detected hypothesis for fft">
+      <created>1559722940913</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1559722940913</updated>
+    </task>
+    <option name="localTasksCounter" value="37" />
     <servers />
   </component>
   <component name="TodoView">
@@ -695,7 +700,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Started code skeleton for visualization of LSTM" />
     <MESSAGE value="Implemented visualization of LSTM. Prediction gets only one word at a time. Will be updated to get the same sequence format as fit" />
     <MESSAGE value="Working LSTM. Allows remote monitoring and plots learning curve (needs to be edited). Models may be saved and loaded" />
     <MESSAGE value="Losses file added" />
@@ -720,7 +724,8 @@
     <MESSAGE value="Visualization of LSTM Gates and states works, PCA plot of word embedding, ability to load and continue training LSTM models, dropout in the LSTM network and not right after, auto-detection of Fourier Transform peaks, updated Relevance calculation." />
     <MESSAGE value="Include option for tables with white backgrounds. Includes the first input word before first prediction to be presented and highlighted. Fixing up the FFT plot presentation." />
     <MESSAGE value="Allowing multiple auto-detected hypothesis for relevance" />
-    <option name="LAST_COMMIT_MESSAGE" value="Allowing multiple auto-detected hypothesis for relevance" />
+    <MESSAGE value="Allowing multiple auto-detected hypothesis for fft" />
+    <option name="LAST_COMMIT_MESSAGE" value="Allowing multiple auto-detected hypothesis for fft" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1112,8 +1117,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="558">
-          <caret line="65" column="33" lean-forward="true" selection-start-line="65" selection-start-column="33" selection-end-line="65" selection-end-column="33" />
+        <state relative-caret-position="335">
+          <caret line="996" column="60" lean-forward="true" selection-start-line="996" selection-start-column="60" selection-end-line="996" selection-end-column="60" />
         </state>
       </provider>
     </entry>
