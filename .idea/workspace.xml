@@ -3,7 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="820a359a-6521-4cb2-af24-95c847bfee37" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LSTM/config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/LSTM/config.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -19,17 +22,26 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="335">
-              <caret line="996" column="60" lean-forward="true" selection-start-line="996" selection-start-column="60" selection-end-line="996" selection-end-column="60" />
+            <state relative-caret-position="493">
+              <caret line="1394" lean-forward="true" selection-start-line="1394" selection-end-line="1394" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/.gitignore">
+        <entry file="file://$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="34">
-              <caret line="2" column="34" selection-start-line="2" selection-start-column="34" selection-end-line="2" selection-end-column="34" />
+            <state relative-caret-position="493">
+              <caret line="29" column="30" selection-start-line="29" selection-start-column="30" selection-end-line="29" selection-end-column="30" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/LSTM/FoundNeuronsOfInterest.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="179">
+              <caret line="57" lean-forward="true" selection-start-line="53" selection-end-line="57" />
             </state>
           </provider>
         </entry>
@@ -44,19 +56,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/LSTM/FoundNeuronsOfInterest.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="99">
-              <caret line="1145" column="69" lean-forward="true" selection-start-line="1145" selection-start-column="69" selection-end-line="1145" selection-end-column="69" />
+            <state relative-caret-position="58">
+              <caret line="622" column="21" selection-start-line="622" selection-start-column="17" selection-end-line="622" selection-end-column="21" />
               <folding>
                 <element signature="e#50#87#0" expanded="true" />
               </folding>
@@ -67,8 +70,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="397">
-              <caret line="660" column="97" lean-forward="true" selection-start-line="649" selection-end-line="660" selection-end-column="97" />
+            <state relative-caret-position="126">
+              <caret line="823" column="89" selection-start-line="823" selection-start-column="89" selection-end-line="823" selection-end-column="89" />
             </state>
           </provider>
         </entry>
@@ -84,39 +87,38 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>get_activat</find>
-      <find>if self.au</find>
-      <find>n_auto</find>
-      <find>load_neu</find>
-      <find>synthesi</find>
-      <find>def syn</find>
-      <find>activations =</find>
-      <find>inference_iteration</find>
-      <find>data =</find>
-      <find>activations =</find>
-      <find>get_neuron_activations</find>
-      <find>['</find>
-      <find>table</find>
-      <find>[''</find>
-      <find>auto-det</find>
-      <find>random.rand</find>
-      <find>fft</find>
-      <find>auto-detec</find>
-      <find>auto-detecte</find>
-      <find>auto_detec</find>
-      <find>self.auto_detect_peak =</find>
-      <find>values.argsort()</find>
-      <find>enter</find>
-      <find>n_auto_detect =</find>
-      <find>[\n</find>
-      <find>auto_detect_peak</find>
-      <find>['\</find>
-      <find>Neurons of</find>
-      <find>font</find>
       <find>reduced_window_size =</find>
+      <find>fon</find>
+      <find>init</find>
+      <find>view</find>
+      <find>activations =</find>
+      <find>table</find>
+      <find>wrapped</find>
+      <find>color='black', LineStyle='dashed', LineWidth=2</find>
+      <find>figure</find>
+      <find>neuron_window</find>
+      <find>self.band_width</find>
+      <find>fft</find>
+      <find>fft'</find>
+      <find>'relevance'</find>
+      <find>plot_neural_activity</find>
+      <find>plot_fft_neural_activity</find>
+      <find>[\n</find>
+      <find>self.neurons_of_interest_fft = co</find>
+      <find>'releva</find>
+      <find>band</find>
+      <find>pos</find>
+      <find>legend</find>
+      <find>auto</find>
+      <find>fft_neuron_activations_single_sided</find>
+      <find>figure(3,</find>
+      <find>mean(y1)</find>
+      <find>fetch</find>
+      <find>self.input</find>
+      <find>flip</find>
+      <find>adjusted_color_range</find>
     </findStrings>
     <replaceStrings>
-      <replace>save_checkpoints</replace>
       <replace>n_hiddenNeurons</replace>
       <replace>plot_color_map</replace>
       <replace>text_file</replace>
@@ -146,6 +148,7 @@
       <replace>color='black', LineStyle='dashed', LineWidth=2</replace>
       <replace>self.reduced_window_sizerange,</replace>
       <replace>colors='black', linestyles='dashed', linewidths =2</replace>
+      <replace>mean(y)</replace>
     </replaceStrings>
     <dirStrings>
       <dir>C:\Users\John\OneDrive - Seavus\Exjobb\Visualization-of-Recurrent-Neural-Networks\Data</dir>
@@ -186,16 +189,15 @@
         <option value="$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt" />
-        <option value="$PROJECT_DIR$/test.py" />
-        <option value="$PROJECT_DIR$/LSTM/FoundNeuronsOfInterest.txt" />
         <option value="$PROJECT_DIR$/LSTM/config.txt" />
+        <option value="$PROJECT_DIR$/LSTM/FoundNeuronsOfInterest.txt" />
+        <option value="$PROJECT_DIR$/test.py" />
         <option value="$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-8" />
-    <option name="y" value="-8" />
+    <option name="x" value="-7" />
     <option name="width" value="974" />
     <option name="height" value="1047" />
   </component>
@@ -215,24 +217,6 @@
               <item name="Visualization-of-Recurrent-Neural-Networks" type="b2602c69:ProjectViewProjectNode" />
               <item name="Visualization-of-Recurrent-Neural-Networks" type="462c0819:PsiDirectoryNode" />
               <item name="LSTM" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Visualization-of-Recurrent-Neural-Networks" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Visualization-of-Recurrent-Neural-Networks" type="462c0819:PsiDirectoryNode" />
-              <item name="LSTM" type="462c0819:PsiDirectoryNode" />
-              <item name="LSTM Saved Models" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Visualization-of-Recurrent-Neural-Networks" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Visualization-of-Recurrent-Neural-Networks" type="462c0819:PsiDirectoryNode" />
-              <item name="LSTM" type="462c0819:PsiDirectoryNode" />
-              <item name="LSTM Saved Models" type="462c0819:PsiDirectoryNode" />
-              <item name="Checkpoints" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Visualization-of-Recurrent-Neural-Networks" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Visualization-of-Recurrent-Neural-Networks" type="462c0819:PsiDirectoryNode" />
-              <item name="Vanilla RNN" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -272,7 +256,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.VisualizationOfLSTM">
+  <component name="RunManager" selected="Python.test">
     <configuration name="VisualizationOfLSTM" type="PythonConfigurationType" factoryName="Python">
       <module name="Visualization-of-Recurrent-Neural-Networks" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -605,7 +589,14 @@
       <option name="project" value="LOCAL" />
       <updated>1559722940913</updated>
     </task>
-    <option name="localTasksCounter" value="37" />
+    <task id="LOCAL-00037" summary="Adjusts fontsize of FFT neuron axis labels">
+      <created>1559723620455</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1559723620455</updated>
+    </task>
+    <option name="localTasksCounter" value="38" />
     <servers />
   </component>
   <component name="TodoView">
@@ -623,18 +614,18 @@
     <layout>
       <window_info id="Structure" order="0" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="1" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="2" visible="true" weight="0.12065332" />
+      <window_info content_ui="combo" id="Project" order="2" visible="true" weight="0.14646997" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.13314448" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49761525" weight="0.30877572" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.6216216" weight="0.30985916" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.56480503" visible="true" weight="0.19609967" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.618442" weight="0.57015985" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3286119" />
-      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.56041336" weight="0.28774422" />
+      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.56041336" weight="0.28710726" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.34127843" />
-      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.3783784" side_tool="true" weight="0.37655416" />
-      <window_info active="true" anchor="bottom" id="Python Console" order="10" sideWeight="0.8426073" visible="true" weight="0.115926325" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.43519494" side_tool="true" visible="true" weight="0.19609967" />
+      <window_info anchor="bottom" id="Python Console" order="10" sideWeight="0.84088516" weight="0.22968581" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -700,7 +691,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Implemented visualization of LSTM. Prediction gets only one word at a time. Will be updated to get the same sequence format as fit" />
     <MESSAGE value="Working LSTM. Allows remote monitoring and plots learning curve (needs to be edited). Models may be saved and loaded" />
     <MESSAGE value="Losses file added" />
     <MESSAGE value="Ignoring words out of vocabulary." />
@@ -725,7 +715,8 @@
     <MESSAGE value="Include option for tables with white backgrounds. Includes the first input word before first prediction to be presented and highlighted. Fixing up the FFT plot presentation." />
     <MESSAGE value="Allowing multiple auto-detected hypothesis for relevance" />
     <MESSAGE value="Allowing multiple auto-detected hypothesis for fft" />
-    <option name="LAST_COMMIT_MESSAGE" value="Allowing multiple auto-detected hypothesis for fft" />
+    <MESSAGE value="Adjusts fontsize of FFT neuron axis labels" />
+    <option name="LAST_COMMIT_MESSAGE" value="Adjusts fontsize of FFT neuron axis labels" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -767,12 +758,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/test.py</url>
-          <line>785</line>
+          <line>795</line>
           <option name="timeStamp" value="506" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/test.py</url>
-          <line>797</line>
+          <line>807</line>
           <option name="timeStamp" value="507" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -797,7 +788,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py</url>
-          <line>288</line>
+          <line>295</line>
           <option name="timeStamp" value="767" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -832,28 +823,18 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py</url>
-          <line>976</line>
+          <line>1033</line>
           <option name="timeStamp" value="954" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py</url>
-          <line>997</line>
-          <option name="timeStamp" value="969" />
+          <line>1166</line>
+          <option name="timeStamp" value="979" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py</url>
-          <line>999</line>
-          <option name="timeStamp" value="970" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py</url>
-          <line>1010</line>
-          <option name="timeStamp" value="971" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py</url>
-          <line>988</line>
-          <option name="timeStamp" value="972" />
+          <line>1164</line>
+          <option name="timeStamp" value="981" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -864,12 +845,6 @@
         </breakpoint>
       </default-breakpoints>
     </breakpoint-manager>
-    <watches-manager>
-      <configuration name="PythonConfigurationType">
-        <watch expression="self.lstm_model.layers" language="Python" />
-        <watch expression="self.lstm_model_evaluate.layers[2]" />
-      </configuration>
-    </watches-manager>
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="watch">
@@ -881,7 +856,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/NeuronsOfInterest.txt" />
     <entry file="file://$PROJECT_DIR$/.gitattributes">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -1070,20 +1044,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="397">
-          <caret line="660" column="97" lean-forward="true" selection-start-line="649" selection-end-line="660" selection-end-column="97" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="34">
@@ -1093,18 +1053,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Vanilla RNN/VisualizationOfRNN.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="99">
-          <caret line="1145" column="69" lean-forward="true" selection-start-line="1145" selection-start-column="69" selection-end-line="1145" selection-end-column="69" />
+        <state relative-caret-position="58">
+          <caret line="622" column="21" selection-start-line="622" selection-start-column="17" selection-end-line="622" selection-end-column="21" />
           <folding>
             <element signature="e#50#87#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/LSTM/FoundNeuronsOfInterest.txt">
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36/Lib/site-packages/matplotlib/text.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
+        <state relative-caret-position="115">
+          <caret line="852" selection-start-line="852" selection-end-line="852" />
         </state>
       </provider>
     </entry>
@@ -1115,10 +1075,31 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/LSTM/FoundNeuronsOfInterest.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="179">
+          <caret line="57" lean-forward="true" selection-start-line="53" selection-end-line="57" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="823" column="89" selection-start-line="823" selection-start-column="89" selection-end-line="823" selection-end-column="89" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LSTM/FeaturesOfInterest.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="493">
+          <caret line="29" column="30" selection-start-line="29" selection-start-column="30" selection-end-line="29" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/LSTM/VisualizationOfLSTM.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="335">
-          <caret line="996" column="60" lean-forward="true" selection-start-line="996" selection-start-column="60" selection-end-line="996" selection-end-column="60" />
+        <state relative-caret-position="493">
+          <caret line="1394" lean-forward="true" selection-start-line="1394" selection-end-line="1394" />
         </state>
       </provider>
     </entry>

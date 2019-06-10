@@ -605,6 +605,7 @@ subprocess.call('', shell=True)
 print(colored_word)
 print(color('Hello world.', back=(50,0,0)))
 '''
+'''
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
@@ -628,7 +629,9 @@ shift=0 # 0.5
 b = 100*(sigmoid(X+shift) * sigmoid(shift-X) * sigmoid(Y+shift) * sigmoid(shift-Y))
 c = 4#np.amax(b)
 Z = b/c - np.mean(b/c)
-fig = plt.figure()
+# fig = plt.figure()
+k = 28
+fig = plt.figure(3, figsize=(9.5,6.4))
 ax = fig.gca(projection='3d')
 surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm,
     linewidth=0, antialiased=False)
@@ -654,11 +657,18 @@ zs = np.linspace(0, 1, 100)
 X, Z = np.meshgrid(xs, zs)
 Y = 0*X
 
-ax.plot_surface(X, Y, Z, alpha=.2, color='black')
+plt.tick_params(labelsize=7)
+
+surf = ax.plot_surface(X, Y, Z, alpha=.2, color='black')
 cset = ax.contour(X, Y, Z, zdir='x', offset=3, colors='black', linestyles='dashed', linewidths=2)
 cset = ax.contour(X, Y, Z, zdir='x', offset=-3, colors='black', linestyles='dashed', linewidths=2)
 cset = ax.contour(X, Y, Z, zdir='z', offset=-1, colors='black', linestyles='dashed', linewidths=2)
 cset = ax.contour(X, Y, Z, zdir='z', offset=1, colors='black', linestyles='dashed', linewidths=2)
+
+#neuron_labels = ax.get_yticklabels()
+#neuron_labels.set_fontsize(8)
+
+'''
 
 #fig.colorbar(surf, shrink=0.5, aspect=5)
 #plt.title('Sigmod')
@@ -713,7 +723,7 @@ ax.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
 '''
 '''
 #ax.view_init(17, -126)
-plt.show()
+# plt.show()
 
 '''
 print('saving')
@@ -800,3 +810,49 @@ plt.xlabel('Frequency (/sequence time step)')
 plt.ylabel('Neurons of interest')
 plt.show()
 '''
+
+from matplotlib.font_manager import FontProperties
+font = FontProperties()
+font.set_weight('bold')
+import matplotlib.pyplot as plt
+from numpy import*
+
+random.seed(0)
+
+x = array([int(i/2)+mod(i, 2) for i in range(20)])
+y1 = array([0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0])*.1 + .3
+y = array([.2, .2, .65, .65, 0, 0, .7, .7, .2, .2, 1, 1, 0, 0, .6, .6, .9, .9, 0, 0])*.55 + .01
+y = y + reshape(tile(random.rand(10), (2, 1)), (1, 20), order='f')*.03
+
+plt.plot(x, y[0, :], linewidth=2, color='blue')
+for i in range(0, size(y, 1), 2):
+    print(i)
+    print(y[0, i])
+    if y1[i] > mean(y1):
+        if i > 15:
+            plt.plot([x[i], x[i+1]], array([0, 0]), color='green', linewidth=4, label='Feature word of interest')
+        else:
+            plt.plot([x[i], x[i+1]], array([0, 0]), color='green', linewidth=4)
+        plt.text(int(i/2) + .3, -.1, '$\mathbf{w_{%d}}$'%(int(i/2)), color='green')
+        # plt.plot([x[i], x[i+1]], [y[0, i], y[0, i+1]])
+    else:
+        if i > 17:
+            plt.plot([x[i], x[i+1]], array([0, 0]), color='black', linewidth=4, label='Other word feature')
+        else:
+            plt.plot([x[i], x[i+1]], array([0, 0]), color='black', linewidth=4)
+        plt.text(int(i/2) + .3, -.1, '$w_{%d}$'%(int(i/2)))
+        # plt.plot([x[i], x[i+1]], [y[0, i], y[0, i+1]])
+plt.plot([0, 10], [mean(y[0, where(y1 > mean(y1))])]*2, linestyle='dashed', color='green', label='Mean feature of interest')
+plt.plot([0, 10], [mean(y[0, where(y1 < mean(y1))])]*2, linestyle='dashed', color='black', label='Mean other features')
+plt.legend(loc='upper left')
+
+print(mean(y))
+
+plt.xlabel('Predicted Word')
+plt.ylabel('Neuron Activation')
+plt.xticks([])
+plt.axis([0, 10, -.15, .8])
+
+
+
+plt.show()

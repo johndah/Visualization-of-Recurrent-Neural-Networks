@@ -72,6 +72,7 @@ class VisualizeLSTM(object):
             'JJS': 'Adjective, Superlative'
         }
 
+        # Save preprocessed word embedding vocabularies and sentences
         if self.save_sentences:
             self.vocabulary, self.sentences, self.K = self.load_vocabulary()
 
@@ -84,6 +85,7 @@ class VisualizeLSTM(object):
             with open('./Data/K.int', 'wb') as file:
                 pickle.dump(self.K, file)
 
+        # Load preprocessed word embedding vocabularies and sentences
         elif self.load_sentences:
             with open('./Data/vocabulary.word2VecKeyedVector', 'rb') as file:
                 self.vocabulary = pickle.load(file)
@@ -94,8 +96,10 @@ class VisualizeLSTM(object):
             with open('./Data/K.int', 'rb') as file:
                 self.K = pickle.load(file)
         else:
+            # Extract word embedding vocabularies and sentences
             self.vocabulary, self.sentences, self.K = self.load_vocabulary()
 
+        # Divide data set into training and validation
         if self.train_lstm_model:
             n_validation = int(len(self.sentences) * self.validation_proportion)
             n_training = len(self.sentences) - n_validation
@@ -109,15 +113,16 @@ class VisualizeLSTM(object):
             self.input_sequence_validation = self.sentences
 
         weights_word_embedding = self.vocabulary.vectors
+
+        # Number of words in vocabulary
         self.M = size(weights_word_embedding, 0)
 
-        if self.n_hidden_neurons == 'Auto':
-            self.n_hidden_neurons = self.K
-
+       # Needed for featching input during training and inference
         self.input = tf.Variable(0., validate_shape=False)
 
         self.domain_specification = 'Words'
 
+        # Paramenters to include in learning curve plot
         self.constants = '# Hidden neurons: ' + str(self.n_hidden_neurons) \
                          + '\nVocabulary size: ' + str(self.M) \
                          + '\nOptimizer: ' + self.optimizer \
@@ -134,6 +139,7 @@ class VisualizeLSTM(object):
         self.initial_epoch = 0
         self.inference_iteration = 0
 
+        # Load momentary epoch loss states if training is continued
         if self.load_lstm_model:
             try:
                 self.seq_iterations = [i for i in loadtxt('Parameters/seqIterations.txt', delimiter=",", unpack=False)]
@@ -172,7 +178,6 @@ class VisualizeLSTM(object):
 
         print('Words in corpus: ' + str(len(words)))
         print('Calculating word frequency and ignoring if fewer than ' + str(self.word_frequency_threshold) + '...')
-        # word_frequencies = dict(zip(words, [words.count(word) for word in words]))
 
         word_frequencies = {}
         for word in words:
@@ -189,6 +194,7 @@ class VisualizeLSTM(object):
 
         sentences = []
 
+        # Ignore rare words
         ignored_sentences = 0
         for i in range(len(words) - self.seq_length):
             if not len(set(words[i:i + self.seq_length]).intersection(words_to_ignore)):
@@ -269,6 +275,7 @@ class VisualizeLSTM(object):
 
         vocabulary = word2vec_model.wv
 
+        # Plot a PCA visualization of word embedding
         if self.n_words_pca_plot:
             pca = PCA(n_components=2)
             X = word2vec_model[vocabulary.index2entity[:self.n_words_pca_plot]]
@@ -290,6 +297,7 @@ class VisualizeLSTM(object):
 
         return vocabulary, sentences[:int(self.corpus_proportion * len(sentences))], K
 
+    # The main function including the training and inference process
     def run_lstm(self):
         print('\nInitiate LSTM training...')
 
@@ -306,6 +314,7 @@ class VisualizeLSTM(object):
             self.lstm_model.compile(optimizer=self.lstm_optimizer, loss='sparse_categorical_crossentropy',
                                     metrics=['accuracy'])
         else:
+            # Load existing Keras lstm model  and extract its attributes and current epoch if training is to continue
             model_directory = './LSTM Saved Models/Checkpoints/'
             models = os.listdir(model_directory)
             model_accuracies = [float(model.split('val_acc')[1][:5]) for model in models if 'val_acc' in model]
@@ -339,6 +348,7 @@ class VisualizeLSTM(object):
             remote = RemoteMonitor(root='http://' + self.remote_monitoring_ip + ':9000')
             callbacks.append(remote)
 
+        # Allowing fetching the input if visualizing the activations it triggers
         fetch = [tf.assign(self.input, self.lstm_model.input, validate_shape=False)]
         self.lstm_model._function_kwargs = {'fetches': fetch}
 
@@ -356,17 +366,21 @@ class VisualizeLSTM(object):
         self.lstm_model_evaluate.compile(optimizer=self.lstm_optimizer, loss='sparse_categorical_crossentropy',
                                          metrics=['accuracy'])
 
+        # Calculates initial loss when beginning training
         loss = self.lstm_model_evaluate.evaluate(x, y, batch_size=1)[0]
 
+        # Providing initial loss
         class InitLog:
             def get(self, attribute):
                 if attribute == 'loss' or attribute == 'val_loss':
                     return loss
 
+        # Perform epoch zero before training to check untrained performance
         if self.train_lstm_model:
             logs = InitLog()
             self.synthesize_text(-1, logs, evaluate=True)
 
+        # Training process
         if self.train_lstm_model:
             self.lstm_model.fit_generator(self.generate_words(self.input_sequence),
                                           steps_per_epoch=int(len(self.input_sequence) / self.batch_size) + 1,
@@ -378,6 +392,7 @@ class VisualizeLSTM(object):
                                           validation_steps=int(
                                               len(self.input_sequence_validation) / self.batch_size) + 1)
         else:
+            # Inference process for 100 steps. Enter needs to be pressed to predict next text and plots of visualization
             for i in range(100):
 
                 weights = self.lstm_model.get_weights()
@@ -391,6 +406,7 @@ class VisualizeLSTM(object):
                 self.synthesize_text(-1, logs, evaluate=True)
                 input("\nPress Enter to continue...")
 
+    # Initialization of new LSTM model
     def create_lstm_model(self, batch_size):
         input_layer = Input(batch_shape=(batch_size, self.seq_length - 1,))
         embedding_layer = Embedding(input_dim=self.M, output_dim=self.K, weights=[self.vocabulary.vectors])(input_layer)
@@ -410,6 +426,7 @@ class VisualizeLSTM(object):
 
         return lstm_model
 
+    # Yield one preprocessed batch of input words and targets at a time to not face memory issues preprocessing complete corpus set
     def generate_words(self, input_sequence):
         batch_index = 0
         if self.shuffle_data_sets:
@@ -445,6 +462,7 @@ class VisualizeLSTM(object):
 
             yield x, y
 
+    # Main function to predict text and to visualize neural activity
     def synthesize_text(self, epoch, logs={}, evaluate=False):
         print('Generating text sequence...')
         if not self.load_lstm_model or (self.load_lstm_model and not evaluate):
@@ -456,27 +474,35 @@ class VisualizeLSTM(object):
         self.load_neuron_intervals()
         print('Loaded intervals')
 
-        table_data = [['Neuron ' + str(self.neurons_of_interest[int(i / 2)]), ''] if i % 2 == 0 else ['', ''] for i
-                      in range(2 * len(self.neurons_of_interest))]
+        # Title of table
+        table_data = [['Neuron ' + str(self.neurons_of_interest[i]), ''] for i in range(len(self.neurons_of_interest))]
+
         table = SingleTable(table_data)
         table.table_data.insert(0, ['Neuron ', 'Predicted sentence '])
 
+        # Width of terminal window
         max_width = table.column_max_width(1)
 
+        # Rows with predicted sentences without color coding
         y_n = [[] for _ in range(len(self.neurons_of_interest))]
+        # Rows with predicted sentences with color coding
         y = [[] for _ in range(len(self.neurons_of_interest))]
 
+        # Initialization of activation map for the layer defined in FeatureOfInterest.txt
         neuron_activation_map = zeros((self.n_hidden_neurons, self.length_synthesized_text))
 
-        # input = atleast_2d(K.eval(self.input)[0, :])
+        # Indices of input words
         input_indices = []
 
-        for word in self.seed_sentence: # self.input_sequence_validation[0][:-1]:
+        for word in self.seed_sentence:
             input_indices.append(self.word_to_index(word))
         input_indices = atleast_2d(input_indices)
+
+        # Indices of predicted words
         entity_indices = zeros(self.seq_length - 1 + self.length_synthesized_text)
         entity_indices[:self.seq_length - 1] = atleast_2d(input_indices[0, :])
 
+        # Printing seeding input sentence
         input_sentence = ''
         for i in range(len(input_indices[0, :])):
             input_sentence += self.index_to_word(int(input_indices[0, i]))
@@ -489,25 +515,34 @@ class VisualizeLSTM(object):
         self.lstm_model_evaluate.compile(optimizer=self.lstm_optimizer, loss='sparse_categorical_crossentropy',
                                          metrics=['accuracy'])
 
-        prediction_input = input_sentence[-1] #input_sentence
+        # Last input word
+        prediction_input = input_sentence[-1]
 
         # Generate text sequence
         for t in range(self.length_synthesized_text):
 
             x = entity_indices[t:t + self.seq_length - 1]
+            # Whether to flip input, shown improvement in some work but not recommended
             if self.flip_input:
                 x_predict = flip(atleast_2d(x), axis=1)
             else:
                 x_predict = atleast_2d(deepcopy(x))
 
+            # Predicted probability distribution
             output = self.lstm_model_evaluate.predict(x=x_predict, batch_size=1)
 
+            # Activations to visualize
             activations = self.get_neuron_activations(x_predict)
+
+            ''' Uncomment for debugging, will save much time 
             # self.activation_lower_limit = 0
             # activations = random.rand(self.n_hidden_neurons, self.length_synthesized_text)
+            '''
+
             neuron_activation_map[:, t] = activations[:, 0]
             neuron_activations = activations[self.neurons_of_interest]
 
+            # Sample predicted word
             cp = cumsum(output)
             rand = random.uniform()
             diff = cp - rand
@@ -521,6 +556,7 @@ class VisualizeLSTM(object):
             sample = self.index_to_word(sample_index)
             entity_indices[t + self.seq_length - 1] = sample_index
 
+            # Color code words according to neural activation
             for i in range(len(self.neurons_of_interest)):
                 neuron_activation = self.scale_color_values*neuron_activations[i, 0]
 
@@ -540,6 +576,7 @@ class VisualizeLSTM(object):
 
             prediction_input = sample
 
+        # Extract all predicted words and format to fit the table
         for i in range(len(self.neurons_of_interest)):
             wrapped_string = ''
             line_width = 0
@@ -556,16 +593,19 @@ class VisualizeLSTM(object):
                 line_width += len(y_n[i][j])
                 if line_width > max_width - 10:
                     line_width = 0
-                    wrapped_string += ' ' * (max_width - line_width) * 0 + bg.rs +'\n'
+                    wrapped_string += ' ' * (max_width - line_width) * 0 + bg.rs + '\n'
 
-            table.table_data[2 * i + 1][1] = wrapped_string
 
+            table.table_data[i+1][1] = wrapped_string + '\n'
+
+        # Get limit activation for color range scale
         if self.neurons_of_interest:
             max_activation = amax(neuron_activation_map[self.neurons_of_interest, :])
             min_activation = amin(neuron_activation_map[self.neurons_of_interest, :])
         else:
             max_activation, min_activation = 0, 0
 
+        # Color range scale
         margin = 12
         try:
             color_range_width = max_width - len(table.table_data[0][1]) - (
@@ -600,37 +640,36 @@ class VisualizeLSTM(object):
 
         inputs = y_n[0]
 
-        neuron_window = []
-
+        # Auto-detect hypotheses based on relevance heat map
         if self.auto_detect_peak == 'Relevance':
-            # self.plot_fft = False
             if self.plot_color_map and not self.train_lstm_model:
-                neuron_window = self.plot_neural_activity(inputs, neuron_activation_map)
+                neuron_activation_rows = self.plot_neural_activity(inputs, neuron_activation_map)
 
                 data = []
                 for interval in self.neurons_of_interest_plot_intervals:
-                    # interval = array(self.neurons_of_interest_plot_intervals[i])
-                    data.extend(table.table_data[2*interval[0]:2*(interval[-1]+1)])
-                    data.append(['\n', '\n'])
+                    data.extend(table.table_data[interval[0]+1:(interval[-1]+2)])
+                    data.append(['', '\n'])
                 table.table_data[1:] = data
+
+            if self.plot_fft and not self.train_lstm_model:
+                self.plot_fft_neural_activity(neuron_activation_rows)
 
         else:
             if self.plot_fft and not self.train_lstm_model:
-                neuron_window = self.plot_fft_neural_activity(neuron_activation_map)
+                self.plot_fft_neural_activity(neuron_activation_map)
 
-
+            # Confirm relevant hypotheses with DFT heat surface
             if self.auto_detect_peak == 'FFT':
                 data = []
                 for interval in self.neurons_of_interest_plot_intervals:
-                    # interval = array(self.neurons_of_interest_plot_intervals[i])
-                    data.extend(table.table_data[2 * interval[0]:2 * (interval[-1] + 1)])
+                    data.extend(table.table_data[interval[0]+1:(interval[-1] + 2)])
                     data.append(['\n', '\n'])
                 table.table_data[1:] = data
 
             if self.plot_color_map and not self.train_lstm_model:
-                neuron_window = self.plot_neural_activity(inputs, neuron_activation_map)
+                self.plot_neural_activity(inputs, neuron_activation_map)
 
-
+        # Flip order to have the same order as the DFT heat surfance, having right oriented coordinate system
         table.table_data[1:] = flip(table.table_data[1:], axis=0)
 
         if self.plot_process and self.train_lstm_model:
@@ -643,6 +682,7 @@ class VisualizeLSTM(object):
                 self.neurons_of_interest) + '(/' + str(
                 self.n_hidden_neurons) + ')')
 
+        # Print in terminal or save as table
         if self.present_table == 'terminal':
             print(table.table)
         else:
@@ -651,11 +691,13 @@ class VisualizeLSTM(object):
             with open(table_file, 'wb') as file:
                 pickle.dump(table.table, file)
 
+        # Save losses to continue training
         if self.train_lstm_model and self.save_checkpoints:
             savetxt('Parameters/seqIterations.txt', self.seq_iterations, delimiter=',')
             savetxt('Parameters/losses.txt', self.losses, delimiter=',')
             savetxt('Parameters/validation_losses.txt', self.validation_losses, delimiter=',')
 
+    # Extract neural activation in the layer defined in FeaturesOfInterest.txt. Code is based on the Keras source code
     def get_neuron_activations(self, x_predict):
 
         with open('FeaturesOfInterest.txt', 'r') as f:
@@ -809,12 +851,15 @@ class VisualizeLSTM(object):
         neuron_activation_rows = neuron_activation_map[self.neurons_of_interest_plot, :]
 
         input_indices_of_interest_conjugate = list(set(range(len(inputs))) - set(input_indices_of_interest))
+        # Flip order to have the same order as the DFT heat surfance, having right oriented coordinate system
         neuron_feature_extracted_map = flip(neuron_activation_rows[:, input_indices_of_interest], axis=0)
         neuron_feature_remaining_map = flip(neuron_activation_rows[:, input_indices_of_interest_conjugate], axis=0)
 
+        # Used for absolute valued difference for relevance heat map
         extracted_mean = array([mean(neuron_feature_extracted_map, axis=1)]).T
         remaining_mean = array([mean(neuron_feature_remaining_map, axis=1)]).T
 
+        # Calculating impulses for the relevance heatmap
         before_action_potential = array(input_indices_of_interest) - 1
         after_action_potential = array(input_indices_of_interest) + 1
         before_action_potential[array(input_indices_of_interest) - 1 == -1] = 1
@@ -825,10 +870,9 @@ class VisualizeLSTM(object):
         score = prominence + difference
         relevance = score / amax(score)
 
-        neuron_window = []
-
+        # To tomatically detect peaks in relevance heatamp
         if self.auto_detect_peak == 'Relevance':
-            self.reduced_window_size = 3 # 10
+            self.reduced_window_size = 3
 
             argmaxima = relevance[:, 0].argsort(axis=0)[-self.n_auto_detect:]
 
@@ -844,6 +888,7 @@ class VisualizeLSTM(object):
             neurons = []
             values = []
 
+            # Extract scores and neuron labels for each proposed hypothesis
             for i in range(len(argmaxima)):
                 argmax_row = sort(argmaxima)[i]
                 neuron_window = [0]*2
@@ -870,6 +915,7 @@ class VisualizeLSTM(object):
                 self.intervals_to_plot.extend(intermediate_range_str)
                 self.interval_limits.extend(intermediate_range)
 
+            # Proposing most relevant hypotheses in order
             neurons = array(neurons)
             values = array(values)
             sorted_order = flip(values.argsort())
@@ -881,12 +927,17 @@ class VisualizeLSTM(object):
 
             neuron_activation_rows = neuron_activation_map[neurons_of_interest_relevance, :]
 
+            self.neurons_of_interest_fft = range(len(neurons_of_interest_relevance))
+
+            # Flip order to have the same order as the DFT heat surfance, having right oriented coordinate system
             neuron_feature_extracted_map = flip(neuron_activation_rows[:, input_indices_of_interest], axis=0)
+            relevance = flip(relevance, axis=0)
 
         self.plot_color_maps(feature, inputs_of_interest, neuron_feature_extracted_map, relevance)
 
-        return neuron_window
+        return neuron_activation_rows
 
+    # Plot heatmap and relevance heatmap
     def plot_color_maps(self, feature, inputs_of_interest, neuron_feature_extracted_map, relevance):
         f, axarr = plt.subplots(1, 2, num=1, gridspec_kw={'width_ratios': [5, 1]}, clear=True)
         axarr[0].set_title('Colormap of hidden neuron activations')
@@ -914,6 +965,7 @@ class VisualizeLSTM(object):
 
         for i in range(len(axarr)):
             axarr[i].set_yticks(y)
+            # Flip order to have the same order as the DFT heat surfance, having right oriented coordinate system
             axarr[i].set_yticklabels(flip(intervals), fontsize=7)
             axarr[0].set_ylabel('Neurons of Interest')
 
@@ -922,14 +974,17 @@ class VisualizeLSTM(object):
         else:
             cmap = 'coolwarm'
 
+        # Heatmap
         colmap = axarr[0].imshow(neuron_feature_extracted_map, cmap=cmap, interpolation='nearest', aspect='auto',
                                  vmin=self.activation_lower_limit, vmax=1)
+        # Relevance heatmap
         colmap = axarr[1].imshow(relevance, cmap=cmap, interpolation='nearest', aspect='auto',
                                  vmin=self.activation_lower_limit, vmax=1)
 
+        # Plot separating lines for broken axis of neuron intervals
         if self.auto_detect_peak in ['Relevance', 'FFT']:
             for y in range(self.reduced_window_size, (self.n_auto_detect-1)*self.reduced_window_size+1, self.reduced_window_size):
-                axarr[0].plot([1, size(neuron_feature_extracted_map, 1)-2], array([y, y])-.5, color='black', LineStyle='dashed', LineWidth=2)
+                axarr[0].plot([0, size(neuron_feature_extracted_map, 1)-1], array([y, y])-.5, color='black', LineStyle='dashed', LineWidth=2)
 
             for y in range(self.reduced_window_size, (self.n_auto_detect-1)*self.reduced_window_size+1, self.reduced_window_size):
                 axarr[1].plot([-.35, .35], array([y, y])-.5, color='black', LineStyle='dashed', LineWidth=2)
@@ -940,6 +995,7 @@ class VisualizeLSTM(object):
 
         plt.pause(.1)
 
+    # If activation range goes from 0 - 1, this adjustes the color range for plotting of heatmaps
     def adjusted_color_range(self, cmap, start=0, midpoint=0.5, stop=1.0, name='adjusted_color_range'):
 
         cdict = {
@@ -969,6 +1025,7 @@ class VisualizeLSTM(object):
 
         return newcmap
 
+    # Plot of DFT neural activity
     def plot_fft_neural_activity(self, neuron_activation_map):
 
         neuron_activations = neuron_activation_map[self.neurons_of_interest_fft, :]
@@ -977,6 +1034,7 @@ class VisualizeLSTM(object):
 
         fft_neuron_activations_abs = abs(fft_neuron_activations_complex / self.length_synthesized_text)
 
+        # Ignore negative frequency components as they are identical to the positive
         fft_neuron_activations_single_sided = fft_neuron_activations_abs[:, 0:int(self.length_synthesized_text / 2)]
         fft_neuron_activations_single_sided[:, 2:-2] = 2 * fft_neuron_activations_single_sided[:, 2:-2]
 
@@ -984,19 +1042,16 @@ class VisualizeLSTM(object):
 
         neurons_of_interest_fft = self.neurons_of_interest_fft
 
-        neuron_window = []
-
+        # Automatically detect significant frequency components
         if self.auto_detect_peak == 'FFT':
             start_neuron_index = self.neurons_of_interest_plot_intervals[0][0]
-            neuron_window = [start_neuron_index]*2
             self.reduced_window_size = 5 # 10
             domain_irrelevant_freq = (freq < self.band_width[0]) | (freq > self.band_width[1])
-            # domain_relevant_components = fft_neuron_activations_single_sided[:, domain_relevant_freq]
 
-            #argmax_row = where(fft_neuron_activations_single_sided == amax(domain_relevant_components))[0][0]
             fft_neuron_activations_single_sided_argpos = deepcopy(fft_neuron_activations_single_sided)
             fft_neuron_activations_single_sided_argpos[:, domain_irrelevant_freq] = 0
-            a = amax(fft_neuron_activations_single_sided_argpos, axis=1)
+
+            # Find best hypothesis
             argmaxima = amax(fft_neuron_activations_single_sided_argpos, axis=1).argsort(axis=0)[-self.n_auto_detect:]
 
             self.intervals_to_plot = []
@@ -1010,6 +1065,7 @@ class VisualizeLSTM(object):
             neurons = []
             values = []
 
+            # Extract components and neuron labels of best hypotheses.
             for i in range(len(argmaxima)):
                 argmax_row = sort(argmaxima)[i]
                 neuron_window = [0] * 2
@@ -1020,8 +1076,6 @@ class VisualizeLSTM(object):
                 end_range = self.reduced_window_size * (i + 1)
 
                 extracted_fft[start_range:end_range, :] = fft_neuron_activations_single_sided[neuron_window[0]:neuron_window[1], :]
-                # neurons_of_interest_relevance.extend(range(neuron_window[0], neuron_window[1]))
-                # neurons_of_interest_fft.extend(range(neuron_window[0], neuron_window[1]))
 
                 print('\nAuto-detected FFT periodicity peak in band width interval ' + str(self.band_width) + ':')
                 print('Neuron: ' + str(argmax_row))
@@ -1040,6 +1094,7 @@ class VisualizeLSTM(object):
                 self.intervals_to_plot.extend(intermediate_range_str)
                 self.interval_limits.extend(intermediate_range)
 
+            # Provide best hypotheses with values in order
             neurons = array(neurons)
             values = array(values)
             sorted_order = flip(values.argsort())
@@ -1052,10 +1107,14 @@ class VisualizeLSTM(object):
 
         neurons_of_interest_fft, freq = meshgrid(neurons_of_interest_fft, freq)
 
-        fig = plt.figure(3)
+        '''
+        Plot DFT 3D heat surface of frequency components
+        '''
+        fig = plt.figure(3, figsize=(18/4*self.n_auto_detect, 6.4))
+
         plt.clf()
         ax = fig.gca(projection='3d')
-        ax.view_init(20, -120)
+        ax.view_init(30, -5)
         ax.yaxis.set_major_locator(MaxNLocator(integer=True))
 
         cmap_color = cm.coolwarm
@@ -1074,8 +1133,7 @@ class VisualizeLSTM(object):
         plt.ylabel('Neurons of Interest')
         ax.set_zlabel(r'$|\mathcal{F}|$')
 
-        neuron_labels = ax.get_yticklabels()
-        neuron_labels.set_fontsize(8)
+        plt.tick_params(labelsize=10)
 
         y = range(len(self.neurons_of_interest_plot))
         intervals = [
@@ -1084,6 +1142,7 @@ class VisualizeLSTM(object):
 
         plt.yticks(y, (intervals))
 
+        # Plot separating planes for broken axis of neuron intervals
         if self.auto_detect_peak in ['Relevance', 'FFT']:
             for y in arange(self.reduced_window_size-.5, (self.n_auto_detect - 1) * self.reduced_window_size + 1, self.reduced_window_size):
                 xs = linspace(0, self.band_width[1], 100)
@@ -1101,10 +1160,13 @@ class VisualizeLSTM(object):
                     for limit in range(len(limits)):
                         ax.contour(X, Y, Z, zdir=zdir, offset=limit*offsets[zdir], colors='black', linestyles='dashed', linewidths=2)
 
+
+        fft_neuron_activations_single_sided_argpos = deepcopy(fft_neuron_activations_single_sided)
+        fft_neuron_activations_single_sided_argpos[:, :10] = 0
+        print('Values: ' + str(amax(fft_neuron_activations_single_sided_argpos, axis=1)) + '\n')
         plt.pause(.1)
 
-        return neuron_window
-
+    # Load defined neurons of interest and automatical detection boolean from config.txt
     def load_neuron_intervals(self):
         self.neurons_of_interest = []
         self.neurons_of_interest_plot = []
@@ -1126,7 +1188,6 @@ class VisualizeLSTM(object):
                     self.auto_detect_peak = line.split("'")[1]
                 if 'n_auto_detect:' in line:
                     self.n_auto_detect = int(line.split()[1])
-
 
         if self.auto_detect_peak in ['Relevance', 'FFT']:
             self.intervals_to_plot = []
@@ -1154,7 +1215,7 @@ class VisualizeLSTM(object):
             '''
 
             '''
-            if self.auto_detect_peak == 'FFT':
+            if self.auto_detect_peak in ['FFT', 'Relevance']:
                 with open('FeaturesOfInterest.txt', 'r') as f:
                     lines = f.readlines()
                     for line in lines:
@@ -1172,6 +1233,7 @@ class VisualizeLSTM(object):
         else:
             self.set_relevant_neurons()
 
+    # If not automatic detection is utilzed, simly set neurons of interest in accordance with config.txt
     def set_relevant_neurons(self):
         with open('FeaturesOfInterest.txt', 'r') as f:
             lines = f.readlines()
@@ -1245,6 +1307,7 @@ class VisualizeLSTM(object):
         return self.vocabulary.index2word[index]
 
 
+# To find good hyper parameters, perform randomized search
 def randomize_hyper_parameters(n_configurations, attributes):
     attributes['n_epochs'] = 6
     attributes['patience'] = 1
@@ -1267,7 +1330,7 @@ def randomize_hyper_parameters(n_configurations, attributes):
 
         K.clear_session()
 
-
+# Suggested seeded input sentences with suitable text length. Used in the examples of the paper.
 def template_configurations(attributes, configuaration):
     if configuaration:
         attributes['seed_sentence'] = ['Years', ' ', 'of', ' ', 'intelligent', ' ', 'humans', ':']
@@ -1315,13 +1378,18 @@ def main():
         'save_checkpoints': True  # Save best weights with corresponding arrays iterations and smooth loss
     }
 
-    configuration = 0  # Tested seeds and text lengths for good text generation instances. These may also be arbitrary.
+    configuration = 1  # Tested seeds and text lengths for good text generation instances. These may also be arbitrary.
     attributes, seed = template_configurations(attributes, configuration)
 
     random.seed(seed)
+
+    # Initialize class attributes
     lstm_vis = VisualizeLSTM(attributes)
+
+    # Run main function
     lstm_vis.run_lstm()
 
+    # Release memory when done
     K.clear_session()
 
 
