@@ -5,7 +5,8 @@ This developed system is the implementation of my Master Thesis to visualize Rec
 ## Word prediction with LSTM
 
 ### Sample of terminal output
-Predicted text highligted based on neural activity of the LSTM hidden state output <img src="https://latex.codecogs.com/gif.latex?h_t " /> , marked in figure below.
+Predicted text highligted based on neural activity of the LSTM hidden state output ![h_t](http://www.sciweavers.org/tex2img.php?eq=1%2Bsin%28mc%5E2%29&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=)
+, marked in figure below.
 ![LSTM Hidden States to be visualized](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/Hidden_States.png)
 
 Neuron 295 and 376 are automatically hypothesized to be relevant for spaces independently through the heatmap and fourier heat surfance. They seem to have an action potential that goes from negative up to zero when triggered by the spaces.
@@ -20,7 +21,8 @@ Fourier transform of detected neuron 295 and 376 comfirmig the sensitivity to sp
 ![Corresponding Fourier transform heat surface](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMSpaces-FouriermapSeed1Hypotheses2RelevanceDetected.png)
 
 ### Another sample of terminal output
-Predicted text highligted based on neural activity of the LSTM output gate <img src="https://latex.codecogs.com/gif.latex?o_t " /> (marked below). 
+Predicted text highligted based on neural activity of the LSTM output gate ![o_t](http://www.sciweavers.org/tex2img.php?eq=1%2Bsin%28mc%5E2%29&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=)
+(marked below). 
 ![LSTM Output Gate to be visualized](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/Output_Gate.png)
 
 Neuron 455 and 561 are automatically hypothesized to be significantly active (red) during sentences and get deactivated by dots and question marks.
