@@ -5,14 +5,16 @@ This developed system is the implementation of my Master Thesis to visualize Rec
 ## Word prediction with LSTM
 
 ### Sample of terminal output
-Predicted text highligted based on neural activity of the LSTM hidden state output. Neuron 597 is detected to be relevant for spaces independently through the heatmap and fourier heat surfance. It seem to have an action potential that goes from negative up to zero when triggered by the spaces.
-![Sample of terminal output](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMSpaces-Terminal0.PNG)
+Predicted text highligted based on neural activity of the LSTM hidden state output.
+
+Neuron 376 and 295 are automatically hypothesized to be relevant for spaces independently through the heatmap and fourier heat surfance. It seem to have an action potential that goes from negative up to zero when triggered by the spaces.
+![Sample of terminal output](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMSpaces-TerminalSeed1Hypotheses2.PNG)
 ### Corresponding heatmap with relevance scores
-Heatmap of extracted feature of interest " " (space) (left) and automatic found relevant neuron 597 through relevance heatmap (right).
-![Corresponding heatmap](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMSpaces-Heatmap0.png)
+Heatmap of extracted feature of interest " " (space) (left) and automatic suggested relevant neurons 376 and 295 through relevance heatmap (right).
+![Corresponding heatmap](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMSpaces-HeatmapSeed1Hypotheses2.png)
 ### Corresponding Fourier transform heat surface
-Fourier transform and automatically detected peak for neuron 597 at frequency 0.5 (every second word).
-![Corresponding Fourier transform heat surface](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMSpaces-Fouriermap0.png)
+Fourier transform of detected neuron 376 and 295 comfirmig the sensitivity to spaces by showing significant frequency components of 0.5 (every second word).
+![Corresponding Fourier transform heat surface](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMSpaces-FouriermapSeed1Hypotheses2RelevanceDetected.png)
 
 ### Another sample of terminal output
 Predicted text highligted based on neural activity of the LSTM hidden state output. Neuron 455 is detected to be significantly active (red) during sentences and get deactivated by dots and question marks.
