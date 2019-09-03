@@ -8,13 +8,13 @@ This developed system is the implementation of my Master Thesis to visualize Rec
 Predicted text highligted based on neural activity of the LSTM hidden state output, marked in figure below.
 ![LSTM Hidden States to be visualized](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/Hidden_States.png)
 
-Neuron 376 and 295 are automatically hypothesized to be relevant for spaces independently through the heatmap and fourier heat surfance. It seem to have an action potential that goes from negative up to zero when triggered by the spaces.
+Neuron 295 and 376 are automatically hypothesized to be relevant for spaces independently through the heatmap and fourier heat surfance. They seem to have an action potential that goes from negative up to zero when triggered by the spaces.
 ![Sample of terminal output](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMSpaces-TerminalSeed1Hypotheses2.PNG)
 ### Corresponding heatmap with relevance scores
-Heatmap of extracted feature of interest " " (space) (left) and automatic suggested relevant neurons 376 and 295 through relevance heatmap (right).
+Heatmap of extracted feature of interest " " (space) (left) and automatic suggested relevant neurons 295 and 376 through relevance heatmap (right).
 ![Corresponding heatmap](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMSpaces-HeatmapSeed1Hypotheses2.png)
 ### Corresponding Fourier transform heat surface
-Fourier transform of detected neuron 376 and 295 comfirmig the sensitivity to spaces by showing significant frequency components of 0.5 (every second word).
+Fourier transform of detected neuron 295 and 376 comfirmig the sensitivity to spaces by showing significant frequency components of 0.5 (every second word).
 ![Corresponding Fourier transform heat surface](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMSpaces-FouriermapSeed1Hypotheses2RelevanceDetected.png)
 
 ### Another sample of terminal output
@@ -22,10 +22,10 @@ Predicted text highligted based on neural activity of the LSTM output gate (mark
 ![LSTM Output Gate to be visualized](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/Output_Gate.png)
 
 Neuron 455 and 561 are automatically hypothesized to be significantly active (red) during sentences and get deactivated by dots and question marks.
-![Sample of terminal output](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMDots-TerminalSeed0Hypotheses2.PNG)
+![Sample of terminal output](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMDots-TerminalSeed0.PNG)
 ### Corresponding heatmap with relevance scores
 Heatmap of extracted feature of interest ".", "?" and "!" (left) and automatically suggested relevant neuron 455 and 561 through relevance heatmap (right).
-![Corresponding heatmap](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMDots-TerminalSeed0Hypotheses2.png)
+![Corresponding heatmap](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMDots-TerminalSeed0.png)
 
 ## Character prediction with Vanilla RNN
 
