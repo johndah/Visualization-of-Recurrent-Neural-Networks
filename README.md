@@ -24,9 +24,11 @@ Predicted text highligted based on neural activity of the LSTM output gate (mark
 ![LSTM Output Gate to be visualized](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/Output_Gate.png)
 
 Neuron 455 and 561 are automatically hypothesized to be significantly active (red) during sentences and get deactivated by dots and question marks.
+
 ![Sample of terminal output](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMDots-TerminalSeed0.PNG)
 ### Corresponding heatmap with relevance scores
 Heatmap of extracted feature of interest ".", "?" and "!" (left) and automatically suggested relevant neuron 455 and 561 through relevance heatmap (right).
+
 ![Corresponding heatmap](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMDots-HeatmapSeed0.png)
 
 ## Character prediction with Vanilla RNN
