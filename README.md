@@ -12,6 +12,7 @@ Neuron 295 and 376 are automatically hypothesized to be relevant for spaces inde
 ![Sample of terminal output](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMSpaces-TerminalSeed1Hypotheses2.PNG)
 ### Corresponding heatmap with relevance scores
 Heatmap of extracted feature of interest " " (space) (left) and automatic suggested relevant neurons 295 and 376 through relevance heatmap (right).
+
 ![Corresponding heatmap](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMSpaces-HeatmapSeed1Hypotheses2.png)
 ### Corresponding Fourier transform heat surface
 Fourier transform of detected neuron 295 and 376 comfirmig the sensitivity to spaces by showing significant frequency components of 0.5 (every second word).
@@ -25,7 +26,7 @@ Neuron 455 and 561 are automatically hypothesized to be significantly active (re
 ![Sample of terminal output](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMDots-TerminalSeed0.PNG)
 ### Corresponding heatmap with relevance scores
 Heatmap of extracted feature of interest ".", "?" and "!" (left) and automatically suggested relevant neuron 455 and 561 through relevance heatmap (right).
-![Corresponding heatmap](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMDots-TerminalSeed0.png)
+![Corresponding heatmap](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/LSTMDots-TerminalSeed0.PNG)
 
 ## Character prediction with Vanilla RNN
 
