@@ -1,15 +1,12 @@
-# Choose index of neuron to watch in the visualization
+# Choose default indices of neurons to watch in the visualization,
+# note that autoDetectPeak in PlotConfiguration will override this
 
 Neurons to print: 595:599
-# 144:154, 454:456
 Neurons for heatmap: 595:599
-# 144:154
-#  595:599
 Neurons to fourier transform: 592:602
-# 10+, 160+
 Band width to auto-detect prominent frequency components (Hz): 0.4:0.5
 
-
+# Feature of Interest
 # '\w+|[^\w]' for all words, or Part of Speech classes:
 # 'VB': 'Verb'
 # 'VBG': 'Verb, Gerund'
@@ -23,8 +20,7 @@ Band width to auto-detect prominent frequency components (Hz): 0.4:0.5
 # 'JJ': 'Adjective'
 # 'JJS': 'Adjective, Superlative'
 
-Prediction features: '[A-Z|a-z][a-z]*'
+Prediction features: '[?!.]' '# '[A-Z|a-z][a-z]*'
 
-#
 # The input, forget, cell, output gate or final_layer_output to visualize
-lstm_gate_of_interest: 'output'
+lstm_gate_of_interest: 'cell'

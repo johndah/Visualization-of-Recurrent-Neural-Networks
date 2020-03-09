@@ -1,0 +1,5 @@
+plot_process:       False           # Plot learning curve
+plot_color_map:     True            # Plot color map of neuron activations
+plot_fft:           True            # Plot Fast Fourier Transform (FFT) of neuron activations
+auto_detect_peak:   'Relevance'     # Relevance, FFT or none: Detect the most prominent peak and plot its neighborhood
+n_auto_detect:      2
