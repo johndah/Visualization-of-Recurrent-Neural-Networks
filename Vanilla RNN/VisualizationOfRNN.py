@@ -8,6 +8,7 @@ from __future__ import print_function
 import sklearn.preprocessing
 from numpy import *
 from copy import *
+import warnings
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from matplotlib import cm
@@ -314,7 +315,7 @@ class VisualizeRNN(object):
 
                     table, neuron_activation_map, inputs = self.synthesizeText(x0, hPrev, self.lengthSynthesizedText)
 
-                    with open('config.txt', 'r') as f:
+                    with open('PlotConfigurations.txt', 'r') as f:
                         lines = f.readlines()
                         for line in lines:
                             line = line.split('#')[0]
@@ -381,7 +382,7 @@ class VisualizeRNN(object):
                             except Exception as ex:
                                 print(ex)
 
-                    with open('config.txt', 'r') as f:
+                    with open('PlotConfigurations.txt', 'r') as f:
                         lines = f.readlines()
                         for line in lines:
                             line = line.split('#')[0]
@@ -464,9 +465,13 @@ class VisualizeRNN(object):
                         inputs_of_interest.append('"' + inputs[i] + '"')
         except Exception as ex:
             print(ex)
-
+        print(inputs_of_interest)
+        print(input_indices_of_interest)
         if len(inputs_of_interest) > 20:
             inputs_of_interest = [' ']*len(inputs_of_interest)
+        elif len(input_indices_of_interest) < 1:
+            warnings.warn('The feature of interest is not found in generated sequence')
+            return False;
 
         f, axarr = plt.subplots(1, 2, num=1, gridspec_kw={'width_ratios': [5, 1]}, clear=True)
         axarr[0].set_title('Colormap of hidden neuron activations')
@@ -499,8 +504,8 @@ class VisualizeRNN(object):
         before_action_potential[array(input_indices_of_interest) - 1 == -1] = 1
         after_action_potential[array(input_indices_of_interest) + 1 == size(neuron_activation_rows, 1)] = size(
             neuron_activation_rows, 1) - 2
-        prominences = 2 * neuron_activation_rows[:, input_indices_of_interest] - neuron_activation_rows[:,
-                                         before_action_potential] - neuron_activation_rows[:,after_action_potential]
+
+        prominences = 2 * neuron_activation_rows[:, input_indices_of_interest] - neuron_activation_rows[:, before_action_potential] - neuron_activation_rows[:,after_action_potential]
         prominence = atleast_2d(mean(abs(prominences), axis=1)).T
 
         extracted_mean = array([mean(neuron_feature_extracted_map, axis=1)]).T
@@ -601,6 +606,8 @@ class VisualizeRNN(object):
         f.colorbar(colmap, ax=axarr.ravel().tolist())
 
         plt.pause(.1)
+
+        return True
 
     def plot_fft_neural_activity(self, neuron_activation_map):
 
@@ -960,8 +967,8 @@ class VisualizeRNN(object):
 
                 accuracy += y[t][sample_index]
 
-        loss = loss/float(tau)
-        accuracy = float(accuracy)/float(tau)
+        loss = loss/max(float(tau), 1e-6)
+        accuracy = float(accuracy)/max(float(tau), 1e-6)
 
         return loss, accuracy
 
@@ -1137,7 +1144,7 @@ def randomize_hyper_parameters(n_configurations, attributes):
 def main():
 
     attributes = {
-        'textFile': 'Data/ted_en.zip',  # Name of book text file, needs to be longer than lengthSynthesizedTextBest
+        'textFile': '../Corpus/ted_en.zip',  # Name of book text file, needs to be longer than lengthSynthesizedTextBest
         'model_file': 'Data/glove_short.txt',  # 'Data/glove_840B_300d.txt',  #
         'fft_auto_detect': False,
         'relevance_auto_detect': True,
@@ -1147,12 +1154,12 @@ def main():
         'save_sentences': False,  # Save sentences and vocabulary
         'load_sentences': True,  # Load sentences and vocabulary
         'validation_proportion': .02,  # The proportion of data set used for validation
-        'corpus_proportion': 1,  # The proportion of the corpus used for training and validation
+        'corpus_proportion': 1.0,  # The proportion of the corpus used for training and validation
         'adaGradSGD': True,  # Stochastic gradient decent, True for adaGrad, False for regular SGD
         'clipGradients': True,  # True to avoid exploding gradients
+        'gradientClipThreshold': 5,  # Threshold for clipping gradients
         'weightInit': 'Load',  # 'He', 'Load' or 'Random'
         'eta': 9.00e-5,  # Learning rate
-        'gradientClipThreshold': 5,  # Threshold for clipping gradients
         'nHiddenNeurons': 224,  # Number of hidden neurons
         'nEpochs': 10,  # Total number of epochs, each corresponds to (n book characters)/(seqLength) seq iterations
         'seqLength': 25,  # Sequence length of each sequence iteration
