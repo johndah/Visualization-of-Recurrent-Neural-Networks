@@ -1,3 +1,4 @@
+
 # Visualization of Recurrent Neural Networks
 
 This developed system is the implementation of my [Thesis](https://kth.diva-portal.org/smash/get/diva2:1394892/FULLTEXT01.pdf) to visualize Recurrent Neural Networks with text prediction as a testbed. It contributes with user trust, trust for developers of model's generalization and insights how to improve neural network architecture to optimize performance.
@@ -72,12 +73,12 @@ nltk.download('averaged_perceptron_tagger')
 ```
 
 ## Using pre-trained models
-The RNN tokenization models can be trained from scratch. The recommended (and default) configuration, however, loads trained RNN and tokenization models based on the provided corpus. To do this, download the models from `https://sourceforge.net/projects/visualization-of-rnns-data/files/` and place in corresponding folders, i.e. `Data` and `LSTM Saved Models` (they are too large to upload to this repository).
+The RNN tokenization models can be trained from scratch. The recommended (and default) configuration, however, loads trained RNN and tokenization models based on the provided corpus. To do this, download the models from `https://sourceforge.net/projects/visualization-of-rnns-data/files/` and place in corresponding folders, i.e. `LSTM/Data` and `Vanilla RNN/Data` respectively `LSTM/LSTM Saved Models` and `Vanilla RNN/Vanilla RNN Saved Models` (they are too large to upload to this repository).
 
 ## Configurations
 User defined configuration can be specified in
 1. The `attributes` dictionary in the main function of respective LSTM and Vanilla RNN python file, for configurations of hyper-parameters, loading/saving options and light/dark theme in terminal.
-2. `FeaturesOfInterest.txt`, for specifying text features, neurons and band-width of interest,
+2. `FeaturesOfInterest.txt`, for specifying text features, neurons and band-width of interests,
 3. `PlotConfigurations.txt`, for enabling or disabling plots of training process and visualization of heatmaps and Fourier transform. 
 
 # Running 
@@ -86,14 +87,4 @@ The main programs to run are the python files `LSTM/VisualizationOfLSTM.py` and
 By default, the inference process (i.e. text generation without training), is defined as well as loading pre-trained models of RNN and for the word prediction case text vocabulary and tokenization.
 
 Alternatively, the RNN models (as well as word embedding and tokenization models) can be trained from scratch, or even loaded and further trained.
-
-
-
-
-
-Finally, my Master's Thesis is published. Take a look if curious about AI. Specifically, how artificial (recurrent) neural networks work in terms of
-* intended design, to allow for learning, and
-* discovered neuron functionalities, developed by the networks themselves.
-
-Text generation of TED-talks is used as an application. A disclaimer about the sometimes gramatically poor sentences generated, as the application is a toy example where the focus is addressed on visualization. However they tend to at least capture the overly enthusiastic spirit of TED-talks.
 
