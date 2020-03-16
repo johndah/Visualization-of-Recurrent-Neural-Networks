@@ -57,7 +57,6 @@ nltk==3.4.5
 gensim==3.8.1
 lxml==4.5.0
 terminaltables==3.1.0
-sklearn==0.0
 ```
 and finally `tensorflow==1.13.1` or `tensorflow-gpu` for running either on CPU or GPU, respectively. Note that the former choice may be computationally demanding and thus very time consuming. Furthermore, even if `tensorflow-gpu` is installed, compatibility between dependency versions is crucial for utilizing the GPU to full extent (this can make the difference between a training epoch taking minutes or hours ). Thus, it is recommended to use `conda install` for version compatibility. 
 
