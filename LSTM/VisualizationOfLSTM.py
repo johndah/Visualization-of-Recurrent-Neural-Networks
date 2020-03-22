@@ -89,7 +89,8 @@ class VisualizeLSTM(object):
             vocab = 'vocabulary.word2VecKeyedVector'
             sentences = 'sentences.list'
             vocab_size = 'vocabulary_size.int'
-            print('Loading tokenized word models ' + str(vocab) + ', ' + str(sentences) + ' and ' + str(vocab_size) + '...')
+            print('Loading tokenized word models ' + str(vocab) + ', ' + str(sentences) + ' and ' + str(
+                vocab_size) + '...')
 
             try:
                 with open('./Data/' + str(vocab), 'rb') as file:
@@ -101,7 +102,9 @@ class VisualizeLSTM(object):
                 with open('./Data/' + str(vocab_size), 'rb') as file:
                     self.K = pickle.load(file)
             except FileNotFoundError:
-                raise Exception('Tokenization not found. Download ' + str(vocab) + ', ' + str(sentences) + ' and ' + str( vocab_size) + ' and place in Data/')
+                raise Exception(
+                    'Tokenization not found. Download ' + str(vocab) + ', ' + str(sentences) + ' and ' + str(
+                        vocab_size) + ' and place in Data/')
         else:
             # Extract word embedding vocabularies and sentences
             self.vocabulary, self.sentences, self.K = self.load_vocabulary()
@@ -154,7 +157,10 @@ class VisualizeLSTM(object):
                 self.validation_losses = [i for i in
                                           loadtxt('Parameters/validation_losses.txt', delimiter=",", unpack=False)]
                 self.seq_iteration = self.seq_iterations[-1]
-            # except AttributeError:
+            except OSError:
+                raise Exception(
+                    'Text file arrays seqIterations.txt, losses.txt and validation_losses.txt needs to be in the ' +
+                    '/Parameter/ folder. These are created by enabling train_lstm_model and save_checkpoints.')
             except TypeError:
                 raise Exception(
                     'Text file arrays in the /Parameter/ folder needs to have at least two elements to plot..')
@@ -233,7 +239,6 @@ class VisualizeLSTM(object):
                 with open(self.embedding_model_file, 'r', encoding="utf8") as f:
                     lines = f.readlines()
 
-                    counter = 0
                     extracted_words = []
                     for line in lines:
                         extracted_words.append(line.split()[0])
@@ -383,13 +388,12 @@ class VisualizeLSTM(object):
                 if attribute == 'loss' or attribute == 'val_loss':
                     return loss
 
-        # Perform epoch zero before training to check untrained performance
+        # Training process
         if self.train_lstm_model:
+            # Perform epoch zero before training to check untrained performance
             logs = InitLog()
             self.synthesize_text(-1, logs, evaluate=True)
 
-        # Training process
-        if self.train_lstm_model:
             self.lstm_model.fit_generator(self.generate_words(self.input_sequence),
                                           steps_per_epoch=int(len(self.input_sequence) / self.batch_size) + 1,
                                           epochs=self.n_epochs,
@@ -540,12 +544,12 @@ class VisualizeLSTM(object):
             output = self.lstm_model_evaluate.predict(x=x_predict, batch_size=1)
 
             # Activations to visualize
+            ''' Uncomment to set random activations for debugging (and comment line above), will save much time 
             activations = self.get_neuron_activations(x_predict)
 
-            ''' Uncomment to set random activations for debugging (and comment line above), will save much time 
+            '''
             self.activation_lower_limit = 1
             activations = random.rand(self.n_hidden_neurons, self.length_synthesized_text)
-            '''
 
             neuron_activation_map[:, t] = activations[:, 0]
             neuron_activations = activations[self.neurons_of_interest]
@@ -566,16 +570,16 @@ class VisualizeLSTM(object):
 
             # Color code words according to neural activation
             for i in range(len(self.neurons_of_interest)):
-                neuron_activation = self.scale_color_values*neuron_activations[i, 0]
+                neuron_activation = self.scale_color_values * neuron_activations[i, 0]
 
                 w = self.white_background
 
                 if neuron_activation > 0:
-                    inactive_color = w*255 - (2*w - 1)*int(neuron_activation * 255)
-                    bg.set_style('activationColor', RgbBg(w*255, inactive_color, inactive_color))
+                    inactive_color = w * 255 - (2 * w - 1) * int(neuron_activation * 255)
+                    bg.set_style('activationColor', RgbBg(w * 255, inactive_color, inactive_color))
                 else:
-                    inactive_color = w*255 + (2*w - 1)*int(neuron_activation * 255)
-                    bg.set_style('activationColor', RgbBg(inactive_color, inactive_color, w*255))
+                    inactive_color = w * 255 + (2 * w - 1) * int(neuron_activation * 255)
+                    bg.set_style('activationColor', RgbBg(inactive_color, inactive_color, w * 255))
 
                 colored_word = bg.activationColor + prediction_input + bg.rs
 
@@ -627,16 +631,16 @@ class VisualizeLSTM(object):
 
         for i in range(color_range_width):
 
-            color_range_value = self.scale_color_values*color_range[i]
+            color_range_value = self.scale_color_values * color_range[i]
 
             w = self.white_background
 
             if color_range_value > 0:
                 inactive_color = w * 255 - (2 * w - 1) * int(color_range_value * 255)
-                bg.set_style('activationColor', RgbBg(w*255, inactive_color, inactive_color))
+                bg.set_style('activationColor', RgbBg(w * 255, inactive_color, inactive_color))
             else:
                 inactive_color = w * 255 + (2 * w - 1) * int(color_range_value * 255)
-                bg.set_style('activationColor', RgbBg(inactive_color, inactive_color, w*255))
+                bg.set_style('activationColor', RgbBg(inactive_color, inactive_color, w * 255))
 
             colored_indicator = bg.activationColor + ' ' + bg.rs
 
@@ -679,7 +683,7 @@ class VisualizeLSTM(object):
         # Flip order to have the same order as the DFT heat surfance, having right oriented coordinate system
         table.table_data[1:] = flip(table.table_data[1:], axis=0)
 
-        if self.plot_process and self.train_lstm_model:
+        if self.plot_process:
             self.plot_learning_curve()
 
         if not self.load_lstm_model or (self.load_lstm_model and not evaluate):
@@ -819,6 +823,7 @@ class VisualizeLSTM(object):
         plt.title(self.domain_specification[:-1] + ' prediction learning curve of LSTM')
         plt.ylabel('Cross-entropy loss')
         plt.xlabel('Epoch')
+
         plt.plot(self.seq_iterations[1:], self.losses[1:], LineWidth=2, label='Training')
         plt.plot(self.seq_iterations[1:], self.validation_losses[1:], LineWidth=2, label='Validation')
         plt.grid()
@@ -1371,9 +1376,10 @@ def main():
         'present_tables_in_terminal': True,
         # True to only print visualization tables in terminal, else to save in files
         'white_background': False,  # True for white background, else black (Terminal properties needs to be adjusted)
-        'text_file': '../Corpus/ted_en.zip',  # Path to textfile to train on
+        'text_file': '../Corpus/ted_en.zip',  # Corpus file for training
         'load_lstm_model': True,  # True to load lstm checkpoint model with best validation accuracy
-        'load_training_process': False,  # True to load training and validation accuracy
+        'load_training_process': False,
+        # True to load training and validation accuracy. Requires training with save_checkpoints = True.
         'train_lstm_model': False,  # True to train model, otherwise inference process is applied for text generation
         'lstm_layer_of_interest': 1,  # LSTM layer to visualize
         'optimizer': 'RMS Prop',  # Either 'RMS Prop', or Adadelta is used as default
