@@ -30,9 +30,6 @@ import pickle
 from decimal import Decimal
 
 
-
-
-
 class VisualizeRNN(object):
 
     def __init__(self, attributes=None):
@@ -51,7 +48,7 @@ class VisualizeRNN(object):
 
         if self.word_domain:
             if self.save_sentences:
-                self.vocabulary, self.sentences, self.K = self.loadVocabulary()
+                self.vocabulary, self.sentences, self.K = self.load_vocabulary()
 
                 with open('./Data/vocabulary.word2VecKeyedVector', 'wb') as file:
                     pickle.dump(self.vocabulary, file)
@@ -72,15 +69,13 @@ class VisualizeRNN(object):
                 with open('./Data/K.int', 'rb') as file:
                     self.K = pickle.load(file)
             else:
-                self.word2vec_model, input_sequence, self.K = self.loadVocabulary()
-
-            # self.word2vec_model, input_sequence, self.K = self.loadVocabulary()
+                self.word2vec_model, input_sequence, self.K = self.load_vocabulary()
         else:
-            input_sequence, self.charToInd, self.indToChar = self.loadCharacters()
-            self.K = len(self.indToChar)
+            input_sequence, self.char_to_ind, self.ind_to_char = self.load_characters()
+            self.K = len(self.ind_to_char)
 
-        if self.nHiddenNeurons == 'Auto':
-            self.nHiddenNeurons = self.K
+        if self.n_hidden_neurons == 'Auto':
+            self.n_hidden_neurons = self.K
 
         n_validation = int(len(input_sequence) * self.validation_proportion)
         n_training = len(input_sequence) - n_validation
@@ -92,57 +87,57 @@ class VisualizeRNN(object):
 
         self.weights = ['W', 'V', 'U', 'b', 'c']
         self.gradients = ['dLdW', 'dLdV', 'dLdU', 'dLdB', 'dLdC']
-        self.numGradients = ['gradWnum', 'gradVnum', 'gradUnum', 'gradBnum', 'gradCnum']
+        self.num_gradients = ['gradWnum', 'gradVnum', 'gradUnum', 'gradBnum', 'gradCnum']
 
-        self.sizes = [(self.nHiddenNeurons, self.nHiddenNeurons), (self.K, self.nHiddenNeurons), \
-                      (self.nHiddenNeurons, self.K), (self.nHiddenNeurons, 1), (self.K, 1)]
+        self.sizes = [(self.n_hidden_neurons, self.n_hidden_neurons), (self.K, self.n_hidden_neurons), \
+                      (self.n_hidden_neurons, self.K), (self.n_hidden_neurons, 1), (self.K, 1)]
 
-        self.initEpoch = 0
-        self.initIteration = 0
+        self.init_epoch = 0
+        self.init_iteration = 0
 
         # Weight initialization
-        if self.weightInit == 'Load':
+        if self.weight_init == 'Load':
             print('Loading weights...')
         else:
             print('Initializing weights...')
 
-        for weight, gradIndex in zip(self.weights, range(len(self.gradients))):
-            if self.sizes[gradIndex][1] > 1:
-                if self.weightInit == 'Load':
-                    self.initSigma = loadtxt(self.model_directory + 'initSigma.txt', unpack=False)
+        for weight, grad_index in zip(self.weights, range(len(self.gradients))):
+            if self.sizes[grad_index][1] > 1:
+                if self.weight_init == 'Load':
+                    self.init_sigma = loadtxt(self.model_directory + 'initSigma.txt', unpack=False)
                     setattr(self, weight, array(loadtxt(self.model_directory + 'Weights/' + weight + ".txt", comments="#", delimiter=",", unpack=False)))
                 else:
-                    if self.weightInit == 'He':
-                        self.initSigma = sqrt(2 / sum(self.sizes[gradIndex]))
+                    if self.weight_init == 'He':
+                        self.init_sigma = sqrt(2 / sum(self.sizes[grad_index]))
                     else:
-                        self.initSigma = 0.01
-                    setattr(self, weight, self.initSigma*random.randn(self.sizes[gradIndex][0], self.sizes[gradIndex][1]))
+                        self.init_sigma = 0.01
+                    setattr(self, weight, self.init_sigma*random.randn(self.sizes[grad_index][0], self.sizes[grad_index][1]))
             else:
-                if self.weightInit == 'Load':
-                    self.initSigma = loadtxt(self.model_directory + 'initSigma.txt', unpack=False)
+                if self.weight_init == 'Load':
+                    self.init_sigma = loadtxt(self.model_directory + 'initSigma.txt', unpack=False)
                     setattr(self, weight, array([loadtxt(self.model_directory + 'Weights/' + weight + ".txt", comments="#", delimiter=",", unpack=False)]).T)
                 else:
-                    setattr(self, weight, zeros(self.sizes[gradIndex]))
+                    setattr(self, weight, zeros(self.sizes[grad_index]))
 
-        if self.weightInit == 'Load':
-            self.seqIterations = loadtxt(self.model_directory + 'seqIterations.txt', delimiter=",", unpack=False)
-            self.smoothLosses = loadtxt(self.model_directory + 'smoothLosses.txt', delimiter=",", unpack=False)
-            self.validationLosses = loadtxt(self.model_directory + 'validationLosses.txt', delimiter=",", unpack=False)
-            self.initEpoch = int(self.model_directory.split('epoch')[1][0])
-            self.initIteration = 0 # int(self.model_directory.split('iteration')[1].split('-')[0])
-            self.nHiddenNeurons = int(self.model_directory.split('neurons')[1][:3])
+        if self.weight_init == 'Load':
+            self.seq_iterations = loadtxt(self.model_directory + 'seqIterations.txt', delimiter=",", unpack=False)
+            self.smooth_losses = loadtxt(self.model_directory + 'smoothLosses.txt', delimiter=",", unpack=False)
+            self.validation_losses = loadtxt(self.model_directory + 'validationLosses.txt', delimiter=",", unpack=False)
+            self.init_epoch = int(self.model_directory.split('epoch')[1][0])
+            self.init_iteration = 0 # int(self.model_directory.split('iteration')[1].split('-')[0])
+            self.n_hidden_neurons = int(self.model_directory.split('neurons')[1][:3])
             self.eta = float(self.model_directory.split('eta-')[1][:7])
 
         self.x0 = ' '
-        self.h0 = zeros((self.nHiddenNeurons, 1))
+        self.h0 = zeros((self.n_hidden_neurons, 1))
 
-        self.lossMomentum = 1e-3
+        self.loss_momentum = 1e-3
 
-    def loadCharacters(self):
+    def load_characters(self):
 
-        print('Loading text file "' + self.textFile + '"...')
-        if self.textFile[-4:] == '.zip':
-            with zipfile.ZipFile(self.textFile, 'r') as z:
+        print('Loading text file "' + self.text_file + '"...')
+        if self.text_file[-4:] == '.zip':
+            with zipfile.ZipFile(self.text_file, 'r') as z:
                 doc = lxml.etree.parse(z.open('ted_en-20160408.xml', 'r'))
             print('Extracting characters...')
             input_text = '\n'.join(doc.xpath('//content/text()'))
@@ -153,14 +148,14 @@ class VisualizeRNN(object):
         k = len(characters)
         indicators = array(range(k))
 
-        indOneHot = self.toOneHot(indicators)
+        ind_one_hot = self.to_one_hot(indicators)
 
-        charToInd = dict((characters[i], array(indOneHot[i])) for i in range(k))
-        indToChar = dict((indicators[i], characters[i]) for i in range(k))
+        char_to_ind = dict((characters[i], array(ind_one_hot[i])) for i in range(k))
+        ind_to_char = dict((indicators[i], characters[i]) for i in range(k))
 
-        return input_text, charToInd, indToChar
+        return input_text, char_to_ind, ind_to_char
 
-    def loadVocabulary(self):
+    def load_vocabulary(self):
         self.model_file = 'Data/glove_840B_300d.txt'  # Word tokenization text
         is_binary = self.model_file[-4:] == '.bin'
         print('Loading model "' + self.model_file + '"...')
@@ -169,15 +164,15 @@ class VisualizeRNN(object):
 
         words = []
 
-        print('Loading text file "' + self.textFile + '"...')
-        if self.textFile[-4:] == '.zip':
-            with zipfile.ZipFile(self.textFile, 'r') as z:
+        print('Loading text file "' + self.text_file + '"...')
+        if self.text_file[-4:] == '.zip':
+            with zipfile.ZipFile(self.text_file, 'r') as z:
                 doc = lxml.etree.parse(z.open(z.filelist[0].filename, 'r'))
             print('Extracting words...')
             input_text = '\n'.join(doc.xpath('//content/text()'))
             words.extend(re.findall(r"\w+|[^\w]", input_text))
         else:
-            with open(self.textFile, 'r') as f:
+            with open(self.text_file, 'r') as f:
                 lines = f.readlines()
                 print('Extracting words...')
                 for line in lines:
@@ -186,9 +181,9 @@ class VisualizeRNN(object):
 
         return word2vec_model, words, K
 
-    def getWords(self, e):
-        x_sequence = self.input_sequence[e:e + self.seqLength]
-        y_sequence = self.input_sequence[e + 1:e + self.seqLength + 1]
+    def get_words(self, e):
+        x_sequence = self.input_sequence[e:e + self.seq_length]
+        y_sequence = self.input_sequence[e + 1:e + self.seq_length + 1]
 
         x = []
         y = []
@@ -209,118 +204,122 @@ class VisualizeRNN(object):
                 y.append(array([self.word2vec_model[y_word]]).T)
         return x_sequence, y_sequence, x, y
 
-    def getCharacters(self, e, input_sequence, seqLength=None):
-        if not seqLength:
-            seqLength = self.seqLength
+    def get_characters(self, e, input_sequence, seq_length=None):
+        if not seq_length:
+            seq_length = self.seq_length
 
-        x_sequence = input_sequence[e:e+seqLength]
-        y_sequence = input_sequence[e+1:e+seqLength + 1]
-        x = self.seqToOneHot(x_sequence)
-        y = self.seqToOneHot(y_sequence)
+        x_sequence = input_sequence[e:e+seq_length]
+        y_sequence = input_sequence[e+1:e+seq_length + 1]
+        x = self.seq_to_one_hot(x_sequence)
+        y = self.seq_to_one_hot(y_sequence)
 
         return x_sequence, y_sequence, x, y
 
-    def adaGrad(self):
-        if self.weightInit == 'Load':
-            smoothLoss = self.smoothLosses[-1]
-            validationLoss = self.validationLosses[-1]
-            lowestValidationLoss = validationLoss
+    def run_vanilla_rnn(self):
+        if self.weight_init == 'Load':
+            smooth_loss = self.smooth_losses[-1]
+            validation_loss = self.validation_losses[-1]
+            lowest_validation_loss = validation_loss
         else:
-            smoothLoss = None
+            smooth_loss = None
 
         if self.word_domain:
             self.domain_specification = 'Words'
         else:
             self.domain_specification = 'Characters'
 
-        constants = 'Max Epochs: ' + str(self.nEpochs) + ' (' + str(len(self.input_sequence)/self.seqLength * self.nEpochs) + ' seq. iter.)' \
-                    + '\n# Hidden neurons: ' + str(self.nHiddenNeurons) \
-                    + '\nWeight initialization: ' + str(self.weightInit) \
-                    + '\n' + r'$\sigma$ = ' + "{:.2e}".format(self.initSigma) \
+        constants = 'Max Epochs: ' + str(self.n_epochs) + ' (' + str(len(self.input_sequence)/self.seq_length * self.n_epochs) + ' seq. iter.)' \
+                    + '\n# Hidden neurons: ' + str(self.n_hidden_neurons) \
+                    + '\nWeight initialization: ' + str(self.weight_init) \
+                    + '\n' + r'$\sigma$ = ' + "{:.2e}".format(self.init_sigma) \
                     + '\n' + r'$\eta$ = ' + "{:.2e}".format(self.eta) \
-                    + '\n' + 'Sequence length: ' + str(self.seqLength) \
+                    + '\n' + 'Sequence length: ' + str(self.seq_length) \
                     + '\n#' + self.domain_specification + ' in training text:' + '\n' + str(len(self.input_sequence)) \
-                    + '\n' + 'AdaGrad: ' + str(self.adaGradSGD) \
-                    + '\n' + 'RMS Prop: ' + str(self.rmsProp)
+                    + '\n' + 'AdaGrad: ' + str(self.ada_grad_sgd) \
+                    + '\n' + 'RMS Prop: ' + str(self.rms_prop)
 
-        if self.rmsProp:
+        if self.rms_prop:
             constants += '\n' + r'$\gamma$ = ' + "{:.2e}".format(self.gamma)
 
         m = []
         for weight in self.weights:
             m.append(zeros(getattr(self, weight).shape))
 
-        if self.weightInit == 'Load':
-            seqIteration = self.seqIterations[-1]
-            seqIterations = [s for s in self.seqIterations]
-            smoothLosses = [s for s in self.smoothLosses]
-            validationLosses = [s for s in self.validationLosses]
+        if self.weight_init == 'Load':
+            seq_iteration = self.seq_iterations[-1]
+            seq_iterations = [s for s in self.seq_iterations]
+            smooth_losses = [s for s in self.smooth_losses]
+            validation_losses = [s for s in self.validation_losses]
         else:
-            seqIteration = 0
-            seqIterations = []
-            smoothLosses = []
-            validationLosses = []
-        smoothLossesTemp = []
-        validationLossesTemp = []
-        seqIterationsTemp = []
+            seq_iteration = 0
+            seq_iterations = []
+            smooth_losses = []
+            validation_losses = []
+        smooth_losses_temp = []
+        validation_losses_temp = []
+        seq_iterations_temp = []
 
         start_time = time.time()
         previous_time = start_time
-        for epoch in range(self.initEpoch, self.nEpochs):
+        for epoch in range(self.init_epoch, self.n_epochs):
 
-            hPrev = deepcopy(self.h0)
+            h_prev = deepcopy(self.h0)
 
-            for e in range(self.initIteration, len(self.input_sequence)-self.seqLength-1, self.seqLength):
+            for e in range(self.init_iteration, len(self.input_sequence)-self.seq_length-1, self.seq_length):
+
                 if self.word_domain:
-                    x_sequence, y_sequence, x, y = self.getWords(e)
+                    x_sequence, y_sequence, x, y = self.get_words(e)
                 else:
-                    x_sequence, y_sequence, x, y = self.getCharacters(e, self.input_sequence)
+                    x_sequence, y_sequence, x, y = self.get_characters(e, self.input_sequence)
 
-                output, h, a = self.forwardProp(x, hPrev)
+                output, h, a = self.forward_prop(x, h_prev)
+
                 if (self.train_model):
-                    self.backProp(x, y, output, h)
+                    self.back_prop(x, y, output, h)
 
-                loss, accuracy = self.computeLoss(output, y)
-                if not smoothLoss:
-                    smoothLoss = loss
+                loss, accuracy = self.compute_loss(output, y)
+                if not smooth_loss:
+                    smooth_loss = loss
 
-                smoothLoss = (1 - self.lossMomentum) * smoothLoss + self.lossMomentum * loss
+                smooth_loss = (1 - self.loss_momentum) * smooth_loss + self.loss_momentum * loss
 
-                if (not self.train_model) or time.time() - previous_time > 900 or (time.time() - start_time < 5 and time.time() - previous_time > 3) or e >= len(self.input_sequence)-2*self.seqLength-1:
+                if (not self.train_model) or time.time() - previous_time > 900 or (time.time() - start_time < 5 and time.time() - previous_time > 3) or e >= len(self.input_sequence)-2*self.seq_length-1:
                     print("Evaluating and presenting current model..")
-                    seqIterationsTemp.append(seqIteration)
-                    smoothLossesTemp.append(smoothLoss)
+                    seq_iterations_temp.append(seq_iteration)
+                    smooth_losses_temp.append(smooth_loss)
 
                     x0 = self.input_sequence[e]
 
                     if self.word_domain:
-                        x_sequence, y_sequence, x, y = self.getWords(e)
+                        x_sequence, y_sequence, x, y = self.get_words(e)
                     else:
-                        x_sequence, y_sequence, x, y = self.getCharacters(0, self.input_sequence_validation, self.lengthSynthesizedText)
+                        x_sequence, y_sequence, x, y = self.get_characters(0, self.input_sequence_validation, self.length_synthesized_text)
 
-                    output, h, a = self.forwardProp(x, hPrev)
+                    output, h, a = self.forward_prop(x, h_prev)
 
-                    validationLoss, accuracy = self.computeLoss(output, y)
-                    lowestValidationLoss = copy(validationLoss)
-                    validationLossesTemp.append(validationLoss)
+                    validation_loss, accuracy = self.compute_loss(output, y)
+                    lowest_validation_loss = copy(validation_loss)
+                    validation_losses_temp.append(validation_loss)
 
-                    table, neuron_activation_map, inputs = self.synthesizeText(x0, hPrev, self.lengthSynthesizedText)
+                    table, neuron_activation_map, inputs = self.synthesize_text(x0, h_prev, self.length_synthesized_text)
 
                     with open('PlotConfigurations.txt', 'r') as f:
                         lines = f.readlines()
                         for line in lines:
                             line = line.split('#')[0]
-                            if 'plotProcess:' in line:
-                                self.plotProcess = ''.join(line.split()).split(':')[1] == 'True'
-                            elif 'plotColorMap:' in line:
+                            
+                            if 'plot_process:' in line:
+                                self.plot_process = ''.join(line.split()).split(':')[1] == 'True'
+                            elif 'plot_color_map:' in line:
                                 self.plot_color_map = ''.join(line.split()).split(':')[1] == 'True'
-                            elif 'plotFFT:' in line:
+                            elif 'plot_fft:' in line:
                                 self.plot_fft = ''.join(line.split()).split(':')[1] == 'True'
-                            elif 'autoDetectPeak:' in line:
+                            elif 'auto_detect_peak:' in line:
                                 self.auto_detect_peak = line.split("'")[1]
 
                     if self.plot_color_map:
-                        self.plotNeuralActivity(inputs, neuron_activation_map)
+                        self.plot_neural_activity(inputs, neuron_activation_map)
+
                     if self.plot_fft:
                         self.plot_fft_neural_activity(neuron_activation_map)
 
@@ -328,16 +327,16 @@ class VisualizeRNN(object):
                     estimated_total_time = time_passed/(max(e, 1)/len(self.input_sequence))
                     remaining_time = estimated_total_time - time_passed
                     previous_time = time.time()
-                    print('\nSequence iteration: ' + str(seqIteration) + ', Epoch: ' + str(epoch)
+                    print('\nSequence iteration: ' + str(seq_iteration) + ', Epoch: ' + str(epoch)
                           + ', Epoch ETA: ' + str(datetime.timedelta(seconds=int(remaining_time)))
                           + ', Epoch process: ' + str('{0:.2f}'.format(e/len(self.input_sequence)*100)) + '%'
-                          + ', Training loss: ' + str('{0:.2f}'.format(smoothLoss)) + ', Neuron of interest: '
-                          + ', Validation loss: ' + str('{0:.2f}'.format(validationLoss)) + ', Neuron of interest: ' +
-                          str(self.neuronsOfInterest) + '(/' + str(self.nHiddenNeurons) + ')')
+                          + ', Training loss: ' + str('{0:.2f}'.format(smooth_loss)) + ', Neuron of interest: '
+                          + ', Validation loss: ' + str('{0:.2f}'.format(validation_loss)) + ', Neuron of interest: ' +
+                          str(self.neurons_of_interest) + '(/' + str(self.n_hidden_neurons) + ')')
 
                     print(table)
 
-                    if self.plotProcess:
+                    if self.plot_process:
                         fig = plt.figure(3)
                         plt.clf()
                         ax = fig.add_subplot(111)
@@ -348,8 +347,8 @@ class VisualizeRNN(object):
                         plt.title(self.domain_specification[:-1] + ' prediction learning curve of Recurrent Neural Network')
                         plt.ylabel('Smooth loss')
                         plt.xlabel('Sequence iteration')
-                        plt.plot(seqIterations+seqIterationsTemp, smoothLosses+smoothLossesTemp, LineWidth=2, label='Training')
-                        plt.plot(seqIterations+seqIterationsTemp, validationLosses+validationLossesTemp, LineWidth=2,  label='Validation')
+                        plt.plot(seq_iterations+seq_iterations_temp, smooth_losses+smooth_losses_temp, LineWidth=2, label='Training')
+                        plt.plot(seq_iterations+seq_iterations_temp, validation_losses+validation_losses_temp, LineWidth=2,  label='Validation')
                         plt.grid()
 
                         plt.legend(loc='upper left')
@@ -358,64 +357,62 @@ class VisualizeRNN(object):
                     if not self.train_model:
                         input("\nPress Enter to continue...")
                     else:
-                        if validationLoss <= lowestValidationLoss:
-                            seqIterations += seqIterationsTemp
-                            smoothLosses += smoothLossesTemp
-                            validationLosses += validationLossesTemp
-                            smoothLossesTemp = []
-                            validationLossesTemp = []
-                            seqIterationsTemp = []
-                            lowestValidationLoss = copy(smoothLoss)
-                            hPrevBest = copy(hPrev)
-                            x0Best = copy(x0)
+                        if validation_loss <= lowest_validation_loss:
+                            seq_iterations += seq_iterations_temp
+                            smooth_losses += smooth_losses_temp
+                            validation_losses += validation_losses_temp
+                            smooth_losses_temp = []
+                            validation_losses_temp = []
+                            seq_iterations_temp = []
+                            lowest_validation_loss = copy(smooth_loss)
+                            h_prev_best = copy(h_prev)
 
-                            if self.train_model and self.saveParameters:
-                                state = "val_loss%.3f-val_acc%.3f-loss%.3f-epoch%d-iteration%d-neurons%d-eta-"%(validationLoss, accuracy, loss, epoch, int(e/self.seqLength), self.nHiddenNeurons) + '{:.2e}'.format(Decimal(self.eta)) + "/"
+                            if self.train_model and self.save_parameters:
+                                state = "val_loss%.3f-val_acc%.3f-loss%.3f-epoch%d-iteration%d-neurons%d-eta-"%(validation_loss, accuracy, loss, epoch, int(e/self.seq_length), self.n_hidden_neurons) + '{:.2e}'.format(Decimal(self.eta)) + "/"
                                 try:
                                     for weight in self.weights:
-                                        fileName = 'Vanilla RNN Saved Models/' + state + 'Weights/' + weight + '.txt'
-                                        os.makedirs(os.path.dirname(fileName), exist_ok=True)
-                                        savetxt(fileName, getattr(self, weight), delimiter=',')
+                                        file_name = 'Vanilla RNN Saved Models/' + state + 'Weights/' + weight + '.txt'
+                                        os.makedirs(os.path.dirname(file_name), exist_ok=True)
+                                        savetxt(file_name, getattr(self, weight), delimiter=',')
 
-                                    os.makedirs(os.path.dirname('Vanilla RNN Saved Models/' + state + 'initSigma.txt'), exist_ok=True)
-                                    savetxt('Vanilla RNN Saved Models/' + state + 'initSigma.txt', array([[self.initSigma]]))
-                                    os.makedirs(os.path.dirname('Vanilla RNN Saved Models/' + state + 'seqIterations.txt'), exist_ok=True)
-                                    savetxt('Vanilla RNN Saved Models/' + state + 'seqIterations.txt', seqIterations, delimiter=',')
-                                    os.makedirs(os.path.dirname('Vanilla RNN Saved Models/' + state + 'smoothLosses.txt'), exist_ok=True)
-                                    savetxt('Vanilla RNN Saved Models/' + state + 'smoothLosses.txt', smoothLosses, delimiter=',')
-                                    os.makedirs(os.path.dirname('Vanilla RNN Saved Models/' + state + 'validationLosses.txt'), exist_ok=True)
-                                    savetxt('Vanilla RNN Saved Models/' + state + 'validationLosses.txt', validationLosses, delimiter=',')
+                                    os.makedirs(os.path.dirname('Vanilla RNN Saved Models/' + state + 'init_sigma.txt'), exist_ok=True)
+                                    savetxt('Vanilla RNN Saved Models/' + state + 'init_sigma.txt', array([[self.init_sigma]]))
+                                    os.makedirs(os.path.dirname('Vanilla RNN Saved Models/' + state + 'seq_iterations.txt'), exist_ok=True)
+                                    savetxt('Vanilla RNN Saved Models/' + state + 'seq_iterations.txt', seq_iterations, delimiter=',')
+                                    os.makedirs(os.path.dirname('Vanilla RNN Saved Models/' + state + 'smooth_losses.txt'), exist_ok=True)
+                                    savetxt('Vanilla RNN Saved Models/' + state + 'smooth_losses.txt', smooth_losses, delimiter=',')
+                                    os.makedirs(os.path.dirname('Vanilla RNN Saved Models/' + state + 'validation_losses.txt'), exist_ok=True)
+                                    savetxt('Vanilla RNN Saved Models/' + state + 'validation_losses.txt', validation_losses, delimiter=',')
 
                                 except Exception as ex:
                                     print(ex)
 
                         print('Continuing training...')
 
-
                 if self.train_model:
                     epsilon = 1e-10
 
-                    if self.rmsProp:
-                        cM = self.gamma
-                        cG = 1 - self.gamma
+                    if self.rms_prop:
+                        c_m = self.gamma
+                        c_g = 1 - self.gamma
                     else:
-                        cM, cG, = 1, 1
+                        c_m, c_g, = 1, 1
 
-                    for grad, weight, gradIndex in zip(self.gradients, self.weights, range(len(self.gradients))):
-                        if self.adaGradSGD:
-                            m[gradIndex] = cM * m[gradIndex] + cG*getattr(self, grad)**2
-                            sqrtInvM = (m[gradIndex]+epsilon)**-0.5
-                            updatedWeight = getattr(self, weight) - self.eta * multiply(sqrtInvM, getattr(self, grad))
+                    for grad, weight, grad_index in zip(self.gradients, self.weights, range(len(self.gradients))):
+                        if self.ada_grad_sgd:
+                            m[grad_index] = c_m * m[grad_index] + c_g*getattr(self, grad)**2
+                            sqrt_inv_m = (m[grad_index]+epsilon)**-0.5
+                            updated_weight = getattr(self, weight) - self.eta * multiply(sqrt_inv_m, getattr(self, grad))
                         else:
-                            updatedWeight = deepcopy(getattr(self, weight)) - self.eta * deepcopy(getattr(self, grad))
+                            updated_weight = deepcopy(getattr(self, weight)) - self.eta * deepcopy(getattr(self, grad))
 
-                        setattr(self, weight, updatedWeight)
+                        setattr(self, weight, updated_weight)
 
-                    hPrev = deepcopy(h[-1])
+                    h_prev = deepcopy(h[-1])
 
-                    seqIteration += 1
+                    seq_iteration += 1
 
-    def plotNeuralActivity(self, inputs, neuron_activation_map):
+    def plot_neural_activity(self, inputs, neuron_activation_map):
         with open('FeaturesOfInterest.txt', 'r') as f:
             lines = f.readlines()
             for line in lines:
@@ -456,7 +453,7 @@ class VisualizeRNN(object):
         if self.auto_detect_peak == 'Relevance':
             neuron_activation_rows = neuron_activation_map
         else:
-            neuron_activation_rows = neuron_activation_map[self.neuronsOfInterestPlot, :]
+            neuron_activation_rows = neuron_activation_map[self.neurons_of_interest_plot, :]
 
         max_activation = amax(neuron_activation_map)
         min_activation = amin(neuron_activation_map)
@@ -506,8 +503,8 @@ class VisualizeRNN(object):
 
             interval[0] = str(max(int(interval[0]), 0))
             interval[-1] = str(min(int(interval[-1]), self.K - 1))
-            self.neuronsOfInterestPlot.extend(range(int(interval[0]), int(interval[-1]) + 1))
-            self.neuronsOfInterestPlotIntervals.append(range(int(interval[0]), int(interval[-1]) + 1))
+            self.neurons_of_interest_plot.extend(range(int(interval[0]), int(interval[-1]) + 1))
+            self.neurons_of_interest_plot_intervals.append(range(int(interval[0]), int(interval[-1]) + 1))
             intermediate_range = [i for i in range(int(interval[0]) + 1, int(interval[-1]))]
             intermediate_range.insert(0, int(interval[0]))
             intermediate_range.append(int(interval[-1]))
@@ -518,12 +515,12 @@ class VisualizeRNN(object):
 
             self.interval_limits = array(self.interval_limits)
 
-            self.neuronsOfInterestPlot = range(neuron_window[0], neuron_window[1])
+            self.neurons_of_interest_plot = range(neuron_window[0], neuron_window[1])
 
-        y = range(len(self.neuronsOfInterestPlot))
+        y = range(len(self.neurons_of_interest_plot))
         intervals = [
             self.intervals_to_plot[where(self.interval_limits == i)[0][0]] if i in self.interval_limits else ' ' for i
-            in self.neuronsOfInterestPlot]
+            in self.neurons_of_interest_plot]
 
         for i in range(len(axarr)):
             axarr[i].set_yticks(y)
@@ -539,9 +536,9 @@ class VisualizeRNN(object):
 
         if self.auto_detect_peak != 'Relevance':
             interval = 0
-            for i in range(len(self.neuronsOfInterestPlotIntervals) + 1):
+            for i in range(len(self.neurons_of_interest_plot_intervals) + 1):
                 if i > 0:
-                    limit = self.neuronsOfInterestPlotIntervals[i - 1]
+                    limit = self.neurons_of_interest_plot_intervals[i - 1]
                     interval += 1 + limit[-1] - limit[0]
                 axarr[0].plot(arange(-.5, len(input_indices_of_interest) + .5),
                               (len(input_indices_of_interest) + 1) * [interval - 0.5], 'k--', LineWidth=1)
@@ -562,12 +559,12 @@ class VisualizeRNN(object):
 
         fft_neuron_activations_complex = fft.fft(neuron_activations)
 
-        fft_neuron_activations_abs = abs(fft_neuron_activations_complex / self.lengthSynthesizedText)
+        fft_neuron_activations_abs = abs(fft_neuron_activations_complex / self.length_synthesized_text)
 
-        fft_neuron_activations_single_sided = fft_neuron_activations_abs[:, 0:int(self.lengthSynthesizedText / 2)]
+        fft_neuron_activations_single_sided = fft_neuron_activations_abs[:, 0:int(self.length_synthesized_text / 2)]
         fft_neuron_activations_single_sided[:, 2:-2] = 2 * fft_neuron_activations_single_sided[:, 2:-2]
 
-        freq = arange(0, floor(self.lengthSynthesizedText / 2)) / self.lengthSynthesizedText
+        freq = arange(0, floor(self.length_synthesized_text / 2)) / self.length_synthesized_text
 
         if self.auto_detect_peak == 'FFT':
             self.band_width = [0.1, 0.4]
@@ -578,8 +575,7 @@ class VisualizeRNN(object):
             # freq = freq[domain_relevant_freq]
             domain_relevant_components = fft_neuron_activations_single_sided[:, domain_relevant_freq]
             argmax_row = where(fft_neuron_activations_single_sided == amax(domain_relevant_components))[0][0]
-            # argmax_row = argmax(mean(fft_neuron_activations_single_sided, axis=1))
-            # fft_neuron_activations_single_sided = domain_relevant_components[start_neuron:end_neuron, :]
+
             neuron_window[0] += max(argmax_row - int(reduced_window_size / 2), 0)
             neuron_window[1] += min(argmax_row + int(reduced_window_size / 2 + 1), size(domain_relevant_components, 0))
             fft_neuron_activations_single_sided = fft_neuron_activations_single_sided[
@@ -596,7 +592,6 @@ class VisualizeRNN(object):
         plt.clf()
         ax = fig.gca(projection='3d')
         ax.view_init(20, -120)
-        # ax.xaxis.set_major_locator(MaxNLocator(integer=True))
         ax.yaxis.set_major_locator(MaxNLocator(integer=True))
 
         cmap_color = cm.coolwarm  # cm.coolwarm
@@ -617,14 +612,14 @@ class VisualizeRNN(object):
         plt.pause(.5)
 
 
-    def forwardProp(self, x, hPrev, weights={}):
+    def forward_prop(self, x, h_prev, weights={}):
         if not weights:
-            weightsTuples = [(self.weights[i], getattr(self, self.weights[i])) for i in range(len(self.weights))]
-            weights = dict(weightsTuples)
+            weights_tuples = [(self.weights[i], getattr(self, self.weights[i])) for i in range(len(self.weights))]
+            weights = dict(weights_tuples)
 
         tau = len(x)
 
-        h = [hPrev]
+        h = [h_prev]
         a = []
         o = []
         if not self.word_domain:
@@ -644,44 +639,44 @@ class VisualizeRNN(object):
         else:
             return p, h, a
 
-    def synthesizeText(self, x0, hPrev, seqLength, weights={}):
+    def synthesize_text(self, x0, h_prev, seq_length, weights={}):
         if not weights:
-            weightsTuples = [(self.weights[i], getattr(self, self.weights[i])) for i in range(len(self.weights))]
-            weights = dict(weightsTuples)
+            weights_tuples = [(self.weights[i], getattr(self, self.weights[i])) for i in range(len(self.weights))]
+            weights = dict(weights_tuples)
 
-        self.neuronsOfInterest = []
-        self.neuronsOfInterestPlot = []
-        self.neuronsOfInterestPlotIntervals = []
+        self.neurons_of_interest = []
+        self.neurons_of_interest_plot = []
+        self.neurons_of_interest_plot_intervals = []
 
-        self.loadNeuronIntervals()
+        self.load_neuron_intervals()
 
         print('Predicting sentence from previous ' + self.domain_specification[:-1].lower() + ' "' + x0 + '"')
 
-        table_data = [['Neuron ' + str(self.neuronsOfInterest[int(i/2)]), ''] if i % 2 == 0 else ['\n', '\n'] for i in range(2*len(self.neuronsOfInterest))]
+        table_data = [['Neuron ' + str(self.neurons_of_interest[int(i/2)]), ''] if i % 2 == 0 else ['\n', '\n'] for i in range(2*len(self.neurons_of_interest))]
         table = SingleTable(table_data)
 
         table.table_data.insert(0, ['Neuron ', 'Predicted sentence'])
 
         max_width = table.column_max_width(1)
 
-        y_n = [[] for i in range(len(self.neuronsOfInterest))]
-        y = [[] for i in range(len(self.neuronsOfInterest))]
+        y_n = [[] for i in range(len(self.neurons_of_interest))]
+        y = [[] for i in range(len(self.neurons_of_interest))]
 
         if self.word_domain:
             x = [array([self.word2vec_model[x0]]).T]
         else:
             sample = copy(x0)
 
-        neuron_activation_map = zeros((self.nHiddenNeurons, seqLength))
+        neuron_activation_map = zeros((self.n_hidden_neurons, seq_length))
 
-        for t in range(seqLength):
+        for t in range(seq_length):
             if not self.word_domain:
-                x = self.seqToOneHot(sample)
-            output, h, a = self.forwardProp(x, hPrev, weights)
-            hPrev = deepcopy(h[-1])
+                x = self.seq_to_one_hot(sample)
+            output, h, a = self.forward_prop(x, h_prev, weights)
+            h_prev = deepcopy(h[-1])
 
             neuron_activation_map[:, t] = a[-1][:, 0]
-            neuronActivations = a[-1][self.neuronsOfInterest]
+            neuron_activations = a[-1][self.neurons_of_interest]
 
             if self.word_domain:
                 output_word_vector = output[0][:, 0]
@@ -704,11 +699,11 @@ class VisualizeRNN(object):
             if self.word_domain:
                 sample = list_most_similar[sample_index][0]
             else:
-                sample = self.indToChar.get(sample_index)
+                sample = self.ind_to_char.get(sample_index)
 
-            for i in range(len(self.neuronsOfInterest)):
+            for i in range(len(self.neurons_of_interest)):
 
-                neuron_activation = nan_to_num(neuronActivations[i, 0])/20.0
+                neuron_activation = nan_to_num(neuron_activations[i, 0])/20.0
 
                 active_color = abs(int(neuron_activation * 255)) if self.dark_theme else 255
                 inactive_color = 0 if self.dark_theme else 255 - abs(int(neuron_activation * 255))
@@ -728,8 +723,7 @@ class VisualizeRNN(object):
                 y_n[i].append(sample)
                 y[i].append(colored_word)
 
-        for i in range(len(self.neuronsOfInterest)):
-            # sequences.append(''.join(y[i]))
+        for i in range(len(self.neurons_of_interest)):
 
             wrapped_string = ''
             line_width = 0
@@ -750,8 +744,8 @@ class VisualizeRNN(object):
 
             table.table_data[2*i+1][1] = wrapped_string
 
-        max_activation = amax(neuron_activation_map[self.neuronsOfInterest, :])
-        min_activation = amin(neuron_activation_map[self.neuronsOfInterest, :])
+        max_activation = amax(neuron_activation_map[self.neurons_of_interest, :])
+        min_activation = amin(neuron_activation_map[self.neurons_of_interest, :])
         margin = 8
         color_range_width = max_width - len(table.table_data[0][1]) - (len(str(max_activation)) + len(str(min_activation)) + 2)
         color_range = arange(min_activation, max_activation,
@@ -787,7 +781,7 @@ class VisualizeRNN(object):
 
         return table.table, neuron_activation_map, y_n[0]
 
-    def loadNeuronIntervals(self):
+    def load_neuron_intervals(self):
         with open('FeaturesOfInterest.txt', 'r') as f:
             lines = f.readlines()
             for line in lines:
@@ -800,11 +794,11 @@ class VisualizeRNN(object):
                                 interval = interval.split(':')
                                 interval[0] = str(max(int(interval[0]), 0))
                                 interval[-1] = str(min(int(interval[-1]), self.K - 1))
-                                self.neuronsOfInterest.extend(range(int(interval[0]), int(interval[-1]) + 1))
+                                self.neurons_of_interest.extend(range(int(interval[0]), int(interval[-1]) + 1))
                             else:
                                 interval = str(max(int(interval), 0))
                                 interval = str(min(int(interval), self.K - 1))
-                                self.neuronsOfInterest.append(int(interval))
+                                self.neurons_of_interest.append(int(interval))
                     if 'Neurons to plot:' in line:
                         line = line.replace('Neurons to plot:', '')
                         intervals = ''.join(line.split()).split(',')
@@ -817,8 +811,8 @@ class VisualizeRNN(object):
                                 interval = interval.split(':')
                                 interval[0] = str(max(int(interval[0]), 0))
                                 interval[-1] = str(min(int(interval[-1]), self.K-1))
-                                self.neuronsOfInterestPlot.extend(range(int(interval[0]), int(interval[-1]) + 1))
-                                self.neuronsOfInterestPlotIntervals.append(range(int(interval[0]), int(interval[-1]) + 1))
+                                self.neurons_of_interest_plot.extend(range(int(interval[0]), int(interval[-1]) + 1))
+                                self.neurons_of_interest_plot_intervals.append(range(int(interval[0]), int(interval[-1]) + 1))
                                 intermediate_range = [i for i in range(int(interval[0])+1, int(interval[-1])) if i%5 == 0]
                                 intermediate_range.insert(0, int(interval[0]))
                                 intermediate_range.append(int(interval[-1]))
@@ -829,13 +823,13 @@ class VisualizeRNN(object):
                             else:
                                 interval = str(max(int(interval), 0))
                                 interval = str(min(int(interval), self.K - 1))
-                                self.neuronsOfInterestPlot.append(int(interval))
-                                self.neuronsOfInterestPlotIntervals.append([int(interval)])
+                                self.neurons_of_interest_plot.append(int(interval))
+                                self.neurons_of_interest_plot_intervals.append([int(interval)])
                                 self.intervals_to_plot.append(interval)
                                 self.interval_limits.append(int(interval))
                         self.interval_limits = array(self.interval_limits)
 
-    def backProp(self, x, y, output, h):
+    def back_prop(self, x, y, output, h):
         tau = len(x)
 
         # Initialize gradients
@@ -845,12 +839,11 @@ class VisualizeRNN(object):
         dLdO = []
 
         for t in range(tau):
-            # dLdO.append(p[t].T - y[t].T)
             dLdO.append(output[t].T - y[t].T)
             self.dLdV += dot(dLdO[t].T, h[t+1].T)
             self.dLdC += dLdO[t].T
 
-        dLdAt = zeros((1, self.nHiddenNeurons))
+        dLdAt = zeros((1, self.n_hidden_neurons))
 
         for t in range(tau - 1, -1, -1):
             dLdHt = dot(dLdO[t], self.V) + dot(dLdAt, self.W)
@@ -860,12 +853,11 @@ class VisualizeRNN(object):
             self.dLdU += dot(dLdAt.T, x[t].T)
             self.dLdB += dLdAt.T
 
-        # Clip gradients
-        if self.clipGradients:
+        if self.clip_gradients:
             for grad in self.gradients:
-                setattr(self, grad, maximum(minimum(getattr(self, grad), self.gradientClipThreshold), -self.gradientClipThreshold))
+                setattr(self, grad, maximum(minimum(getattr(self, grad), self.gradient_clip_threshold), -self.gradient_clip_threshold))
 
-    def computeLoss(self, output, y):
+    def compute_loss(self, output, y):
         # Cross entropy loss
         tau = len(y)
         loss = 0
@@ -897,21 +889,21 @@ class VisualizeRNN(object):
 
         return loss, accuracy
 
-    def toOneHot(self, x):
+    def to_one_hot(self, x):
         binarizer = sklearn.preprocessing.LabelBinarizer()
         binarizer.fit(range(max(x.astype(int)) + 1))
         X = array(binarizer.transform(x.astype(int))).T
 
         return X
 
-    def seqToOneHot(self, x):
-        X = [array([self.charToInd.get(xt)]).T for xt in x]
+    def seq_to_one_hot(self, x):
+        X = [array([self.char_to_ind.get(xt)]).T for xt in x]
 
         return X
 
-    def seqToOneHotMatrix(self, x):
-        xInd = self.seqToOneHot(x)
-        X = concatenate(xInd, axis=1)
+    def seq_to_one_hot_matrix(self, x):
+        x_ind = self.seq_to_one_hot(x)
+        X = concatenate(x_ind, axis=1)
 
         return X
 
@@ -919,65 +911,10 @@ class VisualizeRNN(object):
         return (exp(x) - exp(-x))/(exp(x) + exp(-x))
 
     def softmax(self, s):
-        exP = exp(s)
-        p = exP/exP.sum()
+        ex_p = exp(s)
+        p = ex_p/ex_p.sum()
 
         return p
-
-    def computeGradsNumSlow(self, x, y, hPrev):
-        hStep = 1e-4
-
-        for numGrad, weight in zip(self.numGradients, self.weights):
-            setattr(self, numGrad, zeros(getattr(self, weight).shape))
-
-        for numGrad, weight, gradIndex in zip(self.numGradients, self.weights, range(len(self.numGradients))):
-            if getattr(self, weight).shape[1] == 1:
-                for i in range(getattr(self, weight).shape[0]):
-                    weightTry = deepcopy(getattr(self, weight))
-                    weightTry[i, 0] -= hStep
-                    weightsTuples = [(self.weights[i], deepcopy(getattr(self, self.weights[i]))) for i in range(len(self.weights))]
-                    weightsTuples[gradIndex] = (self.weights[gradIndex], weightTry)
-                    weights = dict(weightsTuples)
-                    o, h, a = self.forwardProp(x, hPrev, weights)
-                    c1, accuracy = self.computeLoss(o, y)
-
-                    weightTry = deepcopy(getattr(self, weight))
-                    weightTry[i, 0] += hStep
-                    weightsTuples = [(self.weights[i], deepcopy(getattr(self, self.weights[i]))) for i in range(len(self.weights))]
-                    weightsTuples[gradIndex] = (self.weights[gradIndex], weightTry)
-                    weights = dict(weightsTuples)
-                    o, h, a = self.forwardProp(x, hPrev, weights)
-                    c2, accuracy = self.computeLoss(o, y)
-
-                    updatedNumGrad = deepcopy(getattr(self, numGrad))
-                    updatedNumGrad[i, 0] = (c2 - c1) / (2 * hStep)
-                    setattr(self, numGrad, updatedNumGrad)
-            else:
-                iS = [0, 1, 2, getattr(self, weight).shape[0] - 3, getattr(self, weight).shape[0] - 2, getattr(self, weight).shape[0] - 1]
-                jS = [0, 1, 2, getattr(self, weight).shape[1] - 3, getattr(self, weight).shape[1] - 2, getattr(self, weight).shape[1] - 1]
-                for i in iS:
-                    for j in jS:
-                        weightTry = deepcopy(getattr(self, weight))
-                        weightTry[i, j] -= hStep
-                        weightsTuples = [(self.weights[i], deepcopy(getattr(self, self.weights[i]))) for i in
-                                         range(len(self.weights))]
-                        weightsTuples[gradIndex] = (self.weights[gradIndex], weightTry)
-                        weights = dict(weightsTuples)
-                        o, h, a = self.forwardProp(x, hPrev, weights)
-                        c1, accuracy = self.computeLoss(o, y)
-
-                        weightTry = deepcopy(getattr(self, weight))
-                        weightTry[i, j] += hStep
-                        weightsTuples = [(self.weights[i], copy(getattr(self, self.weights[i]))) for i in
-                                         range(len(self.weights))]
-                        weightsTuples[gradIndex] = (self.weights[gradIndex], weightTry)
-                        weights = dict(weightsTuples)
-                        o, h, a = self.forwardProp(x, hPrev, weights)
-                        c2, accuracy = self.computeLoss(o, y)
-
-                        updatedNumGrad = deepcopy(getattr(self, numGrad))
-                        updatedNumGrad[i, j] = (c2 - c1) / (2 * hStep)
-                        setattr(self, numGrad, updatedNumGrad)
 
 
 def randomize_hyper_parameters(n_configurations, attributes):
@@ -985,23 +922,24 @@ def randomize_hyper_parameters(n_configurations, attributes):
     attributes['nEpochs'] = 5
     attributes['weightInit'] = 'He'
 
+
     for i in range(n_configurations):
-        attributes['nHiddenNeurons'] = 16*int(5*random.rand()+12)
+        attributes['n_hidden_neurons'] = 16*int(5*random.rand()+12)
         attributes['eta'] = int(9*random.rand() + 1)*10**(-5 - int(2*random.rand()))
 
         print('\n')
-        print('n: ' + str(attributes['nHiddenNeurons']))
+        print('n: ' + str(attributes['n_hidden_neurons']))
         print('Learning rate: ' + str(attributes['eta']))
         print('\n')
 
         rnn = VisualizeRNN(attributes)
-        rnn.adaGrad()
+        rnn.run_vanilla_rnn()
 
 
 def main():
 
     attributes = {
-        'textFile': '../Corpus/ted_en.zip',  # Corpus file for training
+        'text_file': '../Corpus/ted_en.zip',  # Corpus file for training
         'dark_theme': True,  # True for dark theme, else light (then terminal text/background color needs to be adjusted)
         'train_model': False,  # True to train model, otherwise inference process is applied for text generation
         'model_directory': 'Vanilla RNN Saved Models/val_loss2.072-val_acc0.445-loss1.335-epoch6-iteration674039-neurons224-eta-9.00e-5/',
@@ -1010,26 +948,25 @@ def main():
         'load_sentences': True,  # Load sentences and vocabulary
         'validation_proportion': .02,  # The proportion of data set used for validation
         'corpus_proportion': 1.0,  # The proportion of the corpus used for training and validation
-        'adaGradSGD': True,  # Stochastic gradient decent, True for adaGrad, False for regular SGD
-        'clipGradients': True,  # True to avoid exploding gradients
-        'gradientClipThreshold': 5,  # Threshold for clipping gradients
-        'weightInit': 'Load',  # 'He', 'Load' or 'Random'
+        'ada_grad_sgd': True,  # Stochastic gradient decent, True for ada_grad, False for regular SGD
+        'clip_gradients': True,  # True to avoid exploding gradients
+        'gradient_clip_threshold': 5,  # Threshold for clipping gradients
+        'weight_init': 'Load',  # 'He', 'Load' or 'Random'
         'eta': 9.00e-5,  # Learning rate
-        'nHiddenNeurons': 224,  # Number of hidden neurons
-        'nEpochs': 10,  # Total number of epochs, each corresponds to (n book characters)/(seqLength) seq iterations
-        'seqLength': 25,  # Sequence length of each sequence iteration
-        'lengthSynthesizedText': 300,  # Sequence length of each print of text evolution
-        'lengthSynthesizedTextBest': 1000,  # Sequence length of final best sequence, requires saveParameters
-        'rmsProp': True,  # Implementation of rmsProp to adaGradSGD
-        'gamma': 0.9,  # Weight factor of rmsProp
-        'saveParameters': False  # Save best weights with corresponding arrays iterations and smooth loss
+        'n_hidden_neurons': 224,  # Number of hidden neurons
+        'n_epochs': 10,  # Total number of epochs, each corresponds to (n book characters)/(seq_length) seq iterations
+        'seq_length': 25,  # Sequence length of each sequence iteration
+        'length_synthesized_text': 300,  # Sequence length of each print of text evolution
+        'length_synthesized_text_best': 1000,  # Sequence length of final best sequence, requires save_parameters
+        'rms_prop': True,  # Implementation of rms_prop to ada_grad_sgd
+        'gamma': 0.9,  # Weight factor of rms_prop
+        'save_parameters': False  # Save best weights with corresponding arrays iterations and smooth loss
     }
 
     # randomize_hyper_parameters(500, attributes)
-    rnn = VisualizeRNN(attributes)
-    # rnn.testComputedGradients()
-    rnn.adaGrad()
-    print('Finished!')
+
+    rnn_vis = VisualizeRNN(attributes)
+    rnn_vis.run_vanilla_rnn()
 
 
 if __name__ == '__main__':
