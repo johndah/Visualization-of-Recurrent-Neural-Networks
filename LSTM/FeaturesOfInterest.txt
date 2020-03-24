@@ -23,4 +23,4 @@ Band width to auto-detect prominent frequency components (Hz): 0.4:0.5
 Prediction features: '[?!.]' '# '[A-Z|a-z][a-z]*'
 
 # The input, forget, cell, output gate or final_layer_output to visualize
-lstm_gate_of_interest: 'cell'
+lstm_gate_of_interest: 'output'

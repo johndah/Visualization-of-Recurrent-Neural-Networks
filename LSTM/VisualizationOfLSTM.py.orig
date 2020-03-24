@@ -25,7 +25,7 @@ import nltk
 import gensim.models
 from sklearn.decomposition import PCA
 
-import ctypes
+from ctypes import windll, c_int, byref
 import re
 import zipfile
 import lxml.etree
@@ -50,11 +50,11 @@ class VisualizeLSTM(object):
 
         # Allowing ANSI Escape Sequences for terminal coloring for windows. It works on Linux without this.
         if platform.system().lower() == 'windows':
-            stdout_handle = ctypes.windll.kernel32.GetStdHandle(ctypes.c_int(-11))
-            mode = ctypes.c_int(0)
-            ctypes.windll.kernel32.GetConsoleMode(ctypes.c_int(stdout_handle), ctypes.byref(mode))
-            mode = ctypes.c_int(mode.value | 4)
-            ctypes.windll.kernel32.SetConsoleMode(ctypes.c_int(stdout_handle), mode)
+            stdout_handle = windll.kernel32.GetStdHandle(c_int(-11))
+            mode = c_int(0)
+            windll.kernel32.GetConsoleMode(c_int(stdout_handle), byref(mode))
+            mode = c_int(mode.value | 4)
+            windll.kernel32.SetConsoleMode(c_int(stdout_handle), mode)
 
         # Part of speech tags as feature of interest
         self.pos_features = {
@@ -584,6 +584,7 @@ class VisualizeLSTM(object):
                     blue = active_color
 
                 bg.set_style('activationColor', RgbBg(red, green, blue))
+>>>>>>> 7e4f66f... Fix dark theme colors
 
                 colored_word = bg.activationColor + prediction_input + bg.rs
 
@@ -636,8 +637,8 @@ class VisualizeLSTM(object):
         for i in range(color_range_width):
             color_range_value = self.scale_color_values * color_range[i]
 
-            active_color = abs(int(color_range_value * 255)) if self.dark_theme else 255
-            inactive_color = 0 if self.dark_theme else 255 - abs(int(color_range_value * 255))
+            active_color = abs(int(color_range_value  * 255)) if self.dark_theme else 255
+            inactive_color = 0 if self.dark_theme else 255 - abs(int(color_range_value  * 255))
 
             if color_range_value > 0:
                 red = active_color
@@ -837,7 +838,7 @@ class VisualizeLSTM(object):
 
         plt.legend(loc='upper left')
 
-        plt.pause(0.5)
+        plt.pause(0.1)
 
     def plot_neural_activity(self, inputs, neuron_activation_map):
         with open('FeaturesOfInterest.txt', 'r') as f:
@@ -1195,7 +1196,7 @@ class VisualizeLSTM(object):
         fft_neuron_activations_single_sided_argpos = deepcopy(fft_neuron_activations_single_sided)
         fft_neuron_activations_single_sided_argpos[:, :10] = 0
         print('Values: ' + str(amax(fft_neuron_activations_single_sided_argpos, axis=1)) + '\n')
-        plt.pause(.5)
+        plt.pause(.1)
 
     # Load defined neurons of interest and automatical detection boolean from PlotConfigurations.txt
     def load_neuron_intervals(self):
@@ -1380,9 +1381,16 @@ def template_configurations(attributes, configuaration):
 
 def main():
     attributes = {
+<<<<<<< HEAD
+        'present_tables_in_terminal': True,
+        # True to only print visualization tables in terminal, else to save in files
+        'white_background': False,  # True for white background, else black (Terminal properties needs to be adjusted)
+        'text_file': '../Corpus/ted_en.zip',  # Corpus file for training
+=======
         'present_tables_in_terminal': True, # True to only print visualization tables in terminal, else to save in files
         'dark_theme': True,  # True for dark theme, else light (then terminal text/background color needs to be adjusted)
-        'text_file': '../Corpus/ted_en.zip',  # Corpus file for training
+        'text_file': '../Corpus/ted_en.zip',  # Path to textfile to train on
+>>>>>>> 1f48e23... Fix dark theme colors
         'load_lstm_model': True,  # True to load lstm checkpoint model with best validation accuracy
         'load_training_process': False,
         # True to load training and validation accuracy. Requires training with save_checkpoints = True.

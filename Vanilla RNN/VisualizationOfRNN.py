@@ -555,7 +555,7 @@ class VisualizeRNN(object):
     def plot_fft_neural_activity(self, neuron_activation_map):
 
         neurons_of_interest_fft = range(16, 21)
-        if self.auto_detect_peak == 'FFT':
+        if self.auto_detect_peak != 'FFT':
             neuron_activations = neuron_activation_map[neurons_of_interest_fft, :]
         else:
             neuron_activations = neuron_activation_map
@@ -708,29 +708,25 @@ class VisualizeRNN(object):
 
             for i in range(len(self.neuronsOfInterest)):
 
-                neuronActivation = nan_to_num(neuronActivations[i, 0])/20.0
-                '''
-                if neuronActivation > 0:
-                    bg.set_style('activationColor', RgbBg(int(neuronActivation * 255), 0, 0))
+                neuron_activation = nan_to_num(neuronActivations[i, 0])/20.0
+
+                active_color = abs(int(neuron_activation * 255)) if self.dark_theme else 255
+                inactive_color = 0 if self.dark_theme else 255 - abs(int(neuron_activation * 255))
+
+                if neuron_activation > 0:
+                    red = active_color
+                    green = inactive_color
+                    blue = inactive_color
                 else:
-                    bg.set_style('activationColor', RgbBg(0, 0, int(abs(neuronActivation) * 255)))
+                    red = inactive_color
+                    green = inactive_color
+                    blue = active_color
 
-                coloredWord = bg.activationColor + sample + bg.rs
-
-                '''
-                w = self.white_background
-
-                if neuronActivation > 0:
-                    inactive_color = w * 255 - (2 * w - 1) * int(neuronActivation * 255)
-                    bg.set_style('activationColor', RgbBg(w * 255, inactive_color, inactive_color))
-                else:
-                    inactive_color = w * 255 + (2 * w - 1) * int(neuronActivation * 255)
-                    bg.set_style('activationColor', RgbBg(inactive_color, inactive_color, w * 255))
-
-                coloredWord = bg.activationColor + sample + bg.rs
+                bg.set_style('activationColor', RgbBg(red, green, blue))
+                colored_word = bg.activationColor + sample + bg.rs
 
                 y_n[i].append(sample)
-                y[i].append(coloredWord)
+                y[i].append(colored_word)
 
         for i in range(len(self.neuronsOfInterest)):
             # sequences.append(''.join(y[i]))
@@ -767,23 +763,19 @@ class VisualizeRNN(object):
 
             color_range_value = nan_to_num(color_range[i])/20.0
 
-            w = self.white_background
+            active_color = abs(int(color_range_value  * 255)) if self.dark_theme else 255
+            inactive_color = 0 if self.dark_theme else 255 - abs(int(color_range_value * 255))
 
             if color_range_value > 0:
-                inactive_color = w * 255 - (2 * w - 1) * int(color_range_value * 255)
-                bg.set_style('activationColor', RgbBg(w * 255, inactive_color, inactive_color))
+                red = active_color
+                green = inactive_color
+                blue = inactive_color
             else:
-                inactive_color = w * 255 + (2 * w - 1) * int(color_range_value * 255)
-                bg.set_style('activationColor', RgbBg(inactive_color, inactive_color, w * 255))
+                red = inactive_color
+                green = inactive_color
+                blue = active_color
 
-            '''
-            coloredWord = bg.activationColor + sample + bg.rs
-            if color_range_value > 0:
-                bg.set_style('activationColor', RgbBg(int(color_range_value * 255), 0, 0))
-            else:
-                bg.set_style('activationColor', RgbBg(0, 0, int(abs(color_range_value) * 255)))
-            '''
-
+            bg.set_style('activationColor', RgbBg(red, green, blue))
             colored_indicator = bg.activationColor + ' ' + bg.rs
 
             color_range_str += colored_indicator
@@ -1010,7 +1002,7 @@ def main():
 
     attributes = {
         'textFile': '../Corpus/ted_en.zip',  # Corpus file for training
-        'white_background': True,
+        'dark_theme': True,  # True for dark theme, else light (then terminal text/background color needs to be adjusted)
         'train_model': False,  # True to train model, otherwise inference process is applied for text generation
         'model_directory': 'Vanilla RNN Saved Models/val_loss2.072-val_acc0.445-loss1.335-epoch6-iteration674039-neurons224-eta-9.00e-5/',
         'word_domain': False,  # True for words, False for characters
