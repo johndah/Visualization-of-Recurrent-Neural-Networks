@@ -15,7 +15,7 @@ Heatmap of extracted feature of interest " " (space) (left) and automatic sugges
 
 ![Corresponding heatmap](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/Figures/LSTMSpaces-HeatmapSeed1Hypotheses2.png)
 ### Corresponding Fourier transform heat surface
-Fourier transform of detected neuron 295 and 376 comfirmig the sensitivity to spaces by showing significant frequency components of 0.5 (every second word).
+Fourier transform of detected neuron 295 and 376 comfirmig the sensitivity to spaces by showing significant frequency components of 0.5 (every second word). Note, the large zero-frequency components correspond to the mean and is not relevant for patterns.
 
 ![Corresponding Fourier transform heat surface](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/Figures/LSTMSpaces-FouriermapSeed1Hypotheses2RelevanceDetected.png)
 
@@ -34,7 +34,7 @@ Heatmap of extracted feature of interest ".", "?" and "!" (left) and automatical
 ## Character prediction with Vanilla RNN
 
 ### Sample of terminal output
-Predicted text highligted based on neural activity of the LSTM hidden state output. Neuron 18 is detected to have many frequency components. The neuron seems to have a pattern to get deactivated (blue) when triggered by the second letter of synthesized words.
+Predicted text highligted based on neural activity of the Vanilla RNN hidden state output. Neuron 18 is detected to have many frequency components. The neuron seems to have a pattern to get deactivated (blue) when triggered by the second letter of synthesized words.
 ![Sample of terminal output](https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks/blob/master/Figures/AllCharacters-Terminal.PNG)
 ### Corresponding heatmap with relevance scores
 Heatmap extracting all features. Thus, the relevance is zero.
