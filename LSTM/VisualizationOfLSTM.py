@@ -25,7 +25,7 @@ import nltk
 import gensim.models
 from sklearn.decomposition import PCA
 
-from ctypes import windll, c_int, byref
+import ctypes
 import re
 import zipfile
 import lxml.etree
@@ -50,11 +50,11 @@ class VisualizeLSTM(object):
 
         # Allowing ANSI Escape Sequences for terminal coloring for windows. It works on Linux without this.
         if platform.system().lower() == 'windows':
-            stdout_handle = windll.kernel32.GetStdHandle(c_int(-11))
-            mode = c_int(0)
-            windll.kernel32.GetConsoleMode(c_int(stdout_handle), byref(mode))
-            mode = c_int(mode.value | 4)
-            windll.kernel32.SetConsoleMode(c_int(stdout_handle), mode)
+            stdout_handle = ctypes.windll.kernel32.GetStdHandle(ctypes.c_int(-11))
+            mode = ctypes.c_int(0)
+            ctypes.windll.kernel32.GetConsoleMode(ctypes.c_int(stdout_handle), ctypes.byref(mode))
+            mode = ctypes.c_int(mode.value | 4)
+            ctypes.windll.kernel32.SetConsoleMode(ctypes.c_int(stdout_handle), mode)
 
         # Part of speech tags as feature of interest
         self.pos_features = {
@@ -830,7 +830,7 @@ class VisualizeLSTM(object):
 
         plt.legend(loc='upper left')
 
-        plt.pause(0.1)
+        plt.pause(0.5)
 
     def plot_neural_activity(self, inputs, neuron_activation_map):
         with open('FeaturesOfInterest.txt', 'r') as f:
@@ -1188,7 +1188,7 @@ class VisualizeLSTM(object):
         fft_neuron_activations_single_sided_argpos = deepcopy(fft_neuron_activations_single_sided)
         fft_neuron_activations_single_sided_argpos[:, :10] = 0
         print('Values: ' + str(amax(fft_neuron_activations_single_sided_argpos, axis=1)) + '\n')
-        plt.pause(.1)
+        plt.pause(.5)
 
     # Load defined neurons of interest and automatical detection boolean from PlotConfigurations.txt
     def load_neuron_intervals(self):

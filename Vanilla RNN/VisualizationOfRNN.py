@@ -18,7 +18,7 @@ from matplotlib.offsetbox import AnchoredText
 import platform
 from sty import bg, RgbBg
 from gensim.models import KeyedVectors
-from ctypes import windll, c_int, byref
+import ctypes
 import re
 import zipfile
 import lxml.etree
@@ -43,11 +43,11 @@ class VisualizeRNN(object):
 
         # Allowing ANSI Escape Sequences for colors
         if platform.system().lower() == 'windows':
-            stdout_handle = windll.kernel32.GetStdHandle(c_int(-11))
-            mode = c_int(0)
-            windll.kernel32.GetConsoleMode(c_int(stdout_handle), byref(mode))
-            mode = c_int(mode.value | 4)
-            windll.kernel32.SetConsoleMode(c_int(stdout_handle), mode)
+            stdout_handle = ctypes.windll.kernel32.GetStdHandle(ctypes.c_int(-11))
+            mode = ctypes.c_int(0)
+            ctypes.windll.kernel32.GetConsoleMode(ctypes.c_int(stdout_handle), ctypes.byref(mode))
+            mode = ctypes.c_int(mode.value | 4)
+            ctypes.windll.kernel32.SetConsoleMode(ctypes.c_int(stdout_handle), mode)
 
         if self.word_domain:
             if self.save_sentences:
@@ -614,7 +614,7 @@ class VisualizeRNN(object):
         plt.ylabel('Neurons of interest')
         ax.set_zlabel(r'$|\mathcal{F}|$')
 
-        plt.pause(.1)
+        plt.pause(.5)
 
 
     def forwardProp(self, x, hPrev, weights={}):

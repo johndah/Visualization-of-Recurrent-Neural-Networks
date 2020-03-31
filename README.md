@@ -47,28 +47,26 @@ Fourier transform and automatically detected peaks for neuron 18, the neuron has
 Clone or download this repository ```https://github.com/johndah/Visualization-of-Recurrent-Neural-Networks.git``` for running the models of visualization.
 
 ## Dependencies
-Download (e.g. with `conda install` or `pip install`) the required dependencies
+The source code is running on
 ```buildoutcfgf
-keras==2.3.1
-numpy==1.16.4
-sty==1.0.0b12
-matplotlib==3.1.3
-nltk==3.4.5
-gensim==3.8.1
-lxml==4.5.0
-terminaltables==3.1.0
+python3.6
+```
+Moreover, download (e.g. with `conda install` or `pip install`) the required dependencies
+```buildoutcfgf
+keras==2.3.1 numpy==1.16.4 sklearn==0.0 sty==1.0.0b12 matplotlib==3.1.3 nltk==3.4.5 gensim==3.8.1 lxml==4.5.0 terminaltables==3.1.0
 ```
 and finally `tensorflow==1.13.1` or `tensorflow-gpu` for running either on CPU or GPU, respectively. Note that the former choice may be computationally demanding and thus very time consuming. Furthermore, even if `tensorflow-gpu` is installed, compatibility between dependency versions is crucial for utilizing the GPU to full extent (this can make the difference between a training epoch taking minutes or hours ). Thus, it is recommended to use `conda install` for version compatibility. 
 
 The natural language toolkit (NLTK) vocabulary `averaged_perceptron_tagger` needs to be downloaded through
 ```sh
-$ python
+python -c "import nltk; nltk.download('avaraged_perceptron_tagger')"
 ```
-with the syntaxes
-```python class:"lineNu"
-import nltk
-nltk.download('averaged_perceptron_tagger')
+
+On Linux, install `tkinter` with
+```sh
+sudo apt-get install python3-tk
 ```
+to be able to visualize any plots.
 
 ## Using pre-trained models
 The RNN tokenization models can be trained from scratch. The recommended (and default) configuration, however, loads trained RNN and tokenization models based on the provided corpus. To do this, download the models from `https://sourceforge.net/projects/visualization-of-rnns-data/files/` and place in corresponding folders, i.e. `LSTM/Data` and `Vanilla RNN/Data` respectively `LSTM/LSTM Saved Models` and `Vanilla RNN/Vanilla RNN Saved Models` (they are too large to upload to this repository).
@@ -85,9 +83,5 @@ The main programs to run are the python files `LSTM/VisualizationOfLSTM.py` and
 By default, the inference process (i.e. text generation without training), is defined as well as loading pre-trained models of RNN and for the word prediction case text vocabulary and tokenization.
 
 Alternatively, the RNN models (as well as word embedding and tokenization models) can be trained from scratch, or even loaded and further trained.
-
-
-
-
 
 
